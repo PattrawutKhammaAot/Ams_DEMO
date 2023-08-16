@@ -1,0 +1,124 @@
+import 'package:bot_toast/bot_toast.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+
+import 'blocs/home/home.dart';
+import 'blocs/network/network.dart';
+import 'data/models/api_response.dart';
+import 'screens/home/home.dart';
+import 'screens/splash/view/splash_page.dart';
+import 'widgets/alert.dart';
+
+class GlobalContextService {
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+}
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  late final AuthenticationRepository _authenticationRepository;
+  late final UserRepository _userRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    _authenticationRepository = AuthenticationRepository();
+    _userRepository = UserRepository();
+
+    //action bar color
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _authenticationRepository.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepositoryProvider.value(
+      value: _authenticationRepository,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => AuthenticationBloc(
+              authenticationRepository: _authenticationRepository,
+              userRepository: _userRepository,
+            ),
+          ),
+          BlocProvider(
+            create: (_) => HomeBloc(authenticationRepository: _authenticationRepository),
+          ),
+          BlocProvider(create: (_) => NetworkBloc()..add(NetworkObserve())),
+        ],
+        child: const AppView(),
+      ),
+    );
+  }
+}
+
+class AppView extends StatefulWidget {
+  const AppView({super.key});
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  //final _navigatorKey = GlobalKey<NavigatorState>();
+
+  NavigatorState get _navigator => GlobalContextService.navigatorKey.currentState!;
+  final botToastBuilder = BotToastInit();
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      navigatorKey: GlobalContextService.navigatorKey,
+      routes: routes,
+      builder: (context, child) {
+        child = BlocListener<AuthenticationBloc, AuthenticationState>(
+            listener: (context, state) {
+              switch (state.status) {
+                case AuthenticationStatus.authenticated:
+                  _navigator.pushAndRemoveUntil<void>(HomePage.route(), (route) => false);
+                  break;
+                case AuthenticationStatus.unauthenticated:
+                  _navigator.pushAndRemoveUntil<void>(LoginPage.route(), (route) => false);
+                  break;
+                case AuthenticationStatus.unknown:
+                  break;
+              }
+            },
+            child: BlocListener<NetworkBloc, NetworkState>(
+              listener: (context, state) {
+                if (state is NetworkFailure) {
+                  Alert.show(title: 'Connection Failed', message: 'Check your internet connection and try again ', type: ReturnStatus.ERROR, duration: const Duration(seconds: 15));
+                } else if (state is NetworkSuccess) {
+                  Alert.show(title: 'Connection Successful', message: 'You\'re Online Now', type: ReturnStatus.SUCCESS, duration: const Duration(seconds: 5));
+                }
+              },
+              child: child,
+            ));
+        child = botToastBuilder(context, child);
+
+        return child;
+      },
+      onGenerateRoute: (_) => SplashPage.route(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+    );
+  }
+}
