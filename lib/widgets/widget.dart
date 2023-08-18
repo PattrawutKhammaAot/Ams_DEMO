@@ -8,5 +8,6 @@ export 'alert.dart';
 export 'alert_confirm_dialog.dart';
 export 'custom_check_box_field.dart';
 export 'blink_icon_status.dart';
+export 'label.dart';
 
 export 'verification_code.dart';
