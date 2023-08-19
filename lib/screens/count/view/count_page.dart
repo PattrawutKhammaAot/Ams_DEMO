@@ -1,6 +1,6 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/models/default_response.dart';
-import 'package:ams_count/models/listCountPlanModel.dart';
+import 'package:ams_count/models/count/listCountPlanModel.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../../../blocs/count/count_bloc.dart';
-import '../../../models/responeModel.dart';
+
+import '../../../models/count/responeModel.dart';
 import '../../../widgets/custom_range_pointer.dart';
 
 class CountPage extends StatefulWidget {

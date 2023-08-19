@@ -43,3 +43,23 @@ class CheckCountOpenCloseTotal extends CountEvent {
   @override
   List<Object> get prop => [];
 }
+
+class GetLocationEvent extends CountEvent {
+  const GetLocationEvent();
+
+  @override
+  List<Object> get prop => [];
+}
+
+class GetDepartmentEvent extends CountEvent {
+  const GetDepartmentEvent();
+
+  @override
+  List<Object> get prop => [];
+}
+class GetStatusAssetsCountEvent extends CountEvent {
+  const GetStatusAssetsCountEvent();
+
+  @override
+  List<Object> get prop => [];
+}

@@ -74,6 +74,7 @@ dependencies:
   line_icons: ^2.0.3
   dropdown_button2: ^2.3.8
   simple_barcode_scanner: ^0.0.8
+  easy_search_bar: ^2.5.0
 
 dev_dependencies:
   flutter_test:

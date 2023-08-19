@@ -100,3 +100,72 @@ class CheckTotalErrorState extends CountState {
   @override
   List<Object> get props => [error];
 }
+
+///Get Location
+class GetLocationLoadingState extends CountState {
+  const GetLocationLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class GetLocationLoadedState extends CountState {
+  const GetLocationLoadedState(this.item);
+  final List<LocationModel> item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class GetLocationErrorState extends CountState {
+  const GetLocationErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
+
+///Get Department
+class GetDepartmentLoadingState extends CountState {
+  const GetDepartmentLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class GetDepartmentLoadedState extends CountState {
+  const GetDepartmentLoadedState(this.item);
+  final List<DepartmentModel> item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class GetDepartmentErrorState extends CountState {
+  const GetDepartmentErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
+
+///Get StatusAssets
+class GetStatusAssetLoadingState extends CountState {
+  const GetStatusAssetLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class GetStatusAssetLoadedState extends CountState {
+  const GetStatusAssetLoadedState(this.item);
+  final List<StatusAssetCountModel> item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class GetStatusAssetErrorState extends CountState {
+  const GetStatusAssetErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
