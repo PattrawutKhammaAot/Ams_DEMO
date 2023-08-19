@@ -43,14 +43,10 @@ class CustomButtonPrimary extends StatelessWidget {
         //height: 52,
         child: ElevatedButton(
           onPressed: onPress,
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: color,
-            padding: padding ?? const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            // minimumSize: Size(40, 10),
-          ),
+          style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(color),
+              side: MaterialStatePropertyAll(
+                  BorderSide(color: Colors.transparent))),
           child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
             Visibility(
               visible: !hideLeadingIcon!,
@@ -82,9 +78,9 @@ class CustomButtonPrimary extends StatelessWidget {
               visible: tailing != null,
               child: tailing != null
                   ? FaIcon(
-                tailing,
-                color: iconColor,
-              )
+                      tailing,
+                      color: iconColor,
+                    )
                   : const SizedBox(),
             ),
           ]),

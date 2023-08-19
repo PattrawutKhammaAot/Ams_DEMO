@@ -18,7 +18,6 @@ class HomeScrollChanged extends HomeEvent {
   List<Object> get props => [scroll];
 }
 
-
 class HomeLoadJobs extends HomeEvent {
   const HomeLoadJobs(this.data);
 
@@ -29,6 +28,3 @@ class HomeLoadJobs extends HomeEvent {
 }
 
 class HomeEvent_LoadCountDashboard extends HomeEvent {}
-
-
-

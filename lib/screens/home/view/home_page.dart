@@ -112,9 +112,17 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Container(
                           padding: EdgeInsets.all(20),
-                          margin: EdgeInsets.only(top: 110),
+                          margin: EdgeInsets.only(top: 100),
                           child: Column(
                             children: [
+                              // CustomCardMenu(
+                              //     text: "My Assets",
+                              //     pathImage: "count.png",
+                              //     onTap: () => null),
+                              // CustomCardMenu(
+                              //     text: "Count",
+                              //     pathImage: "gallery.png",
+                              //     onTap: () => Get.toNamed('/CountPage')),
                               Row(
                                 children: [
                                   Expanded(
@@ -147,6 +155,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
+
                               Row(
                                 children: [
                                   Expanded(
@@ -440,7 +449,7 @@ class CountListWidget extends StatelessWidget {
                             padding: EdgeInsets.only(right: 50, bottom: 5),
                             height: 50,
                             child: AspectRatio(
-                              aspectRatio: 2,
+                              aspectRatio: 1,
                               child: PieChart(
                                 PieChartData(
                                     pieTouchData: PieTouchData(touchCallback:

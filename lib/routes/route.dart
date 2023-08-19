@@ -1,4 +1,5 @@
 import 'package:ams_count/screens/count/count.dart';
+import 'package:ams_count/screens/count/view/scan_page.dart';
 import 'package:ams_count/screens/gallery/view/gallery_page.dart';
 import 'package:ams_count/screens/login/login.dart';
 import 'package:get/get.dart';
@@ -28,4 +29,5 @@ final List<GetPage<dynamic>> routes = [
   GetPage(name: '/Login', page: () => const LoginPage()),
   GetPage(name: '/CountPage', page: () => const CountPage()),
   GetPage(name: '/GalleryPage', page: () => const GalleryPage()),
+  GetPage(name: '/ScanPage', page: () => const ScanPage()),
 ];

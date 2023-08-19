@@ -17,7 +17,6 @@ class CustomCardMenu extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        height: 100,
         child: Card(
           shape: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -25,38 +24,42 @@ class CustomCardMenu extends StatelessWidget {
           color: colorPrimary,
           child: Padding(
             padding:
-                const EdgeInsets.only(top: 14, right: 4, left: 4, bottom: 14),
+                const EdgeInsets.only(top: 10, right: 4, left: 4, bottom: 14),
             child: Row(
               children: [
-                SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: Card(
-                    shape: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.all(Radius.circular(8))),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/${pathImage}",
-                          fit: BoxFit.fill,
-                          width: 50,
-                        ),
-                      ],
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 80,
+                    child: Card(
+                      shape: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                      color: Colors.white,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              "assets/images/${pathImage}",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(
-                  width: 16,
+                  width: 5,
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Label(
                     text!,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
                 Expanded(

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
+import 'blocs/count/count_bloc.dart';
 import 'blocs/home/home.dart';
 import 'blocs/network/network.dart';
 import 'config/app_data.dart';
@@ -18,7 +19,18 @@ import 'widgets/alert.dart';
 
 enum ViewType { online, offline }
 
-enum FetchStatus {  connectionFailed, fetching, sending, success, failed, init, saved, sendSuccess, sendFailed, removeSuccess }
+enum FetchStatus {
+  connectionFailed,
+  fetching,
+  sending,
+  success,
+  failed,
+  init,
+  saved,
+  sendSuccess,
+  sendFailed,
+  removeSuccess
+}
 
 class GlobalContextService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -53,6 +65,7 @@ class _AppState extends State<App> {
         BlocProvider(create: (_) => HomeBloc()..add(HomeObserve())),
         BlocProvider(create: (_) => NetworkBloc()..add(NetworkObserve())),
         BlocProvider(create: (_) => AuthBloc()..add(AuthObserve())),
+        BlocProvider(create: (_) => CountBloc()..add(CountObserve())),
       ],
       child: const AppView(),
     );
@@ -69,7 +82,8 @@ class AppView extends StatefulWidget {
 class _AppViewState extends State<AppView> {
   //final _navigatorKey = GlobalKey<NavigatorState>();
 
-  NavigatorState get _navigator => GlobalContextService.navigatorKey.currentState!;
+  NavigatorState get _navigator =>
+      GlobalContextService.navigatorKey.currentState!;
   final botToastBuilder = BotToastInit();
   final easyLoading = EasyLoading.init();
 
@@ -101,9 +115,9 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) async {
             if (state is AuthInitial) {
               String _test = await AppData.getToken();
-              if (_test != ""){
+              if (_test != "") {
                 Get.toNamed('/');
-              }else{
+              } else {
                 Get.toNamed('/Login');
               }
             }
@@ -111,11 +125,19 @@ class _AppViewState extends State<AppView> {
           child: BlocListener<NetworkBloc, NetworkState>(
             listener: (context, state) {
               if (state is NetworkFailure) {
-                 AppData.setMode("Offline");
-                Alert.show(title: 'Connection Failed', message: 'Check your internet connection and try again ', type: ReturnStatus.ERROR, duration: const Duration(seconds: 10));
+                AppData.setMode("Offline");
+                Alert.show(
+                    title: 'Connection Failed',
+                    message: 'Check your internet connection and try again ',
+                    type: ReturnStatus.ERROR,
+                    duration: const Duration(seconds: 10));
               } else if (state is NetworkSuccess) {
                 AppData.setMode("Online");
-                 Alert.show(title: 'Connection Successful', message: 'You\'re Online Now', type: ReturnStatus.SUCCESS, duration: const Duration(seconds: 5));
+                Alert.show(
+                    title: 'Connection Successful',
+                    message: 'You\'re Online Now',
+                    type: ReturnStatus.SUCCESS,
+                    duration: const Duration(seconds: 5));
               }
             },
             child: child,

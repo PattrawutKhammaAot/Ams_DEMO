@@ -36,9 +36,10 @@ class ApiService {
     /// Fix for some customer has block proxy
     // const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
     dio.httpClientAdapter = IOHttpClientAdapter(
-      onHttpClientCreate: (_){
+      onHttpClientCreate: (_) {
         // Don't trust any certificate just because their root cert is trusted.
-        final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+        final HttpClient client =
+            HttpClient(context: SecurityContext(withTrustedRoots: false));
         // You can test the intermediate / root cert here. We just ignore it.
         client.badCertificateCallback = (cert, host, port) => true;
         return client;
@@ -140,7 +141,6 @@ class ApiService {
       rethrow;
     }
   }
-
 
   Future<Response> post(String function, Map data,
       {ProgressCallback? onSendProgress,
