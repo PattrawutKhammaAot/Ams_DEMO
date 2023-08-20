@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(
                                     child: CustomCardMenu(
                                         text: "My Assets",
-                                        pathImage: "count.png",
+                                        pathImage: "iconAssets.png",
                                         onTap: () =>
                                             Get.toNamed('/MyassetsPage')),
                                   ),
@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(
                                     child: CustomCardMenu(
                                         text: "Report",
-                                        pathImage: "count.png",
+                                        pathImage: "iconreport.png",
                                         onTap: () =>
                                             Get.toNamed('/ReportPage')),
                                   ),
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(
                                     child: CustomCardMenu(
                                         text: "Transfer",
-                                        pathImage: "count.png",
+                                        pathImage: "icontransfer.png",
                                         onTap: () =>
                                             Get.toNamed('/TransferPage')),
                                   )

@@ -44,6 +44,7 @@ class CustomCardMenu extends StatelessWidget {
                             child: Image.asset(
                               "assets/images/${pathImage}",
                               fit: BoxFit.cover,
+                              width: 50,
                             ),
                           ),
                         ],

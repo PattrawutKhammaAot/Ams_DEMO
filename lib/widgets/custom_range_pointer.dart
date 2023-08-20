@@ -39,30 +39,41 @@ class CustomRangePoint extends StatelessWidget {
                     widget: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Expanded(child: SizedBox()),
                         Row(
                           mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            Text(
-                              "${valueRangePointer?.toInt() ?? "-"}",
-                              style: TextStyle(
-                                  fontFamily: 'Times',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  fontStyle: FontStyle.italic),
-                            ),
-                            Text(
-                              ' / ${allItem?.toInt() ?? "-"}',
-                              style: TextStyle(
-                                  fontFamily: 'Times',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  fontStyle: FontStyle.italic),
+                            // Expanded(
+                            //   child: Text(
+                            //     "${valueRangePointer?.toInt() ?? "-"}",
+                            //     style: TextStyle(
+                            //         fontFamily: 'Times',
+                            //         fontSize: 12,
+                            //         fontWeight: FontWeight.w400,
+                            //         fontStyle: FontStyle.italic),
+                            //   ),
+                            // ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  '${valueRangePointer?.toInt() ?? "-"} / ${allItem?.toInt() ?? "-"}',
+                                  style: TextStyle(
+                                      fontFamily: 'Times',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      fontStyle: FontStyle.italic),
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        Label(
-                          "${text}",
-                          color: colorPrimary,
+                        Expanded(
+                          child: Label(
+                            "${text}",
+                            color: colorPrimary,
+                          ),
                         )
                       ],
                     )),

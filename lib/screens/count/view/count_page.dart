@@ -106,262 +106,263 @@ class _CountPageState extends State<CountPage> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                width: MediaQuery.of(context).size.width,
-                child: Card(
-                  elevation: 5,
-                  shape: const OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(8))),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Column(
+        body: itemModel.isNotEmpty
+            ? Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      width: MediaQuery.of(context).size.width,
+                      child: Card(
+                        elevation: 5,
+                        shape: const OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.all(Radius.circular(8))),
+                        color: Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 15, right: 15, top: 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Expanded(
-                                child: Label(
-                                  "Total \n ${itemCheckAll.DATA}",
-                                  color: colorPrimary,
+                              Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Label(
+                                        "Total \n ${itemCheckAll.DATA}",
+                                        color: colorPrimary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    itemUncheck.DATA != null
+                                        ? Expanded(
+                                            child: CustomRangePoint(
+                                              color: Colors.red,
+                                              valueRangePointer: double.parse(
+                                                  itemUncheck.DATA.toString()),
+                                              allItem: double.parse(
+                                                  itemCheckAll.DATA.toString()),
+                                              text: "Uncheck",
+                                            ),
+                                          )
+                                        : const CircularProgressIndicator(),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    itemCheck.DATA != null
+                                        ? Expanded(
+                                            child: CustomRangePoint(
+                                              color: colorActive,
+                                              valueRangePointer: double.parse(
+                                                  itemCheck.DATA.toString()),
+                                              allItem: double.parse(
+                                                  itemCheckAll.DATA.toString()),
+                                              text: "Check",
+                                            ),
+                                          )
+                                        : const CircularProgressIndicator(),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    // Label(
+                                    //   "Check",
+                                    //   color: colorPrimary,
+                                    // ),
+                                  ],
+                                ),
+                              )
                             ],
                           ),
                         ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              itemUncheck.DATA != null
-                                  ? Expanded(
-                                      child: CustomRangePoint(
-                                        color: Colors.red,
-                                        valueRangePointer: double.parse(
-                                            itemUncheck.DATA.toString()),
-                                        allItem: double.parse(
-                                            itemCheckAll.DATA.toString()),
-                                        text: "Uncheck",
-                                      ),
-                                    )
-                                  : const CircularProgressIndicator(),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              itemCheck.DATA != null
-                                  ? Expanded(
-                                      child: CustomRangePoint(
-                                        color: colorActive,
-                                        valueRangePointer: double.parse(
-                                            itemCheck.DATA.toString()),
-                                        allItem: double.parse(
-                                            itemCheckAll.DATA.toString()),
-                                        text: "Check",
-                                      ),
-                                    )
-                                  : const CircularProgressIndicator(),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              // Label(
-                              //   "Check",
-                              //   color: colorPrimary,
-                              // ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Container(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12))),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: CustomTextInputField(
-                            onChanged: (p0) => _serachItemModel(),
-                            maxLines: 1,
-                            onFieldSubmitted: (value) => _serachItemModel(),
-                            label: null,
-                            hintText: "Search Code",
-                            controller: _searchController,
-                            suffixIcon: IconButton(
-                                onPressed: () async {
-                                  var res = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SimpleBarcodeScannerPage(),
-                                      ));
-                                  setState(() {
-                                    if (res is String) {
-                                      _searchController.text = res;
-                                      _serachItemModel();
-                                      setState(() {});
-                                    }
-                                  });
-                                },
-                                icon: Icon(Icons.qr_code)),
-                          )),
-                        ],
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-                          itemCount: itemModel.length,
-                          itemBuilder: (context, index) {
-                            if (itemModel[index].PLAN_STATUS == "Close") {
-                              return const SizedBox.shrink();
-                            }
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12))),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: CustomTextInputField(
+                                  onChanged: (p0) => _serachItemModel(),
+                                  maxLines: 1,
+                                  onFieldSubmitted: (value) =>
+                                      _serachItemModel(),
+                                  label: null,
+                                  hintText: "Search Code",
+                                  controller: _searchController,
+                                  suffixIcon: IconButton(
+                                      onPressed: () async {
+                                        var res = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const SimpleBarcodeScannerPage(),
+                                            ));
+                                        setState(() {
+                                          if (res is String) {
+                                            _searchController.text = res;
+                                            _serachItemModel();
+                                            setState(() {});
+                                          }
+                                        });
+                                      },
+                                      icon: Icon(Icons.qr_code)),
+                                )),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListView.builder(
+                                itemCount: itemModel.length,
+                                itemBuilder: (context, index) {
+                                  if (itemModel[index].PLAN_STATUS == "Close") {
+                                    return const SizedBox.shrink();
+                                  }
 
-                            return itemModel.isNotEmpty
-                                ? GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed('/ScanPage');
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Card(
-                                        elevation: 15,
-                                        color: Colors.white,
-                                        shape: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color:
-                                                itemModel[index].PLAN_STATUS ==
-                                                        "Open"
-                                                    ? colorActive
-                                                    : colorPrimary,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                      "Code : ${itemModel[index].PLAN_CODE}"),
+                                  return itemModel.isNotEmpty
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            Get.toNamed('/ScanPage');
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Card(
+                                              elevation: 15,
+                                              color: Colors.white,
+                                              shape: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: itemModel[index]
+                                                              .PLAN_STATUS ==
+                                                          "Open"
+                                                      ? colorActive
+                                                      : colorPrimary,
                                                 ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                      "Details : ${itemModel[index].PLAN_DETAILS ?? "-"}"),
-                                                ),
-                                                Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: <Widget>[
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                              ),
+                                              child: Stack(
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
                                                                 .all(8.0),
                                                         child: Text(
-                                                            "Date : ${DateFormat('yyyy-MM-dd').format(DateTime.parse(itemModel[index].PLAN_CHECKDATE.toString()))}"),
+                                                            "Code : ${itemModel[index].PLAN_CODE}"),
                                                       ),
-                                                      Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Container(
-                                                            width: 150,
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                              horizontal: 21,
-                                                              vertical: 7,
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Text(
+                                                            "Details : ${itemModel[index].PLAN_DETAILS ?? "-"}"),
+                                                      ),
+                                                      Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: <Widget>[
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.0),
+                                                              child: Text(
+                                                                  "Date : ${DateFormat('yyyy-MM-dd').format(DateTime.parse(itemModel[index].PLAN_CHECKDATE.toString()))}"),
                                                             ),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: itemModel[
-                                                                              index]
-                                                                          .PLAN_STATUS ==
-                                                                      "Open"
-                                                                  ? colorActive
-                                                                  : colorPrimary,
-                                                              borderRadius: const BorderRadius
-                                                                      .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                          12),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                          14)),
-                                                            ),
-                                                            child: Text(
-                                                              "${itemModel[index].PLAN_STATUS}",
-                                                              textAlign:
-                                                                  TextAlign
+                                                            Align(
+                                                              alignment:
+                                                                  Alignment
                                                                       .center,
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            )),
-                                                      ),
-                                                    ]),
-                                              ],
+                                                              child: Container(
+                                                                  width: 150,
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .symmetric(
+                                                                    horizontal:
+                                                                        21,
+                                                                    vertical: 7,
+                                                                  ),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: itemModel[index].PLAN_STATUS ==
+                                                                            "Open"
+                                                                        ? colorActive
+                                                                        : colorPrimary,
+                                                                    borderRadius: const BorderRadius
+                                                                            .only(
+                                                                        topLeft:
+                                                                            Radius.circular(
+                                                                                12),
+                                                                        bottomRight:
+                                                                            Radius.circular(14)),
+                                                                  ),
+                                                                  child: Text(
+                                                                    "${itemModel[index].PLAN_STATUS}",
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  )),
+                                                            ),
+                                                          ]),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : null;
-                          },
-                        ),
+                                          ),
+                                        )
+                                      : null;
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            // ListView.builder(
-            //   itemCount: 50,
-            //   itemBuilder: (context, index) {
-            //     return Card(
-            //       child: Text("data"),
-            //     );
-            //   },
-            // ),
-          ],
-        ),
+                  ),
+                  // ListView.builder(
+                  //   itemCount: 50,
+                  //   itemBuilder: (context, index) {
+                  //     return Card(
+                  //       child: Text("data"),
+                  //     );
+                  //   },
+                  // ),
+                ],
+              )
+            : CircularProgressIndicator(),
       ),
     );
   }

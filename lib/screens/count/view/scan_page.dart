@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ams_count/blocs/count/count_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
@@ -9,8 +11,8 @@ import 'package:ams_count/widgets/label.dart';
 import 'package:ams_count/widgets/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get_utils/get_utils.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -50,12 +52,7 @@ class _ScanPageState extends State<ScanPage> {
   List<DepartmentModel> _departmentModel = [];
   List<StatusAssetCountModel> _statusAssetCountModel = [];
 
-  final List<String> items = [
-    'Item1',
-    'Item2',
-    'Item3',
-    'Item4',
-  ];
+  File? imageFile;
 
   String? selectedValue;
 
@@ -77,6 +74,18 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
     _barcodeFocusNode.requestFocus();
     super.initState();
+  }
+
+  _getFromCamera() async {
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      imageFile = File(pickedFile.path);
+      setState(() {});
+    }
   }
 
   @override
@@ -123,17 +132,16 @@ class _ScanPageState extends State<ScanPage> {
                   right: 30,
                 ),
                 child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: Label("Department :")),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 0, right: 10, left: 10, bottom: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: Label("Department :")),
+                            Expanded(
+                              flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
                                   hintText: "Selected Department",
@@ -153,18 +161,14 @@ class _ScanPageState extends State<ScanPage> {
                                   },
                                 ),
                               ),
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(child: Label("Location :")),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 0, right: 8, left: 8, bottom: 10),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(child: Label("Location :")),
+                            Expanded(
+                              flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
                                   hintText: "Selected Location",
@@ -184,11 +188,11 @@ class _ScanPageState extends State<ScanPage> {
                                   },
                                 ),
                               ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -339,6 +343,25 @@ class _ScanPageState extends State<ScanPage> {
                             )
                           ],
                         ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            imageFile != null
+                                ? Image.file(
+                                    imageFile ?? File(""),
+                                    width: 150,
+                                    height: 150,
+                                  )
+                                : Label("No File")
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
                         Row(
                           children: [
                             SizedBox(
@@ -372,7 +395,7 @@ class _ScanPageState extends State<ScanPage> {
                                   leading: LineIcons.camera,
                                   iconColor: Colors.white,
                                   color: colorWarning,
-                                  onPress: () {},
+                                  onPress: () => _getFromCamera(),
                                 ),
                               ),
                             ),
