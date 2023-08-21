@@ -169,3 +169,95 @@ class GetStatusAssetErrorState extends CountState {
   @override
   List<Object> get props => [error];
 }
+
+///Get CountScanAssets List
+class CountScanAssetsListLoadingState extends CountState {
+  const CountScanAssetsListLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class CountScanAssetsListLoadedState extends CountState {
+  const CountScanAssetsListLoadedState(this.item);
+  final CountScanMain item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class CountScanAssetsListErrorState extends CountState {
+  const CountScanAssetsListErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
+
+///Get CountScanAssets
+class CountScanAssetsLoadingState extends CountState {
+  const CountScanAssetsLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class CountScanAssetsLoadedState extends CountState {
+  const CountScanAssetsLoadedState(this.item);
+  final CountScanMain item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class CountScanAssetsErrorState extends CountState {
+  const CountScanAssetsErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
+
+///Get GetListImageAsset
+class GetListImageAssetLoadingState extends CountState {
+  const GetListImageAssetLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class GetListImageAssetLoadedState extends CountState {
+  const GetListImageAssetLoadedState(this.item);
+  final List<ListImageAssetModel> item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class GetListImageAssetErrorState extends CountState {
+  const GetListImageAssetErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}
+
+///POST UploadImage
+class UploadImageLoadingState extends CountState {
+  const UploadImageLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class UploadImageLoadedState extends CountState {
+  const UploadImageLoadedState();
+  // final List<ListImageAssetModel> item;
+
+  @override
+  List<Object> get props => [];
+}
+
+class UploadImageErrorState extends CountState {
+  const UploadImageErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}

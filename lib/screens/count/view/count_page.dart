@@ -1,5 +1,6 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/models/default_response.dart';
+import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/listCountPlanModel.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
@@ -43,6 +44,7 @@ class _CountPageState extends State<CountPage> {
     BlocProvider.of<CountBloc>(context).add(const CheckAllTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckUncheckEvent());
+
     super.initState();
   }
 
@@ -50,7 +52,6 @@ class _CountPageState extends State<CountPage> {
     List<CountPlanModel> searchResults = _tempitemModel
         .where((element) => element.PLAN_CODE == _searchController.text)
         .toList();
-
     if (searchResults.isNotEmpty) {
       itemModel = searchResults;
     } else {
@@ -245,7 +246,11 @@ class _CountPageState extends State<CountPage> {
                                   return itemModel.isNotEmpty
                                       ? GestureDetector(
                                           onTap: () {
-                                            Get.toNamed('/ScanPage');
+                                            Get.toNamed('/ScanPage',
+                                                arguments: {
+                                                  'planCode':
+                                                      itemModel[index].PLAN_CODE
+                                                });
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -352,14 +357,6 @@ class _CountPageState extends State<CountPage> {
                       ),
                     ),
                   ),
-                  // ListView.builder(
-                  //   itemCount: 50,
-                  //   itemBuilder: (context, index) {
-                  //     return Card(
-                  //       child: Text("data"),
-                  //     );
-                  //   },
-                  // ),
                 ],
               )
             : CircularProgressIndicator(),

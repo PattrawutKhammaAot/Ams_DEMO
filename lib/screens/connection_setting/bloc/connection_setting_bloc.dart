@@ -57,7 +57,7 @@ class ConnectionSettingBloc extends Bloc<ConnectionSettingEvent, ConnectionSetti
           );
           final response = await dio.get('${event.apiUrl.replaceAll(RegExp(r'/$'), '')}/Authenticate/testconnection');
           if (kDebugMode) {
-            print(response);
+            // print(response);
           }
           if (response.statusCode == 200) {
             emit(TestConnectionSuccess());

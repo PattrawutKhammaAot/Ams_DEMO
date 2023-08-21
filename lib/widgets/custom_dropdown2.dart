@@ -10,20 +10,25 @@ class CustomDropdownButton2 extends StatelessWidget {
       this.onChanged,
       this.labelText,
       this.hintText,
-      this.focusNode});
+      this.focusNode,
+      this.value,
+      this.validator});
 
-  final List<DropdownMenuItem<String>>? items;
+  final List<DropdownMenuItem<dynamic>>? items;
   final String? selectedValue;
-  final Function(String?)? onChanged;
+  final Function(dynamic?)? onChanged;
   final String? labelText;
   final String? hintText;
   final FocusNode? focusNode;
+  final dynamic value;
+  final String? Function(dynamic)? validator;
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField2<String>(
+    return DropdownButtonFormField2<dynamic>(
       // isExpanded: true,
       focusNode: focusNode,
+      value: value,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
@@ -43,12 +48,7 @@ class CustomDropdownButton2 extends StatelessWidget {
       //       fontSize: 14, color: colorPrimary, fontWeight: FontWeight.bold),
       // ),
       items: items,
-      // validator: (value) {
-      //   if (value == null) {
-      //     return 'Please select Status.';
-      //   }
-      //   return null;
-      // },
+      validator: validator,
       onChanged: onChanged,
       buttonStyleData: const ButtonStyleData(
         padding: EdgeInsets.only(right: 8),

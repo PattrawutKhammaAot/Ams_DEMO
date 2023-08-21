@@ -1,21 +1,29 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ams_count/blocs/count/count_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
+import 'package:ams_count/models/count/countScanAssetsModel.dart';
+import 'package:ams_count/models/count/uploadImage_output_Model.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/master/statusAssetCountModel.dart';
+import 'package:ams_count/widgets/alert_new.dart';
 import 'package:ams_count/widgets/custom_dropdown2.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:ams_count/widgets/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
+
+import '../../../models/count/CountScan_output.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -35,9 +43,11 @@ class _ScanPageState extends State<ScanPage> {
   FocusNode _remarkFocusNode = FocusNode();
   FocusNode _scandateFocusNode = FocusNode();
   FocusNode _statusFocusNode = FocusNode();
+  FocusNode _locationFocusNode = FocusNode();
+  FocusNode _departmenFocusNode = FocusNode();
 
   TextEditingController scanDate = TextEditingController();
-  TextEditingController _barcodeController = TextEditingController();
+  TextEditingController _barCodeController = TextEditingController();
   TextEditingController _assetNoController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _serialNumberController = TextEditingController();
@@ -48,9 +58,24 @@ class _ScanPageState extends State<ScanPage> {
   TextEditingController _locationController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
 
+  int statusId = 0;
+  int departmentId = 0;
+  int locationId = 0;
+
+  String? planCode;
+
+  String? error;
+
   List<LocationModel> _locationModel = [];
   List<DepartmentModel> _departmentModel = [];
   List<StatusAssetCountModel> _statusAssetCountModel = [];
+
+  CountScanAssetsModel itemCountListModel = CountScanAssetsModel();
+  CountScanAssetsModel itemCountModel = CountScanAssetsModel();
+
+  var arguments = Get.arguments as Map<String, dynamic>?;
+
+  // ตรวจสอบว่า arguments ไม่เท่ากับ null และมีคีย์ 'planCode'
 
   File? imageFile;
 
@@ -72,7 +97,7 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
     BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
-    _barcodeFocusNode.requestFocus();
+
     super.initState();
   }
 
@@ -84,12 +109,26 @@ class _ScanPageState extends State<ScanPage> {
     );
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
+      List<int> imageBytes = imageFile!.readAsBytesSync();
+      String base64Image = base64Encode(imageBytes);
+
+      BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
+          UploadImageModelOutput(
+              ASSETS_CODE: _barCodeController.text, FILES: base64Image)));
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    planCode = arguments?['planCode'];
+    _barCodeController.text =
+        arguments?['assetsCode'] ?? _barCodeController.text;
+    // if (_barcodeController.text.isNotEmpty) {
+    //   _assetNoFocusNode.requestFocus();
+    // } else {
+    //   _barcodeFocusNode.requestFocus();
+    // }
     String result = '';
     scanDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return MultiBlocListener(
@@ -103,6 +142,54 @@ class _ScanPageState extends State<ScanPage> {
           }
           if (state is GetStatusAssetLoadedState) {
             _statusAssetCountModel = state.item;
+          }
+          if (state is CountScanAssetsListLoadedState) {
+            var data = state.item.DATA;
+
+            error = state.item.MESSAGE;
+            if (state.item.STATUS == "SUCCESS") {
+              itemCountListModel = CountScanAssetsModel.fromJson(data);
+              _serialNumberController.text =
+                  itemCountListModel.ASSET_SERIALNO ?? "-";
+              _nameController.text = itemCountListModel.ASSETNAME ?? "-";
+              _classController.text = itemCountListModel.CLASSNAME ?? "-";
+
+              _remarkController.text = itemCountListModel.REMARK ?? "";
+              _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
+              AlertWarningNew().alertShowOK(context,
+                  title: "Warning",
+                  desc: "${error}",
+                  type: AlertType.warning, onPress: () {
+                Navigator.pop(context);
+              });
+              _useDateController.text =
+                  itemCountListModel.ASSET_DATEOFUSE ?? "-";
+              DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
+              String formattedDate = parsedDate != null
+                  ? DateFormat("yyyy-MM-dd").format(parsedDate)
+                  : "-";
+              _useDateController.text = formattedDate;
+              setState(() {});
+            } else {
+              AlertWarningNew().alertShowOK(context,
+                  title: "Warning",
+                  desc: "${error}",
+                  type: AlertType.warning, onPress: () {
+                Navigator.pop(context);
+              });
+            }
+          } else if (state is CountScanAssetsListErrorState) {}
+          if (state is CountScanAssetsLoadedState) {
+            var data = state.item.DATA;
+            if (state.item.STATUS == "SUCCESS") {
+              // itemCountModel = CountScanAssetsModel.fromJson(data);
+              AlertWarningNew().alertShowOK(context,
+                  title: "${state.item.STATUS}",
+                  desc: "${state.item.MESSAGE}",
+                  type: AlertType.success, onPress: () {
+                Navigator.pop(context);
+              });
+            }
           }
           setState(() {});
         })
@@ -144,20 +231,35 @@ class _ScanPageState extends State<ScanPage> {
                               flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
+                                  focusNode: _departmenFocusNode,
+                                  validator: (value) {
+                                    if (_departmentController.text.isEmpty) {
+                                      _departmenFocusNode.requestFocus();
+                                      return "Please Select Department";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
                                   hintText: "Selected Department",
-                                  items: _departmentModel
-                                      .map((item) => DropdownMenuItem<String>(
-                                            value: item.DEPARTMENT_NAME,
-                                            child: Text(
-                                              item.DEPARTMENT_NAME ?? "",
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
+                                  items: _departmentModel.map((item) {
+                                    return DropdownMenuItem<dynamic>(
+                                      value: item.DEPARTMENT_NAME,
+                                      child: Text(
+                                        "${item.DEPARTMENT_NAME}",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                   onChanged: (value) {
                                     _departmentController.text = value ?? "-";
+                                    departmentId = _departmentModel
+                                            .firstWhere((item) =>
+                                                item.DEPARTMENT_NAME == value)
+                                            .DEPARTMENT_ID ??
+                                        0;
+                                    print(departmentId);
                                   },
                                 ),
                               ),
@@ -171,6 +273,13 @@ class _ScanPageState extends State<ScanPage> {
                               flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
+                                  focusNode: _locationFocusNode,
+                                  validator: (value) {
+                                    if (_locationController.text.isEmpty) {
+                                      _locationFocusNode.requestFocus();
+                                      return "Please Selcetion Location";
+                                    }
+                                  },
                                   hintText: "Selected Location",
                                   items: _locationModel
                                       .map((item) => DropdownMenuItem<String>(
@@ -185,6 +294,12 @@ class _ScanPageState extends State<ScanPage> {
                                       .toList(),
                                   onChanged: (value) {
                                     _locationController.text = value ?? "-";
+                                    locationId = _locationModel
+                                            .firstWhere((item) =>
+                                                item.LOCATION_NAME == value)
+                                            .LOCATION_ID ??
+                                        0;
+                                    print(locationId);
                                   },
                                 ),
                               ),
@@ -206,11 +321,24 @@ class _ScanPageState extends State<ScanPage> {
                     child: Column(
                       children: [
                         CustomTextInputField(
-                          labelText: "Barcode",
+                          labelText: "BarCode",
                           focusNode: _barcodeFocusNode,
-                          onFieldSubmitted: (value) =>
-                              _validate(value, _assetNoFocusNode),
-                          controller: _barcodeController,
+                          onFieldSubmitted: (value) {
+                            BlocProvider.of<CountBloc>(context)
+                                .add(PostCountScanAssetListEvent([
+                              CountScan_OutputModel(
+                                  ASSETS_CODE: _barCodeController.text.trim(),
+                                  PLAN_CODE: planCode,
+                                  LOCATION_ID: locationId,
+                                  DEPARTMENT_ID: departmentId,
+                                  IS_SCAN_NOW: true,
+                                  REMARK: _remarkController.text.isEmpty
+                                      ? "-"
+                                      : _remarkController.text.trim(),
+                                  STATUS_ID: statusId)
+                            ]));
+                          },
+                          controller: _barCodeController,
                           isHideLable: true,
                           validator: (value) =>
                               _validate(value!, _barcodeFocusNode),
@@ -224,7 +352,7 @@ class _ScanPageState extends State<ScanPage> {
                                     ));
                                 setState(() {
                                   if (res is String) {
-                                    _barcodeController.text = res;
+                                    _barCodeController.text = res;
                                   }
                                 });
                               },
@@ -249,19 +377,30 @@ class _ScanPageState extends State<ScanPage> {
                         CustomDropdownButton2(
                           focusNode: _statusFocusNode,
                           labelText: "Status",
-                          items: _statusAssetCountModel
-                              .map((item) => DropdownMenuItem<String>(
-                                    value: item.STATUS_NAME,
-                                    child: Text(
-                                      item.STATUS_NAME ?? "-",
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
+                          value: _statusAssetCountModel.isNotEmpty
+                              ? (_statusAssetCountModel[0]
+                                  .STATUS_NAME) // ให้ค่าเริ่มต้นเป็นค่าแรกใน Model (หรือค่าที่คุณต้องการ)
+                              : null,
+                          items: _statusAssetCountModel.map((item) {
+                            statusId = 15;
+                            return DropdownMenuItem<String>(
+                              value: item.STATUS_NAME,
+                              child: Text(
+                                item.STATUS_NAME ?? "-",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                           onChanged: (value) {
                             _statusController.text = value ?? "-";
+                            statusId = _statusAssetCountModel
+                                    .firstWhere(
+                                        (item) => item.STATUS_NAME == value)
+                                    .STATUS_ID ??
+                                0;
+                            print(statusId);
                           },
                         ),
                         SizedBox(
@@ -379,7 +518,28 @@ class _ScanPageState extends State<ScanPage> {
                                   iconColor: Colors.white,
                                   color: colorActive,
                                   onPress: () {
-                                    if (_formKey.currentState!.validate()) {}
+                                    if (_formKey.currentState!.validate()) {
+                                      if (_departmentController
+                                              .text.isNotEmpty &&
+                                          _locationController.text.isNotEmpty) {
+                                        BlocProvider.of<CountBloc>(context).add(
+                                            PostCountScanAssetEvent(
+                                                CountScan_OutputModel(
+                                                    ASSETS_CODE:
+                                                        _barCodeController.text
+                                                            .trim(),
+                                                    PLAN_CODE: planCode,
+                                                    LOCATION_ID: locationId,
+                                                    DEPARTMENT_ID: departmentId,
+                                                    IS_SCAN_NOW: true,
+                                                    REMARK: _remarkController
+                                                            .text.isEmpty
+                                                        ? "-"
+                                                        : _remarkController.text
+                                                            .trim(),
+                                                    STATUS_ID: statusId)));
+                                      }
+                                    }
                                   },
                                 ),
                               ),
@@ -395,7 +555,17 @@ class _ScanPageState extends State<ScanPage> {
                                   leading: LineIcons.camera,
                                   iconColor: Colors.white,
                                   color: colorWarning,
-                                  onPress: () => _getFromCamera(),
+                                  onPress: () {
+                                    if (_barCodeController.text.isNotEmpty) {
+                                      _getFromCamera();
+                                    } else {
+                                      AlertWarningNew().alertShowOK(context,
+                                          desc: " Please Input Barcode",
+                                          type: AlertType.warning, onPress: () {
+                                        Navigator.pop(context);
+                                      });
+                                    }
+                                  },
                                 ),
                               ),
                             ),

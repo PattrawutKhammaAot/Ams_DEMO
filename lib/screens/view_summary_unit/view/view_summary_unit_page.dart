@@ -542,7 +542,7 @@ class _ViewSummaryUnitPageState extends State<ViewSummaryUnitPage> {
           },
           onChanged: (PlutoGridOnChangedEvent event) {
             if (kDebugMode) {
-              print(event);
+              // print(event);
               print('CHANGED');
             }
           },

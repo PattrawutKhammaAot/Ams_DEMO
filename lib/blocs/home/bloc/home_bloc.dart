@@ -31,7 +31,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         var ResultResponse = DashboardCountPlan.fromJson(response);
         if (kDebugMode) {
-          print(response);
+          // print(response);
         }
         emit(HomeLoaded(ResultResponse));
       } catch (e) {}

@@ -118,8 +118,8 @@ class ApiService {
         onReceiveProgress: onReceiveProgress,
       );
       if (kDebugMode) {
-        print(response.data);
-        print(response.statusCode);
+        // print(response.data);
+        // print(response.statusCode);
       }
       // if (response.statusCode == 401) {
       //   // call your refresh token api here and save it in shared preference
@@ -197,8 +197,8 @@ class ApiService {
         onReceiveProgress: onReceiveProgress,
       );
       if (kDebugMode) {
-        print(response.data);
-        print(response.statusCode);
+        // print(response.data);
+        // print(response.statusCode);
       }
       return response;
     } catch (e) {
@@ -272,8 +272,8 @@ class ApiService {
         onReceiveProgress: onReceiveProgress,
       );
       if (kDebugMode) {
-        print(response.data);
-        print(response.statusCode);
+        // print(response.data);
+        // print(response.statusCode);
       }
       return response;
     } catch (e) {
@@ -317,8 +317,8 @@ class ApiService {
         cancelToken: cancelToken,
       );
       if (kDebugMode) {
-        print(response.data);
-        print(response.statusCode);
+        // print(response.data);
+        // print(response.statusCode);
       }
       return response;
     } catch (e) {

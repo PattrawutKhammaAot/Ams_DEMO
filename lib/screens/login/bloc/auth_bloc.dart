@@ -27,7 +27,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     //Login
     on<AuthEvent_Login>((event, emit) async {
-
       try {
         final String username = event.username;
         final String password = event.password;
@@ -36,25 +35,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state.copyWith(status: FetchStatus.fetching));
         //EasyLoading.show(maskType: EasyLoadingMaskType.black);
         await Future.delayed(Duration(seconds: 1));
-        if  (username == "" && password == ""){
+        if (username == "" && password == "") {
           emit(state.copyWith(status: FetchStatus.failed));
           //EasyLoading.dismiss();
           EasyLoading.showError("Please Enter Username Or Password !");
           //return;
-        }else{
-
-          final response = await LoginRepository().LoginUser(username,password);
-          if  (response.result == "SUCCESS"){
+        } else {
+          final response =
+              await LoginRepository().LoginUser(username, password);
+          if (response.result == "SUCCESS") {
             emit(state.copyWith(status: FetchStatus.success));
             EasyLoading.showSuccess("Success !");
             Get.toNamed('/');
-          }else{
+          } else {
             emit(state.copyWith(status: FetchStatus.failed));
             EasyLoading.showError(response.message!);
           }
         }
-      }
-      catch(e){
+      } catch (e) {
         emit(state.copyWith(status: FetchStatus.failed));
         EasyLoading.showError(e.toString());
       }
@@ -68,33 +66,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(state.copyWith(status: FetchStatus.init));
     });
 
-
     on<AutnEvent_TestConncetion>((event, emit) async {
       try {
-          //emit(state.copyWith(status: FetchStatus.fetching,));
-            await Future.delayed(const Duration(seconds: 1));
-            // AppData.setApiUrl(event.apiUrl);
-            var apiController = APIController();
-            var response = await apiController.getData('Authenticate/TestConnection',"", useAuth: false);
+        //emit(state.copyWith(status: FetchStatus.fetching,));
+        await Future.delayed(const Duration(seconds: 1));
+        // AppData.setApiUrl(event.apiUrl);
+        var apiController = APIController();
+        var response = await apiController
+            .getData('Authenticate/TestConnection', "", useAuth: false);
 
-            var ResultResponse = DefaultResponse.fromJson(response);
-            if (kDebugMode) {
-              print(response);
-            }
-            if (ResultResponse.result == "Success") {
-              emit(state.copyWith(status: FetchStatus.success,));
-            } else {
-              emit(state.copyWith(status: FetchStatus.connectionFailed,));
-            }
+        var ResultResponse = DefaultResponse.fromJson(response);
+        if (kDebugMode) {
+          // print(response);
+        }
+        if (ResultResponse.result == "Success") {
+          emit(state.copyWith(
+            status: FetchStatus.success,
+          ));
+        } else {
+          emit(state.copyWith(
+            status: FetchStatus.connectionFailed,
+          ));
+        }
       } catch (e) {
         if (kDebugMode) {
           print(e);
         }
-        emit(state.copyWith(status: FetchStatus.connectionFailed,));
+        emit(state.copyWith(
+          status: FetchStatus.connectionFailed,
+        ));
       }
     });
-
-
   }
 
   static final AuthBloc _instance = AuthBloc._();

@@ -41,7 +41,7 @@ class ViewSummaryUnitRepository {
     try {
       if (kDebugMode) {
         var respAll = await appDb.getSerialAll();
-        print(respAll);
+        // print(respAll);
       }
 
       var resp = await appDb.getSerialByProdNo(serial);

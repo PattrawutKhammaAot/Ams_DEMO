@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 part of 'count_bloc.dart';
 
 class CountEvent extends Equatable {
@@ -57,9 +59,38 @@ class GetDepartmentEvent extends CountEvent {
   @override
   List<Object> get prop => [];
 }
+
 class GetStatusAssetsCountEvent extends CountEvent {
   const GetStatusAssetsCountEvent();
 
   @override
   List<Object> get prop => [];
+}
+
+class PostCountScanAssetListEvent extends CountEvent {
+  PostCountScanAssetListEvent(this.items);
+  List<CountScan_OutputModel> items;
+  @override
+  List<Object> get prop => [items];
+}
+
+class PostCountScanAssetEvent extends CountEvent {
+  PostCountScanAssetEvent(this.items);
+  CountScan_OutputModel items;
+  @override
+  List<Object> get prop => [items];
+}
+
+class GetListImageAssetsEvent extends CountEvent {
+  GetListImageAssetsEvent(this.items);
+  String items;
+  @override
+  List<Object> get prop => [items];
+}
+
+class UploadImageEvent extends CountEvent {
+  UploadImageEvent(this.items);
+  UploadImageModelOutput items;
+  @override
+  List<Object> get prop => [items];
 }
