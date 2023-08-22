@@ -8,7 +8,7 @@ class UploadImageModelOutput {
     this.FILES,
   });
   final String? ASSETS_CODE;
-  final String? FILES;
+  final File? FILES;
 
   List<Object> get props => [ASSETS_CODE!, FILES!];
 

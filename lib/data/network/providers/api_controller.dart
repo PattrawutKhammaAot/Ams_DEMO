@@ -16,7 +16,11 @@ class APIController {
   Future<void> exceptionHandle(Object exception) async {
     try {
       if (exception.toString() == 'Unauthorized') {
-        Alert.show(title: 'Session timeout', message: 'Your session has timed out. Please login again', type: ReturnStatus.WARNING, crossPage: true);
+        Alert.show(
+            title: 'Session timeout',
+            message: 'Your session has timed out. Please login again',
+            type: ReturnStatus.WARNING,
+            crossPage: true);
 
         navigateToLogin();
       } else if (exception.toString().contains('Connection refused')) {
@@ -29,7 +33,10 @@ class APIController {
             textConfirm: 'OK',
             onPressed: () {});
       } else {
-        Alert.show(title: "Network Exception", message: exception.toString(), type: ReturnStatus.ERROR);
+        Alert.show(
+            title: "Network Exception",
+            message: exception.toString(),
+            type: ReturnStatus.ERROR);
         //throw (exception.toString());
       }
     } catch (e) {
@@ -112,8 +119,8 @@ class APIController {
               resp.data["message"] != '') {
             Alert.show(
                 message: resp.data["message"],
-                type: statusFromString(
-                    ReturnStatus.values, resp.data["status"]));
+                type:
+                    statusFromString(ReturnStatus.values, resp.data["status"]));
           }
           return resp.data;
         } else {
@@ -122,8 +129,7 @@ class APIController {
           }
           Alert.show(
               message: resp.data["message"],
-              type: statusFromString(
-                  ReturnStatus.values, resp.data["status"]));
+              type: statusFromString(ReturnStatus.values, resp.data["status"]));
           return resp.data;
         }
       } else if (resp.statusCode == 401) {
@@ -133,7 +139,7 @@ class APIController {
         Alert.show(
             message: 'Failed in calling a API', type: ReturnStatus.WARNING);
       }
-    } 
+    }
     // catch (exception) {
     //   if (exception.toString() == 'Unauthorized') {
     //     Alert.show(message: 'Session timeout', type: ReturnStatus.WARNING);
@@ -169,8 +175,7 @@ class APIController {
 
       final appService = ApiService();
       await appService.init();
-      var resp =
-          await appService.postJson(function, data, useAuth: useAuth);
+      var resp = await appService.postJson(function, data, useAuth: useAuth);
 
       if (resp.statusCode == 200) {
         // if (resp.data["status_code"] == "LOGOUT") {
@@ -207,7 +212,7 @@ class APIController {
         Alert.show(
             message: 'Failed in calling a API', type: ReturnStatus.WARNING);
       }
-    } 
+    }
     // catch (exception) {
     //   if (exception.toString() == 'Unauthorized') {
     //     Alert.show(message: 'Session timeout', type: ReturnStatus.WARNING);
@@ -230,5 +235,4 @@ class APIController {
       throw errorMessage;
     }
   }
-
 }

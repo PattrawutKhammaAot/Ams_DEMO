@@ -1,0 +1,65 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run --machine --start-paused -d JUC4C18717000212 --devtools-server-address http://127.0.0.1:9101/ --target lib\main.dart
+
+## exception
+
+HttpException: HttpException: Connection closed before full header was received, uri = http://127.0.0.1:57133/jipa94QYpBI=/ws
+
+```
+```
+
+## flutter doctor
+
+```
+[✓] Flutter (Channel stable, 3.10.4, on Microsoft Windows [Version 10.0.22621.1992], locale en-US)
+    • Flutter version 3.10.4 on channel stable at C:\src\flutter3.10\flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision 682aa387cf (3 months ago), 2023-06-05 18:04:56 -0500
+    • Engine revision 2a3401c9bb
+    • Dart version 3.0.3
+    • DevTools version 2.23.1
+
+[✓] Windows Version (Installed version of Windows is version 10 or higher)
+
+[✓] Android toolchain - develop for Android devices (Android SDK version 34.0.0)
+    • Android SDK at C:\Users\Pattr\AppData\Local\Android\sdk
+    • Platform android-34, build-tools 34.0.0
+    • Java binary at: C:\Program Files\Android\Android Studio\jbr\bin\java
+    • Java version OpenJDK Runtime Environment (build 17.0.6+0-b2043.56-9586694)
+    • All Android licenses accepted.
+
+[✓] Chrome - develop for the web
+    • Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[✓] Visual Studio - develop for Windows (Visual Studio Community 2022 17.6.2)
+    • Visual Studio at C:\Program Files\Microsoft Visual Studio\2022\Community
+    • Visual Studio Community 2022 version 17.6.33723.286
+    • Windows 10 SDK version 10.0.22000.0
+
+[✓] Android Studio (version 2022.2)
+    • Android Studio at C:\Program Files\Android\Android Studio
+    • Flutter plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/9212-flutter
+    • Dart plugin can be installed from:
+      🔨 https://plugins.jetbrains.com/plugin/6351-dart
+    • Java version OpenJDK Runtime Environment (build 17.0.6+0-b2043.56-9586694)
+
+[✓] VS Code (version 1.81.1)
+    • VS Code at C:\Users\Pattr\AppData\Local\Programs\Microsoft VS Code
+    • Flutter extension version 3.70.0
+
+[✓] Connected device (4 available)
+    • sdk gphone64 x86 64 (mobile) • emulator-5554 • android-x64    • Android 12 (API 31) (emulator)
+    • Windows (desktop)            • windows       • windows-x64    • Microsoft Windows [Version 10.0.22621.1992]
+    • Chrome (web)                 • chrome        • web-javascript • Google Chrome 116.0.5845.96
+    • Edge (web)                   • edge          • web-javascript • Microsoft Edge 114.0.1823.82
+
+[✓] Network resources
+    • All expected network resources are available.
+
+• No issues found!
+```

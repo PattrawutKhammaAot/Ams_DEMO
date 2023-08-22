@@ -32,7 +32,7 @@ class CustomRangePoint extends StatelessWidget {
               endAngle: 270,
               radiusFactor: 1,
               axisLineStyle: const AxisLineStyle(
-                  thicknessUnit: GaugeSizeUnit.factor, thickness: 0.15),
+                  thicknessUnit: GaugeSizeUnit.factor, thickness: 0.16),
               annotations: <GaugeAnnotation>[
                 GaugeAnnotation(
                     angle: 60,

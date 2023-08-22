@@ -2,6 +2,7 @@ import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/models/default_response.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/listCountPlanModel.dart';
+import 'package:ams_count/widgets/alert.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _CountPageState extends State<CountPage> {
   ResponseModel itemCheckAll = const ResponseModel();
   ResponseModel itemCheck = const ResponseModel();
   ResponseModel itemUncheck = const ResponseModel();
+  FocusNode _searchCodeFocus = FocusNode();
 
   TextEditingController _searchController = TextEditingController();
   final List<String> items = [
@@ -55,6 +57,7 @@ class _CountPageState extends State<CountPage> {
     if (searchResults.isNotEmpty) {
       itemModel = searchResults;
     } else {
+      Alert.show(title: "Plan Invaild", message: "Please Input or Scan Again");
       itemModel = _tempitemModel;
     }
     setState(() {});
@@ -112,7 +115,7 @@ class _CountPageState extends State<CountPage> {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
                       width: MediaQuery.of(context).size.width,
                       child: Card(
                         elevation: 5,
@@ -127,19 +130,6 @@ class _CountPageState extends State<CountPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: Label(
-                                        "Total \n ${itemCheckAll.DATA}",
-                                        color: colorPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                               Expanded(
                                 child: Row(
                                   children: [
@@ -155,6 +145,20 @@ class _CountPageState extends State<CountPage> {
                                             ),
                                           )
                                         : const CircularProgressIndicator(),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Label(
+                                        "Total\n${itemCheckAll.DATA}",
+                                        color: colorPrimary,
+                                        fontSize: 20,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -205,6 +209,7 @@ class _CountPageState extends State<CountPage> {
                               children: [
                                 Expanded(
                                     child: CustomTextInputField(
+                                  focusNode: _searchCodeFocus,
                                   onChanged: (p0) => _serachItemModel(),
                                   maxLines: 1,
                                   onFieldSubmitted: (value) =>
@@ -359,7 +364,10 @@ class _CountPageState extends State<CountPage> {
                   ),
                 ],
               )
-            : CircularProgressIndicator(),
+            : Center(
+                child: CircularProgressIndicator(
+                color: Colors.white,
+              )),
       ),
     );
   }

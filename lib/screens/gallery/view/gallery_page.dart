@@ -6,8 +6,10 @@ import 'package:ams_count/widgets/label.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_preview/flutter_image_preview.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:photo_view/photo_view.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -87,12 +89,64 @@ class _GalleryPageState extends State<GalleryPage> {
                                       borderSide:
                                           BorderSide(color: Colors.white)),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Image.network(
-                                      "${_imageList[index].URL_IMAGE}",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          printInfo(
+                                              info:
+                                                  "${_imageList[index].URL_IMAGE}");
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                content: Container(
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  child: Column(
+                                                    children: [
+                                                      Expanded(
+                                                        child: PhotoView(
+                                                          imageProvider:
+                                                              NetworkImage(
+                                                            "${_imageList[index].URL_IMAGE ?? "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg"}",
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Label(
+                                                        "${_imageList[index].ASSETS_CODE}",
+                                                        color: colorPrimary,
+                                                      ),
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          ElevatedButton(
+                                                              onPressed: () =>
+                                                                  Navigator.pop(
+                                                                      context),
+                                                              child:
+                                                                  Label("OK"))
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child:
+                                            _imageList[index].URL_IMAGE != null
+                                                ? Image.network(
+                                                    "${_imageList[index].URL_IMAGE ?? "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg"}",
+                                                  )
+                                                : CircularProgressIndicator(),
+                                      )),
                                 ),
                               )),
                               Card(

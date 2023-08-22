@@ -244,11 +244,12 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
   Future<CountScanMain> fetchCountScanASsetsModelList(
       List<CountScan_OutputModel> output) async {
+    var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
     try {
       Response responese = await dio.post(
-        '${apiUrl}Count/CountScanAsset',
+        '${configHost}Count/CountScanAsset',
         data: json.encode(output),
         options: Options(headers: {
           HttpHeaders.authorizationHeader: "Bearer $token",
@@ -275,11 +276,12 @@ class CountBloc extends Bloc<CountEvent, CountState> {
       CountScan_OutputModel output) async {
     late String token = "";
     token = await AppData.getToken();
+    var configHost = await AppData.getApiUrl();
 
     printInfo(info: "${output.toJson()}");
     try {
       Response responese = await dio.post(
-        '${apiUrl}Count/CountSaveStatusAsset',
+        '${configHost}Count/CountSaveStatusAsset',
         data: json.encode(output),
         options: Options(headers: {
           HttpHeaders.authorizationHeader: "Bearer $token",
@@ -289,6 +291,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           "Locale-Id": await AppData.getLocalId(),
         }),
       );
+
+      printInfo(info: "${configHost}");
       printInfo(info: "${responese.data}");
 
       CountScanMain post = CountScanMain.fromJson(responese.data);
@@ -324,25 +328,38 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   Future<CountScanMain> fetchUploadImage(UploadImageModelOutput output) async {
     late String token = "";
     token = await AppData.getToken();
-    printInfo(info: "${output.toJson()}");
+    var configHost = await AppData.getApiUrl();
+
+    Dio dio = Dio();
+
+    printInfo(info: "${output.FILES!.path}");
+
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    dio.options.headers['Application-Key'] = appKey;
+    dio.options.headers['Action-By'] = await AppData.getUserName();
+    dio.options.headers['Locale-Id'] = await AppData.getLocalId();
+    dio.options.headers['Content-Type'] = 'multipart/form-data';
+
     try {
-      Response responese = await dio.post(
-        '${apiUrl}Count/CountUploadImage',
-        data: jsonEncode(output.toJson()),
-        options: Options(headers: {
-          HttpHeaders.authorizationHeader: "Bearer $token",
-          HttpHeaders.contentTypeHeader: "application/json; charset=UTF-8",
-          "Application-Key": appKey,
-          "Action-By": await AppData.getUserName(),
-          "Locale-Id": await AppData.getLocalId(),
-        }),
+      FormData formData = FormData.fromMap({
+        "assetCode": output.ASSETS_CODE,
+        "files": MultipartFile.fromFileSync(
+          output.FILES!.path,
+          filename: "${output.ASSETS_CODE}.jpg",
+        ),
+      });
+
+      Response response = await dio.post(
+        '${configHost}Count/CountUploadImage',
+        data: formData,
       );
-      printInfo(info: "${responese.data}");
+
+      printInfo(info: "${configHost}");
+      printInfo(info: "${response.data}");
 
       return CountScanMain();
     } catch (e, s) {
-      print(e);
-      print(s);
+      printError(info: "Exception occurred: $e StackTrace: $s");
       throw Exception();
     }
   }

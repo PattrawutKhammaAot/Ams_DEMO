@@ -34,6 +34,7 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final _formKey = GlobalKey<FormState>();
+  final _dropdownKey = GlobalKey<FormState>();
   FocusNode _barcodeFocusNode = FocusNode();
   FocusNode _assetNoFocusNode = FocusNode();
   FocusNode _nameFocusNode = FocusNode();
@@ -57,28 +58,21 @@ class _ScanPageState extends State<ScanPage> {
   TextEditingController _departmentController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
-
+  final List<GlobalObjectKey<FormState>> formKeyList =
+      List.generate(10, (index) => GlobalObjectKey<FormState>(index));
   int statusId = 0;
   int departmentId = 0;
   int locationId = 0;
-
   String? planCode;
-
   String? error;
-
   List<LocationModel> _locationModel = [];
   List<DepartmentModel> _departmentModel = [];
   List<StatusAssetCountModel> _statusAssetCountModel = [];
-
   CountScanAssetsModel itemCountListModel = CountScanAssetsModel();
   CountScanAssetsModel itemCountModel = CountScanAssetsModel();
-
   var arguments = Get.arguments as Map<String, dynamic>?;
-
-  // ตรวจสอบว่า arguments ไม่เท่ากับ null และมีคีย์ 'planCode'
-
   File? imageFile;
-
+  bool isCheckdropdown = false;
   String? selectedValue;
 
   dynamic _validate(String values, FocusNode focus) {
@@ -92,6 +86,24 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
+  void _validateDropdown() {
+    if (_departmentController.text.isEmpty &&
+        _locationController.text.isEmpty) {
+      print("1");
+      formKeyList[1].currentState!.validate();
+    } else if (_locationController.text.isEmpty &&
+            _departmentController.text.isNotEmpty ||
+        _departmentController.text.isEmpty &&
+            _locationController.text.isNotEmpty) {
+      print("object");
+      formKeyList[1].currentState!.validate();
+      isCheckdropdown = true;
+      setState(() {});
+    } else {
+      print("Null");
+    }
+  }
+
   @override
   void initState() {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
@@ -101,34 +113,29 @@ class _ScanPageState extends State<ScanPage> {
     super.initState();
   }
 
-  _getFromCamera() async {
+  _UploadFromCamera() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.camera,
-      maxWidth: 1800,
-      maxHeight: 1800,
+      maxWidth: 1200,
+      maxHeight: 1200,
     );
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
-      List<int> imageBytes = imageFile!.readAsBytesSync();
-      String base64Image = base64Encode(imageBytes);
 
       BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
           UploadImageModelOutput(
-              ASSETS_CODE: _barCodeController.text, FILES: base64Image)));
+              ASSETS_CODE: _barCodeController.text.toUpperCase(),
+              FILES: imageFile)));
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    planCode = arguments?['planCode'];
+    planCode = arguments?['planCode'] ?? "Please Select Plan";
     _barCodeController.text =
         arguments?['assetsCode'] ?? _barCodeController.text;
-    // if (_barcodeController.text.isNotEmpty) {
-    //   _assetNoFocusNode.requestFocus();
-    // } else {
-    //   _barcodeFocusNode.requestFocus();
-    // }
+
     String result = '';
     scanDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return MultiBlocListener(
@@ -175,6 +182,12 @@ class _ScanPageState extends State<ScanPage> {
                   title: "Warning",
                   desc: "${error}",
                   type: AlertType.warning, onPress: () {
+                _assetNoController.clear();
+                _nameController.clear();
+                _serialNumberController.clear();
+                _classController.clear();
+                _useDateController.clear();
+                _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               });
             }
@@ -187,6 +200,26 @@ class _ScanPageState extends State<ScanPage> {
                   title: "${state.item.STATUS}",
                   desc: "${state.item.MESSAGE}",
                   type: AlertType.success, onPress: () {
+                _assetNoController.clear();
+                _nameController.clear();
+                _serialNumberController.clear();
+                _classController.clear();
+                _useDateController.clear();
+                _barCodeController.clear();
+                _barcodeFocusNode.requestFocus();
+                Navigator.pop(context);
+              });
+            } else {
+              AlertWarningNew().alertShowOK(context,
+                  title: "Warning",
+                  desc: "${error}",
+                  type: AlertType.warning, onPress: () {
+                _assetNoController.clear();
+                _nameController.clear();
+                _serialNumberController.clear();
+                _classController.clear();
+                _useDateController.clear();
+                _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               });
             }
@@ -194,33 +227,49 @@ class _ScanPageState extends State<ScanPage> {
           setState(() {});
         })
       ],
-      child: Form(
-        key: _formKey,
-        child: Scaffold(
-          // extendBody: true,
-          // extendBodyBehindAppBar: true,
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            elevation: 0,
-            title: Label("Scan Count"),
-          ),
-          body: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(50),
-                        bottomRight: Radius.circular(50))),
-                padding: EdgeInsets.only(
-                  top: 0,
-                  left: 15,
-                  right: 30,
+      child: Scaffold(
+        // extendBody: true,
+        // extendBodyBehindAppBar: true,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Center(
+                  child: Card(
+                color: Colors.transparent,
+                elevation: 0,
+                shape: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Label("Plan : ${planCode}"),
                 ),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
+              )),
+            )
+          ],
+          elevation: 0,
+          title: Label("Scan Count"),
+        ),
+        body: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  color: colorPrimary,
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(50),
+                      bottomRight: Radius.circular(50))),
+              padding: EdgeInsets.only(
+                top: 0,
+                left: 15,
+                right: 30,
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Form(
+                    key: formKeyList[1],
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -233,10 +282,12 @@ class _ScanPageState extends State<ScanPage> {
                                 child: CustomDropdownButton2(
                                   focusNode: _departmenFocusNode,
                                   validator: (value) {
-                                    if (_departmentController.text.isEmpty) {
+                                    if (_departmentController.text.isEmpty &&
+                                        _locationController.text.isEmpty) {
                                       _departmenFocusNode.requestFocus();
                                       return "Please Select Department";
-                                    } else {
+                                    } else if (_locationController
+                                        .text.isNotEmpty) {
                                       return null;
                                     }
                                   },
@@ -259,7 +310,7 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.DEPARTMENT_NAME == value)
                                             .DEPARTMENT_ID ??
                                         0;
-                                    print(departmentId);
+                                    _validateDropdown();
                                   },
                                 ),
                               ),
@@ -275,9 +326,13 @@ class _ScanPageState extends State<ScanPage> {
                                 child: CustomDropdownButton2(
                                   focusNode: _locationFocusNode,
                                   validator: (value) {
-                                    if (_locationController.text.isEmpty) {
+                                    if (_locationController.text.isEmpty &&
+                                        _departmentController.text.isEmpty) {
                                       _locationFocusNode.requestFocus();
                                       return "Please Selcetion Location";
+                                    } else if (_departmentController
+                                        .text.isNotEmpty) {
+                                      return null;
                                     }
                                   },
                                   hintText: "Selected Location",
@@ -299,7 +354,7 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.LOCATION_NAME == value)
                                             .LOCATION_ID ??
                                         0;
-                                    print(locationId);
+                                    _validateDropdown();
                                   },
                                 ),
                               ),
@@ -311,13 +366,16 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                 ),
               ),
-              Expanded(
-                flex: 3,
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: EdgeInsets.only(top: 15, left: 20, right: 20),
+            ),
+            Expanded(
+              flex: 3,
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.only(top: 15, left: 20, right: 20),
 
-                    // color: Colors.grey.withOpacity(0.5),
+                  // color: Colors.grey.withOpacity(0.5),
+                  child: Form(
+                    key: formKeyList[0],
                     child: Column(
                       children: [
                         CustomTextInputField(
@@ -353,6 +411,20 @@ class _ScanPageState extends State<ScanPage> {
                                 setState(() {
                                   if (res is String) {
                                     _barCodeController.text = res;
+                                    BlocProvider.of<CountBloc>(context)
+                                        .add(PostCountScanAssetListEvent([
+                                      CountScan_OutputModel(
+                                          ASSETS_CODE:
+                                              _barCodeController.text.trim(),
+                                          PLAN_CODE: planCode,
+                                          LOCATION_ID: locationId,
+                                          DEPARTMENT_ID: departmentId,
+                                          IS_SCAN_NOW: true,
+                                          REMARK: _remarkController.text.isEmpty
+                                              ? "-"
+                                              : _remarkController.text.trim(),
+                                          STATUS_ID: statusId)
+                                    ]));
                                   }
                                 });
                               },
@@ -518,7 +590,12 @@ class _ScanPageState extends State<ScanPage> {
                                   iconColor: Colors.white,
                                   color: colorActive,
                                   onPress: () {
-                                    if (_formKey.currentState!.validate()) {
+                                    if (formKeyList[0]
+                                            .currentState!
+                                            .validate() &&
+                                        formKeyList[1]
+                                            .currentState!
+                                            .validate()) {
                                       if (_departmentController
                                               .text.isNotEmpty &&
                                           _locationController.text.isNotEmpty) {
@@ -557,7 +634,10 @@ class _ScanPageState extends State<ScanPage> {
                                   color: colorWarning,
                                   onPress: () {
                                     if (_barCodeController.text.isNotEmpty) {
-                                      _getFromCamera();
+                                      _validateDropdown();
+                                      if (isCheckdropdown == true) {
+                                        _UploadFromCamera();
+                                      }
                                     } else {
                                       AlertWarningNew().alertShowOK(context,
                                           desc: " Please Input Barcode",
@@ -576,10 +656,16 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class RIKeys {
+  static final riKey1 = const Key('__RIKEY1__');
+  static final riKey2 = const Key('__RIKEY2__');
+  static final riKey3 = const Key('__RIKEY3__');
 }
