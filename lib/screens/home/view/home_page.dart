@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:ams_count/models/master/locationModel.dart';
+import 'package:ams_count/models/master/statusAssetCountModel.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +12,15 @@ import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app.dart';
+import '../../../blocs/count/count_bloc.dart';
 import '../../../blocs/home/bloc/home_bloc.dart';
 import '../../../blocs/home/home.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
 import '../../../data/models/dashboard/DashboardCountPlan.dart';
+import '../../../models/count/countPlanModel.dart';
+import '../../../models/count/responeModel.dart';
+import '../../../models/master/departmentModel.dart';
 import '../../../widgets/custom_card_menu.dart';
 import '../../../widgets/widget.dart';
 
@@ -34,6 +40,10 @@ class _HomePageState extends State<HomePage> {
   late String appVersion;
   var name = '';
   int touchedIndex = -1;
+  ResponseModel itemCheckAll = ResponseModel();
+  ResponseModel itemCheck = ResponseModel();
+  ResponseModel itemUncheck = ResponseModel();
+  String? mode;
 
   @override
   void initState() {
@@ -42,8 +52,21 @@ class _HomePageState extends State<HomePage> {
     initial();
     touchedIndex = -1;
     context.read<HomeBloc>().add(HomeEvent_LoadCountDashboard());
-
+    saveData();
+    AppData.getMode().then((test) {
+      mode = test;
+    });
     super.initState();
+  }
+
+  Future saveData() async {
+    BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
+    BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
+    BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
+    BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
+    BlocProvider.of<CountBloc>(context).add(const CheckAllTotalEvent());
+    BlocProvider.of<CountBloc>(context).add(const CheckTotalEvent());
+    BlocProvider.of<CountBloc>(context).add(const CheckUncheckEvent());
   }
 
   void initial() async {
@@ -66,137 +89,205 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> loadData() async {
+    if (mode == "Online") {
+      await ResponseModel().update(
+          check: itemCheck.DATA,
+          uncheck: itemUncheck.DATA,
+          total: itemCheckAll.DATA);
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colorPrimary,
-      appBar: AppBar(
-        elevation: 0,
-        titleTextStyle: const TextStyle(
-          fontSize: 24.0,
-        ),
-        centerTitle: true,
-        title: const Text(
-          'Asset Mangement System',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CountBloc, CountState>(listener: (context, state) async {
+          if (state is GetStatusAssetLoadedState) {
+            var itemSql = await StatusAssetCountModel().query();
+            if (itemSql.isEmpty) {
+              for (var item in state.item) {
+                await StatusAssetCountModel().insert(item.toJson());
+              }
+            }
+          }
+          if (state is GetLocationLoadedState) {
+            var itemSql = await LocationModel().query();
+            if (itemSql.isEmpty) {
+              for (var item in state.item) {
+                await LocationModel().insert(item.toJson());
+              }
+            }
+          }
+          if (state is GetDepartmentLoadedState) {
+            var itemSql = await DepartmentModel().query();
+            if (itemSql.isEmpty) {
+              for (var item in state.item) {
+                await DepartmentModel().insert(item.toJson());
+              }
+            }
+          }
+          if (state is GetListCountPlanLoadedState) {
+            var itemSql = await CountPlanModel().queryAllRows();
+            if (itemSql.isEmpty) {
+              for (var item in state.item) {
+                await CountPlanModel().insert(item.toJson());
+              }
+            }
+          }
+
+          if (state is CheckAllLoadedState) {
+            setState(() {
+              itemCheckAll = state.item;
+            });
+          }
+          if (state is CheckTotalLoadedState) {
+            setState(() {
+              itemCheck = state.item;
+            });
+          }
+          if (state is CheckUncheckLoadedState) {
+            setState(() {
+              itemUncheck = state.item;
+            });
+          }
+
+          loadData();
+        })
+      ],
+      child: Scaffold(
+        backgroundColor: colorPrimary,
+        appBar: AppBar(
+          elevation: 0,
+          titleTextStyle: const TextStyle(
+            fontSize: 24.0,
+          ),
+          centerTitle: true,
+          title: const Text(
+            'Asset Mangement System',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
-      drawer: CustomDrawer(name: name),
-      body: RefreshIndicator(
-        onRefresh: () async =>
-            context.read<HomeBloc>().add(HomeEvent_LoadCountDashboard()),
-        child: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 15,
-              ),
-              Stack(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 80),
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(
-                      color: colorGreyLight.withOpacity(0.88),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
+        drawer: CustomDrawer(name: name),
+        body: RefreshIndicator(
+          onRefresh: () async =>
+              context.read<HomeBloc>().add(HomeEvent_LoadCountDashboard()),
+          child: SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 15,
+                ),
+                Stack(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 80),
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(
+                        color: colorGreyLight.withOpacity(0.88),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(20),
-                          margin: EdgeInsets.only(top: 100),
-                          child: Column(
-                            children: [
-                              // CustomCardMenu(
-                              //     text: "My Assets",
-                              //     pathImage: "count.png",
-                              //     onTap: () => null),
-                              // CustomCardMenu(
-                              //     text: "Count",
-                              //     pathImage: "gallery.png",
-                              //     onTap: () => Get.toNamed('/CountPage')),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomCardMenu(
-                                        text: "My Assets",
-                                        pathImage: "iconAssets.png",
-                                        onTap: () =>
-                                            Get.toNamed('/MyassetsPage')),
-                                  ),
-                                  Expanded(
-                                    child: CustomCardMenu(
-                                        text: "Count",
-                                        pathImage: "count.png",
-                                        onTap: () => Get.toNamed('/CountPage')),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomCardMenu(
-                                        text: "Gallery",
-                                        pathImage: "gallery.png",
-                                        onTap: () =>
-                                            Get.toNamed('/GalleryPage')),
-                                  ),
-                                  Expanded(
-                                    child: CustomCardMenu(
-                                        text: "Report",
-                                        pathImage: "iconreport.png",
-                                        onTap: () =>
-                                            Get.toNamed('/ReportPage')),
-                                  ),
-                                ],
-                              ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            margin: EdgeInsets.only(top: 100),
+                            child: Column(
+                              children: [
+                                // CustomCardMenu(
+                                //     text: "My Assets",
+                                //     pathImage: "count.png",
+                                //     onTap: () => null),
+                                // CustomCardMenu(
+                                //     text: "Count",
+                                //     pathImage: "gallery.png",
+                                //     onTap: () => Get.toNamed('/CountPage')),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomCardMenu(
+                                          text: "My Assets",
+                                          pathImage: "iconAssets.png",
+                                          onTap: () =>
+                                              Get.toNamed('/MyassetsPage')),
+                                    ),
+                                    Expanded(
+                                      child: CustomCardMenu(
+                                          text: "Count",
+                                          pathImage: "count.png",
+                                          onTap: () =>
+                                              Get.toNamed('/CountPage')),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomCardMenu(
+                                          text: "Gallery",
+                                          pathImage: "gallery.png",
+                                          onTap: () =>
+                                              Get.toNamed('/GalleryPage')),
+                                    ),
+                                    Expanded(
+                                      child: CustomCardMenu(
+                                          text: "Report",
+                                          pathImage: "iconreport.png",
+                                          onTap: () =>
+                                              Get.toNamed('/ReportPage')),
+                                    ),
+                                  ],
+                                ),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomCardMenu(
-                                        text: "Transfer",
-                                        pathImage: "icontransfer.png",
-                                        onTap: () =>
-                                            Get.toNamed('/TransferPage')),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: BlocBuilder<HomeBloc, HomeState>(
-                        builder: (context, state) {
-                          if (state is HomeLoaded) {
-                            final dashboardCountPlan = state.dashboardCountPlan;
-                            return CountListWidget(
-                              dashboardCountPlan: dashboardCountPlan,
-                            );
-                          } else {
-                            return Text("");
-                          }
-                        },
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomCardMenu(
+                                          text: "Transfer",
+                                          pathImage: "icontransfer.png",
+                                          onTap: () =>
+                                              Get.toNamed('/TransferPage')),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Container(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: BlocBuilder<HomeBloc, HomeState>(
+                          builder: (context, state) {
+                            if (state is HomeLoaded) {
+                              final dashboardCountPlan =
+                                  state.dashboardCountPlan;
+                              return CountListWidget(
+                                dashboardCountPlan: dashboardCountPlan,
+                              );
+                            } else {
+                              return Text("");
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

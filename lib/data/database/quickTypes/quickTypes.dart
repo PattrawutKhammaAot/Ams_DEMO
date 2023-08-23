@@ -1,0 +1,99 @@
+class QuickTypes {
+  static const String ID_PRIMARYKEY = "ID INTEGER PRIMARY KEY AUTOINCREMENT";
+  static const String TEXT = "TEXT NULL";
+  static const String INTEGER = "INTEGER";
+  static const String REAL = "REAL";
+
+  static const String dbFileName = 'AmsPDA.db';
+}
+
+class CountScanOutputField {
+  static const String ASSETS_CODE = 'assetCode';
+  static const String PLAN_CODE = 'planCode';
+  static const String LOCATION_ID = 'locationId';
+  static const String DEPARTMENT_ID = 'departmentId';
+  static const String IS_SCAN_NOW = 'isScanNow';
+  static const String REMARK = 'remark';
+  static const String STATUS_ID = 'statusId';
+}
+
+class CountScanAssetsField {
+  static const String t_CountScanAssets = 't_countScanAssets';
+  static const String PLAN_DETAIL_ID = 'planDetailId';
+  static const String PLAN_ID = 'planId';
+  static const String PLAN_CODE = 'planCode';
+  static const String PLAN_CHECK_DATE = 'planCheckDate';
+  static const String PLAN_CHECK_USER = 'planCheckUser';
+  static const String PLAN_DETAILS = 'planDetails';
+  static const String CHECK_DATE = 'checkDate';
+  static const String STATUS_ID = 'statusId';
+  static const String STATUS_CODE = 'statusCode';
+  static const String STATUS_NAME = 'statusName';
+  static const String REMARK = 'remark';
+  static const String BEFORE_COMPANY_ID = 'beforeCompanyId';
+  static const String BEFORE_COMPANY_CODE = 'beforeCompanyCode';
+  static const String BEFORE_COMPANY_NAME = 'beforeCompanyName';
+  static const String NEW_COMPANY_ID = 'newCompanyId';
+  static const String NEW_COMPANY_CODE = 'newCompanyCode';
+  static const String NEW_COMPANY_NAME = 'newCompanyName';
+  static const String BEFORE_BRANCH_ID = 'beforeBranchId';
+  static const String BEFORE_BRANCH_CODE = 'beforeBranchCode';
+  static const String BEFORE_BRANCH_NAME = 'beforeBranchName';
+  static const String NEW_BRANCH_ID = 'newBranchId';
+  static const String NEW_BRANCH_CODE = 'newBranchCode';
+  static const String NEW_BRANCH_NAME = 'newBranchName';
+  static const String BEFORE_BUILDING_ID = 'beforeBuildingId';
+  static const String BEFORE_BUILDING_CODE = 'beforeBuildingCode';
+  static const String BEFORE_BUILDING_NAME = 'beforeBuildingName';
+  static const String NEW_BUILDING_ID = 'newBuildingId';
+  static const String NEW_BUILDING_CODE = 'newBuildingCode';
+  static const String NEW_BUILDING_NAME = 'newBuildingName';
+  static const String BEFORE_FLOOR_ID = 'beforeFloorId';
+  static const String BEFORE_FLOOR_CODE = 'beforeFloorCode';
+  static const String BEFORE_FLOOR_NAME = 'beforeFloorName';
+  static const String NEW_FLOOR_ID = 'newFloorId';
+  static const String NEW_FLOOR_CODE = 'newFloorCode';
+  static const String NEW_FLOOR_NAME = 'newFloorName';
+  static const String BEFORE_ROOM_ID = 'beforeRoomId';
+  static const String BEFORE_ROOM_CODE = 'beforeRoomCode';
+  static const String BEFORE_ROOM_NAME = 'beforeRoomName';
+  static const String NEW_ROOM_ID = 'newRoomId';
+  static const String NEW_ROOM_CODE = 'newRoomCode';
+  static const String NEW_ROOM_NAME = 'newRoomName';
+  static const String BEFORE_LOCATION_ID = 'beforeLocationId';
+  static const String BEFORE_LOCATION_CODE = 'beforeLocationCode';
+  static const String BEFORE_LOCATION_NAME = 'beforeLocationName';
+  static const String NEW_LOCATION_ID = 'newLocationId';
+  static const String NEW_LOCATION_CODE = 'newLocationCode';
+  static const String NEW_LOCATION_NAME = 'newLocationName';
+  static const String BEFORE_DEPARTMENT_ID = 'beforeDepartmentId';
+  static const String BEFORE_DEPARTMENT_CODE = 'beforeDepartmentCode';
+  static const String BEFOREDEPARTMENTNAME = 'beforeDepartmentName';
+  static const String NEW_DEPARTMENT_ID = 'newDepartmentId';
+  static const String NEW_DEPARTMENT_CODE = 'newDepartmentCode';
+  static const String NEW_DEPARTMENT_NAME = 'newDepartmentName';
+  static const String ASSET_ID = 'assetId';
+  static const String ASSET_CODE = 'assetCode';
+  static const String ASSET_SERIALNO = 'assetSerialNo';
+  static const String ASSET_DATEOFUSE = 'assetDateOfUse';
+  static const String ITEMCODE = 'itemCode';
+  static const String ASSETNAME = 'assetName';
+  static const String ITEMNAME = 'itemName';
+  static const String ITEMSHORTNAME = 'itemShortname';
+  static const String OWNERNAME = 'ownerName';
+  static const String DEPARTMENTNAME = 'departmentName';
+  static const String CLASSID = 'classId';
+  static const String CLASSCODE = 'classCode';
+  static const String CLASSNAME = 'className';
+  static const String UDF1 = 'udf1';
+  static const String UDF2 = 'udf2';
+  static const String UDF3 = 'udf3';
+  static const String STATUSCHECK = 'statusCheck';
+  static const String CREATEDATE = 'createDate';
+  static const String CREATEBY = 'createBy';
+  static const String UPDATEDATE = 'updateDate';
+  static const String UPDATEBY = 'updateBy';
+  static const String ISCONFIRM = 'isConfirm';
+  static const String ISCHANGELOCATION = 'isChangeLocation';
+  static const String ISCHECK = 'isCheck';
+}

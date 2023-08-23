@@ -1,3 +1,6 @@
+import 'package:ams_count/data/database/quickTypes/quickTypes.dart';
+import 'package:sqflite/sqflite.dart';
+
 class CountScan_OutputModel {
   const CountScan_OutputModel({
     this.ASSETS_CODE,
@@ -28,25 +31,25 @@ class CountScan_OutputModel {
 
   static CountScan_OutputModel fromJson(dynamic json) {
     return CountScan_OutputModel(
-      ASSETS_CODE: json['assetCode'],
-      PLAN_CODE: json['planCode'],
-      LOCATION_ID: json['locationId'],
-      DEPARTMENT_ID: json['departmentId'],
-      IS_SCAN_NOW: json['isScanNow'],
-      REMARK: json['remark'],
-      STATUS_ID: json['statusId'],
+      ASSETS_CODE: json[CountScanOutputField.ASSETS_CODE],
+      PLAN_CODE: json[CountScanOutputField.PLAN_CODE],
+      LOCATION_ID: json[CountScanOutputField.LOCATION_ID],
+      DEPARTMENT_ID: json[CountScanOutputField.DEPARTMENT_ID],
+      IS_SCAN_NOW: json[CountScanOutputField.IS_SCAN_NOW],
+      REMARK: json[CountScanOutputField.REMARK],
+      STATUS_ID: json[CountScanOutputField.STATUS_ID],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "assetCode": ASSETS_CODE,
-      "planCode": PLAN_CODE,
-      "locationId": LOCATION_ID,
-      "departmentId": DEPARTMENT_ID,
-      "isScanNow": IS_SCAN_NOW,
-      "remark": REMARK,
-      "statusId": STATUS_ID,
+      CountScanOutputField.ASSETS_CODE: ASSETS_CODE,
+      CountScanOutputField.PLAN_CODE: PLAN_CODE,
+      CountScanOutputField.LOCATION_ID: LOCATION_ID,
+      CountScanOutputField.DEPARTMENT_ID: DEPARTMENT_ID,
+      CountScanOutputField.IS_SCAN_NOW: IS_SCAN_NOW,
+      CountScanOutputField.REMARK: REMARK,
+      CountScanOutputField.STATUS_ID: STATUS_ID,
     };
   }
 }

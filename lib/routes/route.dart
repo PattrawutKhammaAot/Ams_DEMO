@@ -26,9 +26,9 @@ final List<GetPage<dynamic>> routes = [
   GetPage(name: '/', page: () => const HomePage()),
   GetPage(
       name: '/connectionSetting', page: () => const ConnectionSettingPage()),
-  GetPage(name: '/testUnit', page: () => const TestUnitPage()),
-  GetPage(name: '/summaryUnit', page: () => const ViewSummaryUnitPage()),
-  GetPage(name: '/summaryUnitOffline', page: () => const ViewSummaryUnitPage()),
+  // GetPage(name: '/testUnit', page: () => const TestUnitPage()),
+  // GetPage(name: '/summaryUnit', page: () => const ViewSummaryUnitPage()),
+  // GetPage(name: '/summaryUnitOffline', page: () => const ViewSummaryUnitPage()),
   GetPage(name: '/Login', page: () => const LoginPage()),
   GetPage(name: '/MyassetsPage', page: () => const MyAssetsPage()),
   GetPage(name: '/CountPage', page: () => const CountPage()),

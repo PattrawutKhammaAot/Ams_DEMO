@@ -20,10 +20,13 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
+import '../../../data/database/dbsqlite.dart';
 import '../../../models/count/CountScan_output.dart';
+import '../../../models/count/listImageAssetModel.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -136,20 +139,48 @@ class _ScanPageState extends State<ScanPage> {
     _barCodeController.text =
         arguments?['assetsCode'] ?? _barCodeController.text;
 
-    String result = '';
     scanDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return MultiBlocListener(
       listeners: [
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetLocationLoadedState) {
+            await DbSqlite()
+                .deleteAll(tableName: '${LocationField.TABLE_NAME}');
+            for (var item in state.item) {
+              await LocationModel().insert(item.toJson());
+            }
             _locationModel = state.item;
+          } else if (state is GetLocationErrorState) {
+            var itemSql = await LocationModel().query();
+            _locationModel =
+                itemSql.map((map) => LocationModel.fromJson(map)).toList();
           }
           if (state is GetDepartmentLoadedState) {
             _departmentModel = state.item;
+            await DbSqlite()
+                .deleteAll(tableName: '${DepartmentField.TABLE_NAME}');
+            for (var item in state.item) {
+              await DepartmentModel().insert(item.toJson());
+            }
+          } else if (state is GetDepartmentErrorState) {
+            var itemSql = await DepartmentModel().query();
+            _departmentModel =
+                itemSql.map((map) => DepartmentModel.fromJson(map)).toList();
           }
           if (state is GetStatusAssetLoadedState) {
+            await DbSqlite()
+                .deleteAll(tableName: '${StatusAssetField.TABLE_NAME}');
+            for (var item in state.item) {
+              await StatusAssetCountModel().insert(item.toJson());
+            }
             _statusAssetCountModel = state.item;
+          } else if (state is GetStatusAssetErrorState) {
+            var itemSql = await StatusAssetCountModel().query();
+            _statusAssetCountModel = itemSql
+                .map((map) => StatusAssetCountModel.fromJson(map))
+                .toList();
           }
+
           if (state is CountScanAssetsListLoadedState) {
             var data = state.item.DATA;
 
@@ -160,15 +191,8 @@ class _ScanPageState extends State<ScanPage> {
                   itemCountListModel.ASSET_SERIALNO ?? "-";
               _nameController.text = itemCountListModel.ASSETNAME ?? "-";
               _classController.text = itemCountListModel.CLASSNAME ?? "-";
-
               _remarkController.text = itemCountListModel.REMARK ?? "";
               _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
-              AlertWarningNew().alertShowOK(context,
-                  title: "Warning",
-                  desc: "${error}",
-                  type: AlertType.warning, onPress: () {
-                Navigator.pop(context);
-              });
               _useDateController.text =
                   itemCountListModel.ASSET_DATEOFUSE ?? "-";
               DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
@@ -176,6 +200,12 @@ class _ScanPageState extends State<ScanPage> {
                   ? DateFormat("yyyy-MM-dd").format(parsedDate)
                   : "-";
               _useDateController.text = formattedDate;
+              AlertWarningNew().alertShowOK(context,
+                  title: "Warning",
+                  desc: "${error}",
+                  type: AlertType.warning, onPress: () {
+                Navigator.pop(context);
+              });
               setState(() {});
             } else {
               AlertWarningNew().alertShowOK(context,
@@ -195,7 +225,7 @@ class _ScanPageState extends State<ScanPage> {
           if (state is CountScanAssetsLoadedState) {
             var data = state.item.DATA;
             if (state.item.STATUS == "SUCCESS") {
-              // itemCountModel = CountScanAssetsModel.fromJson(data);
+              itemCountModel = CountScanAssetsModel.fromJson(data);
               AlertWarningNew().alertShowOK(context,
                   title: "${state.item.STATUS}",
                   desc: "${state.item.MESSAGE}",
@@ -221,6 +251,20 @@ class _ScanPageState extends State<ScanPage> {
                 _useDateController.clear();
                 _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
+              });
+            }
+          }
+          if (state is UploadImageLoadedState) {
+          } else if (state is UploadImageErrorState) {
+            var path = await getExternalStorageDirectory();
+
+            final File newImage = await imageFile!
+                .copy('${path!.path}/${_barCodeController.text}.jpg');
+
+            if (newImage != null) {
+              await ListImageAssetModel().insert({
+                "${ListImageAssetField.ASSETS_CODE}": _barCodeController.text,
+                "${ListImageAssetField.URL_IMAGE}": newImage.path,
               });
             }
           }
@@ -372,8 +416,6 @@ class _ScanPageState extends State<ScanPage> {
               child: SingleChildScrollView(
                 child: Container(
                   padding: EdgeInsets.only(top: 15, left: 20, right: 20),
-
-                  // color: Colors.grey.withOpacity(0.5),
                   child: Form(
                     key: formKeyList[0],
                     child: Column(
@@ -573,84 +615,7 @@ class _ScanPageState extends State<ScanPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 0, right: 8, left: 8),
-                                child: CustomButtonPrimary(
-                                  height: 55,
-                                  text: "Save",
-                                  hideLeadingIcon: false,
-                                  leading: LineIcons.save,
-                                  iconColor: Colors.white,
-                                  color: colorActive,
-                                  onPress: () {
-                                    if (formKeyList[0]
-                                            .currentState!
-                                            .validate() &&
-                                        formKeyList[1]
-                                            .currentState!
-                                            .validate()) {
-                                      if (_departmentController
-                                              .text.isNotEmpty &&
-                                          _locationController.text.isNotEmpty) {
-                                        BlocProvider.of<CountBloc>(context).add(
-                                            PostCountScanAssetEvent(
-                                                CountScan_OutputModel(
-                                                    ASSETS_CODE:
-                                                        _barCodeController.text
-                                                            .trim(),
-                                                    PLAN_CODE: planCode,
-                                                    LOCATION_ID: locationId,
-                                                    DEPARTMENT_ID: departmentId,
-                                                    IS_SCAN_NOW: true,
-                                                    REMARK: _remarkController
-                                                            .text.isEmpty
-                                                        ? "-"
-                                                        : _remarkController.text
-                                                            .trim(),
-                                                    STATUS_ID: statusId)));
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 0, right: 8, left: 8),
-                                child: CustomButtonPrimary(
-                                  height: 55,
-                                  text: "Camera",
-                                  hideLeadingIcon: false,
-                                  leading: LineIcons.camera,
-                                  iconColor: Colors.white,
-                                  color: colorWarning,
-                                  onPress: () {
-                                    if (_barCodeController.text.isNotEmpty) {
-                                      _validateDropdown();
-                                      if (isCheckdropdown == true) {
-                                        _UploadFromCamera();
-                                      }
-                                    } else {
-                                      AlertWarningNew().alertShowOK(context,
-                                          desc: " Please Input Barcode",
-                                          type: AlertType.warning, onPress: () {
-                                        Navigator.pop(context);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
+                        _button()
                       ],
                     ),
                   ),
@@ -660,6 +625,76 @@ class _ScanPageState extends State<ScanPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _button() {
+    return Row(
+      children: [
+        SizedBox(
+          height: 15,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 0, right: 8, left: 8),
+            child: CustomButtonPrimary(
+              height: 55,
+              text: "Save",
+              hideLeadingIcon: false,
+              leading: LineIcons.save,
+              iconColor: Colors.white,
+              color: colorActive,
+              onPress: () {
+                if (formKeyList[0].currentState!.validate() &&
+                    formKeyList[1].currentState!.validate()) {
+                  if (_departmentController.text.isNotEmpty &&
+                      _locationController.text.isNotEmpty) {
+                    BlocProvider.of<CountBloc>(context).add(
+                        PostCountScanAssetEvent(CountScan_OutputModel(
+                            ASSETS_CODE: _barCodeController.text.trim(),
+                            PLAN_CODE: planCode,
+                            LOCATION_ID: locationId,
+                            DEPARTMENT_ID: departmentId,
+                            IS_SCAN_NOW: true,
+                            REMARK: _remarkController.text.isEmpty
+                                ? "-"
+                                : _remarkController.text.trim(),
+                            STATUS_ID: statusId)));
+                  }
+                }
+              },
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 0, right: 8, left: 8),
+            child: CustomButtonPrimary(
+              height: 55,
+              text: "Camera",
+              hideLeadingIcon: false,
+              leading: LineIcons.camera,
+              iconColor: Colors.white,
+              color: colorWarning,
+              onPress: () {
+                _UploadFromCamera();
+                if (_barCodeController.text.isNotEmpty) {
+                  _validateDropdown();
+                  if (isCheckdropdown == true) {
+                    _UploadFromCamera();
+                  }
+                } else {
+                  AlertWarningNew().alertShowOK(context,
+                      desc: " Please Input Barcode",
+                      type: AlertType.warning, onPress: () {
+                    Navigator.pop(context);
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

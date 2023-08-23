@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
     _usernameController.text = "";
     _passwordController.text = "";
-   // offlineChecked = false;
+    // offlineChecked = false;
 
     super.initState();
   }
@@ -65,25 +65,23 @@ class _LoginPageState extends State<LoginPage> {
         listener: (context, state) {
           if (state.status == FetchStatus.failed) {
             //_debug();
-          }else if (state.status == FetchStatus.success) {
+          } else if (state.status == FetchStatus.success) {
             //Get.toNamed('/');
             //Navigator.pushNamed(context, AppRoute.home);
           }
         },
         child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: SingleChildScrollView(
-
-              child: Column(
-
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildBanner(),
-                  _buildForm(),
-                ],
-              ),
+          width: double.infinity,
+          height: double.infinity,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildBanner(),
+                _buildForm(),
+              ],
             ),
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -104,8 +102,14 @@ class _LoginPageState extends State<LoginPage> {
               height: 30,
               child: Column(
                 children: [
-                  Text('Version $appVersion', style: const TextStyle(fontSize: 12),),
-                  const Text('Modified On: 8 Jun 2023', style: TextStyle(fontSize: 8),),
+                  Text(
+                    'Version $appVersion',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const Text(
+                    'Modified On: 8 Jun 2023',
+                    style: TextStyle(fontSize: 8),
+                  ),
                 ],
               ),
             )
@@ -136,9 +140,13 @@ class _LoginPageState extends State<LoginPage> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                 Text("LOGIN",
-                     style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: colorPrimaryLight),
-                 ),
+                Text(
+                  "LOGIN",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colorPrimaryLight),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -146,32 +154,36 @@ class _LoginPageState extends State<LoginPage> {
               controller: _usernameController,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  labelText: "Username",
-                  icon: Icon(Icons.person),
-                  //hintText: "",
-                   ),
+                filled: true,
+                fillColor: Colors.white,
+                labelText: "Username",
+                icon: Icon(Icons.person),
+                //hintText: "",
+              ),
               style: TextStyle(fontSize: 20),
             ),
             TextField(
               obscureText: true,
               controller: _passwordController,
               decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  labelText: "Password",
-                  icon: Icon(Icons.password_outlined),
-                  //hintText: "Password",
-                  ),
+                filled: true,
+                fillColor: Colors.white,
+                labelText: "Password",
+                icon: Icon(Icons.password_outlined),
+                //hintText: "Password",
+              ),
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 10),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: _handleLogin, child: const Text("Login",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
+            ElevatedButton(
+              onPressed: _handleLogin,
+              child: const Text("Login",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                  minimumSize: Size(64, 60) // put the width and height you want, standard ones are 64, 40
-              ),
+                  minimumSize: Size(64,
+                      60) // put the width and height you want, standard ones are 64, 40
+                  ),
             ),
             const SizedBox(height: 10),
           ],
@@ -181,7 +193,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _handleLogin() {
-    context.read<AuthBloc>().add(AuthEvent_Login(_usernameController.text, _passwordController.text,));
+    context.read<AuthBloc>().add(AuthEvent_Login(
+          _usernameController.text,
+          _passwordController.text,
+        ));
   }
 
   void _debug() {
@@ -190,17 +205,16 @@ class _LoginPageState extends State<LoginPage> {
       builder: (context) {
         return Dialog(
             child: SizedBox(
-              height: 300,
-              child: Column(
-                children: [
-                  const Text("Debug"),
-                  Text("Username : ${_usernameController.text}"),
-                  Text("Username : ${_passwordController.text}"),
-                ],
-              ),
-            ));
+          height: 300,
+          child: Column(
+            children: [
+              const Text("Debug"),
+              Text("Username : ${_usernameController.text}"),
+              Text("Username : ${_passwordController.text}"),
+            ],
+          ),
+        ));
       },
     );
   }
-
 }

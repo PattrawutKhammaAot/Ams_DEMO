@@ -1,4 +1,4 @@
-package com.example.ams_count
+package com.oga.amsapplication
 
 import io.flutter.embedding.android.FlutterActivity
 

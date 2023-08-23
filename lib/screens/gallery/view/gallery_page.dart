@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:ams_count/blocs/count/count_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
+import 'package:ams_count/config/app_data.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
@@ -10,6 +13,9 @@ import 'package:flutter_image_preview/flutter_image_preview.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../data/database/quickTypes/quickTypes.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -21,12 +27,19 @@ class GalleryPage extends StatefulWidget {
 class _GalleryPageState extends State<GalleryPage> {
   List<ListImageAssetModel> _imageList = [];
   List<ListImageAssetModel> _tempimageList = [];
+  String? mode;
 
   @override
   void initState() {
     BlocProvider.of<CountBloc>(context).add(GetListImageAssetsEvent(""));
+    AppData.getMode().then((test) {
+      mode = test;
+    });
+
     super.initState();
   }
+
+
 
   void _serachItemModel(String value) {
     List<ListImageAssetModel> searchResults = _tempimageList
@@ -48,6 +61,14 @@ class _GalleryPageState extends State<GalleryPage> {
           if (state is GetListImageAssetLoadedState) {
             _imageList = state.item;
             _tempimageList = state.item;
+          } else if (state is GetListImageAssetErrorState) {
+            var itemSql = await ListImageAssetModel().queryAllRows();
+            _imageList = itemSql
+                .map((item) => ListImageAssetModel.fromJson(item))
+                .toList();
+            _tempimageList = itemSql
+                .map((item) => ListImageAssetModel.fromJson(item))
+                .toList();
           }
           setState(() {});
         })
@@ -68,11 +89,7 @@ class _GalleryPageState extends State<GalleryPage> {
                 itemCount: _imageList.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                    onTap: () {
-                      // Get.toNamed('/ScanPage', arguments: {
-                      //   'assetsCode': _imageList[index].ASSETS_CODE
-                      // });
-                    },
+                    onTap: () async {},
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
@@ -105,14 +122,22 @@ class _GalleryPageState extends State<GalleryPage> {
                                                       .width,
                                                   child: Column(
                                                     children: [
-                                                      Expanded(
-                                                        child: PhotoView(
-                                                          imageProvider:
-                                                              NetworkImage(
-                                                            "${_imageList[index].URL_IMAGE ?? "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg"}",
-                                                          ),
-                                                        ),
-                                                      ),
+                                                      mode != "Offline"
+                                                          ? Expanded(
+                                                              child: PhotoView(
+                                                                imageProvider:
+                                                                    NetworkImage(
+                                                                  "${_imageList[index].URL_IMAGE}",
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : Expanded(
+                                                              child: PhotoView(
+                                                                imageProvider:
+                                                                    FileImage(File(
+                                                                        "${_imageList[index].URL_IMAGE}")),
+                                                              ),
+                                                            ),
                                                       Label(
                                                         "${_imageList[index].ASSETS_CODE}",
                                                         color: colorPrimary,
@@ -140,12 +165,8 @@ class _GalleryPageState extends State<GalleryPage> {
                                             },
                                           );
                                         },
-                                        child:
-                                            _imageList[index].URL_IMAGE != null
-                                                ? Image.network(
-                                                    "${_imageList[index].URL_IMAGE ?? "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg"}",
-                                                  )
-                                                : CircularProgressIndicator(),
+                                        child: _showImage(
+                                            '${_imageList[index].URL_IMAGE}'),
                                       )),
                                 ),
                               )),
@@ -175,5 +196,15 @@ class _GalleryPageState extends State<GalleryPage> {
             : Container(),
       ),
     );
+  }
+
+  Widget _showImage(String imagePath) {
+    if (mode == 'Offline') {
+      return Image.file(File(imagePath));
+    } else {
+      return Image.network(
+        imagePath,
+      );
+    }
   }
 }

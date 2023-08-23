@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../config/app_data.dart';
 import '../../../main.dart';
-import '../../database/database.dart' as database;
+
 import '../../models/auth_token.dart';
 import '../../models/default_response.dart';
 import '../../models/test_unit/serial_data_response.dart';

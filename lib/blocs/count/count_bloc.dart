@@ -11,10 +11,10 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:get/get_utils/get_utils.dart';
 
-import '../../../../models/count/listCountPlanModel.dart';
 import '../../config/api_path.dart';
 import '../../config/app_data.dart';
 import '../../data/network/providers/api_controller.dart';
+import '../../models/count/countPlanModel.dart';
 import '../../models/count/responeModel.dart';
 import '../../models/master/departmentModel.dart';
 import '../../models/master/locationModel.dart';
@@ -149,7 +149,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           final mlist = await fetchUploadImage(event.items);
           emit(UploadImageLoadedState());
         } catch (e) {
-          emit(GetListImageAssetErrorState(e.toString()));
+          emit(UploadImageErrorState(e.toString()));
         }
       },
     );
@@ -331,8 +331,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     var configHost = await AppData.getApiUrl();
 
     Dio dio = Dio();
-
-    printInfo(info: "${output.FILES!.path}");
 
     dio.options.headers['Authorization'] = 'Bearer $token';
     dio.options.headers['Application-Key'] = appKey;

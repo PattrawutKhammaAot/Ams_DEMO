@@ -1,13 +1,10 @@
+import 'package:ams_count/data/database/dbsqlite.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
-import 'data/database/database.dart';
 
-late AppDb appDb;
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  appDb = AppDb();
+  await DbSqlite().initializeDatabase();
   runApp(const App());
 }
