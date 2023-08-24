@@ -225,8 +225,6 @@ class _ScanPageState extends State<ScanPage> {
       listeners: [
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetLocationLoadedState) {
-            await DbSqlite()
-                .deleteAll(tableName: '${LocationField.TABLE_NAME}');
             for (var item in state.item) {
               await LocationModel().insert(item.toJson());
             }
@@ -235,6 +233,9 @@ class _ScanPageState extends State<ScanPage> {
             var itemSql = await LocationModel().query();
             _locationModel =
                 itemSql.map((map) => LocationModel.fromJson(map)).toList();
+
+            AlertWarningNew()
+                .alertShowOK(context, title: "this Location ${itemSql.length}");
           }
           if (state is GetDepartmentLoadedState) {
             _departmentModel = state.item;
