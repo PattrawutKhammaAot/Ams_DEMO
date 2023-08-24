@@ -1,6 +1,9 @@
 import 'package:ams_count/data/database/quickTypes/quickTypes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../blocs/count/count_bloc.dart';
 import '../../data/database/dbsqlite.dart';
 
 class CountScan_OutputModel {
@@ -80,6 +83,44 @@ class CountScan_OutputModel {
     } on Exception catch (ex) {
       print(ex);
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> queryAllRows() async {
+    Database db = await DbSqlite().database;
+    return await db.query(CountScanOutputField.TABLE_NAME);
+  }
+
+  Future<void> deleteDataByID(int id) async {
+    try {
+      Database db = await DbSqlite().database;
+
+      int count = await db.delete(
+        CountScanOutputField.TABLE_NAME,
+        where: "${CountScanOutputField.ID} = ?",
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> sendDataToserver(BuildContext context) async {
+    var itemSql = await queryAllRows();
+    if (itemSql.isNotEmpty) {
+      for (var item in itemSql) {
+        BlocProvider.of<CountBloc>(context).add(PostCountScanSaveAssetEvent(
+            CountScan_OutputModel(
+                ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
+                PLAN_CODE: item[CountScanOutputField.PLAN_CODE],
+                LOCATION_ID: item[CountScanOutputField.LOCATION_ID],
+                DEPARTMENT_ID: item[CountScanOutputField.DEPARTMENT_ID],
+                IS_SCAN_NOW:
+                    item[CountScanOutputField.IS_SCAN_NOW] == 1 ? true : false,
+                REMARK: item[CountScanOutputField.REMARK],
+                STATUS_ID: item[CountScanOutputField.STATUS_ID])));
+        await deleteDataByID(item[CountScanOutputField.ID]);
+      }
     }
   }
 }

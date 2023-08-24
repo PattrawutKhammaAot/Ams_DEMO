@@ -44,11 +44,11 @@ class ListImageAssetModel {
         ListImageAssetField.URL_IMAGE: URL_IMAGE,
       };
 
-  Future<int> insert(Map<String, dynamic> data) async {
+  Future<int> insert(ListImageAssetModel data) async {
     try {
       final db = await DbSqlite().database;
 
-      return await db.insert(ListImageAssetField.TABLE_NAME, data);
+      return await db.insert(ListImageAssetField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
       print(ex);
       rethrow;
@@ -59,7 +59,7 @@ class ListImageAssetModel {
     var ent = await ListImageAssetModel().getDataById(data.ID);
 
     if (ent.isEmpty) {
-      await ListImageAssetModel().insert(data.toJson());
+      await ListImageAssetModel().insert(data);
     } else {
       await ListImageAssetModel().update(data, data.ID);
     }

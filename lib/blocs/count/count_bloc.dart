@@ -317,6 +317,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
     Dio dio = Dio();
 
+    printInfo(info: output.toJson().toString());
+
     dio.options.headers['Authorization'] = 'Bearer $token';
     dio.options.headers['Application-Key'] = appKey;
     dio.options.headers['Action-By'] = await AppData.getUserName();
@@ -336,6 +338,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         '${configHost}Count/CountUploadImage',
         data: formData,
       );
+      printInfo(info: "${response.data}");
 
       CountScanMain post = CountScanMain.fromJson(response.data);
 

@@ -164,7 +164,8 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
     BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
-
+    _barcodeFocusNode.requestFocus();
+    _barcodeFocusNode.requestFocus();
     super.initState();
   }
 
@@ -191,11 +192,11 @@ class _ScanPageState extends State<ScanPage> {
     final File newImage =
         await imageFile!.copy('${path!.path}/${randomFileName}.jpg');
 
+    printInfo(info: '${randomFileName}');
+
     if (newImage != null) {
-      await ListImageAssetModel().insert({
-        "${ListImageAssetField.ASSETS_CODE}": _barCodeController.text,
-        "${ListImageAssetField.URL_IMAGE}": newImage.path,
-      });
+      await ListImageAssetModel().insert(ListImageAssetModel(
+          ASSETS_CODE: _barCodeController.text, URL_IMAGE: newImage.path));
       AlertWarningNew().alertShowOK(context,
           title: "Save Success",
           desc: "Internet Offline Save Image to Local",

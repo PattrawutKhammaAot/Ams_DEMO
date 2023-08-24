@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:bot_toast/bot_toast.dart';
 
 import 'package:flutter/material.dart';
@@ -143,7 +144,7 @@ class _AppViewState extends State<AppView> {
                       type: ReturnStatus.SUCCESS,
                       duration: const Duration(seconds: 5));
                   await ListImageAssetModel().uploadImageAndDelete(context);
-
+                  await CountScan_OutputModel().sendDataToserver(context);
                   setState(() {});
 
                   EasyLoading.dismiss();

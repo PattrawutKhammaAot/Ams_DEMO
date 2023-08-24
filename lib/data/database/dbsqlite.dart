@@ -36,7 +36,9 @@ class DbSqlite {
 
     bool isDatabaseExists = await databaseExists(dbPath);
     if (isDatabaseExists) {
-      print("Database already exists");
+      return await openDatabase(
+        dbPath,
+      );
     } else {
       var database = await openDatabase(
         dbPath,
@@ -48,9 +50,6 @@ class DbSqlite {
       print("Create a Tables Data");
       return database;
     }
-    return await openDatabase(
-      dbPath,
-    );
   }
 
   void _createDb(Database db, int newVersion) async {
