@@ -7,16 +7,6 @@ class QuickTypes {
   static const String dbFileName = 'AmsPDA.db';
 }
 
-class CountScanOutputField {
-  static const String ASSETS_CODE = 'assetCode';
-  static const String PLAN_CODE = 'planCode';
-  static const String LOCATION_ID = 'locationId';
-  static const String DEPARTMENT_ID = 'departmentId';
-  static const String IS_SCAN_NOW = 'isScanNow';
-  static const String REMARK = 'remark';
-  static const String STATUS_ID = 'statusId';
-}
-
 class CountScanAssetsField {
   static const String t_CountScanAssets = 't_countScanAssets';
   static const String PLAN_DETAIL_ID = 'planDetailId';

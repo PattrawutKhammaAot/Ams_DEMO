@@ -1,3 +1,4 @@
+import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/models/count/responeModel.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
@@ -59,6 +60,7 @@ class DbSqlite {
     DepartmentModel().createTable(db, newVersion);
     LocationModel().createTable(db, newVersion);
     StatusAssetCountModel().createTable(db, newVersion);
+    CountScan_OutputModel().createTable(db, newVersion);
   }
 
   Future<void> deleteAll({

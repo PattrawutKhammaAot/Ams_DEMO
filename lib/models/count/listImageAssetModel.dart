@@ -1,7 +1,14 @@
+import 'dart:io';
+
 import 'package:ams_count/data/database/dbsqlite.dart';
 import 'package:ams_count/data/database/quickTypes/quickTypes.dart';
+import 'package:ams_count/models/count/uploadImage_output_Model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../../blocs/count/count_bloc.dart';
 
 class ListImageAssetModel {
   const ListImageAssetModel({
@@ -93,11 +100,39 @@ class ListImageAssetModel {
       int count = await db.delete(ListImageAssetField.TABLE_NAME);
     } catch (e) {}
   }
+
+  Future<void> deleteDataByID(int id) async {
+    try {
+      Database db = await DbSqlite().database;
+      printInfo(info: "${id}");
+      int count = await db.delete(
+        ListImageAssetField.TABLE_NAME,
+        where: "${ListImageAssetField.ID} = ?",
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> uploadImageAndDelete(BuildContext context) async {
+    var itemSql = await ListImageAssetModel().queryAllRows();
+    if (itemSql.isNotEmpty) {
+      for (var item in itemSql) {
+        BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
+            UploadImageModelOutput(
+                ASSETS_CODE: item[ListImageAssetField.ASSETS_CODE],
+                FILES: File(item[ListImageAssetField.URL_IMAGE]))));
+        await deleteDataByID(item[ListImageAssetField.ID]);
+        File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
+      }
+    }
+  }
 }
+
 class ListImageAssetField {
   static const String TABLE_NAME = 't_listImageAssets';
   static const String ID = 'ID';
   static const String ASSETS_CODE = 'assetCode';
   static const String URL_IMAGE = 'url_image';
-
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_toast/bot_toast.dart';
 
 import 'package:flutter/material.dart';
@@ -11,6 +13,8 @@ import 'blocs/home/home.dart';
 import 'blocs/network/network.dart';
 import 'config/app_data.dart';
 import 'data/models/api_response.dart';
+import 'models/count/listImageAssetModel.dart';
+import 'models/count/uploadImage_output_Model.dart';
 import 'routes/route.dart';
 import 'screens/login/bloc/auth_bloc.dart';
 import 'screens/splash/view/splash_page.dart';
@@ -86,7 +90,7 @@ class _AppViewState extends State<AppView> {
       GlobalContextService.navigatorKey.currentState!;
   final botToastBuilder = BotToastInit();
   final easyLoading = EasyLoading.init();
-
+  int id = 0;
   @override
   Widget build(BuildContext context) {
     EasyLoading
@@ -123,25 +127,29 @@ class _AppViewState extends State<AppView> {
             }
           },
           child: BlocListener<NetworkBloc, NetworkState>(
-            listener: (context, state) {
-              if (state is NetworkFailure) {
-                AppData.setMode("Offline");
-                Alert.show(
-                    title: 'Connection Failed',
-                    message: 'Check your internet connection and try again ',
-                    type: ReturnStatus.ERROR,
-                    duration: const Duration(seconds: 10));
-              } else if (state is NetworkSuccess) {
-                AppData.setMode("Online");
-                Alert.show(
-                    title: 'Connection Successful',
-                    message: 'You\'re Online Now',
-                    type: ReturnStatus.SUCCESS,
-                    duration: const Duration(seconds: 5));
-              }
-            },
-            child: child,
-          ),
+              listener: (context, state) async {
+                if (state is NetworkFailure) {
+                  AppData.setMode("Offline");
+                  Alert.show(
+                      title: 'Connection Failed',
+                      message: 'Check your internet connection and try again ',
+                      type: ReturnStatus.ERROR,
+                      duration: const Duration(seconds: 10));
+                } else if (state is NetworkSuccess) {
+                  AppData.setMode("Online");
+                  Alert.show(
+                      title: 'Connection Successful',
+                      message: 'You\'re Online Now',
+                      type: ReturnStatus.SUCCESS,
+                      duration: const Duration(seconds: 5));
+                  await ListImageAssetModel().uploadImageAndDelete(context);
+
+                  setState(() {});
+
+                  EasyLoading.dismiss();
+                }
+              },
+              child: child),
         );
         child = botToastBuilder(context, child);
         child = easyLoading(context, child);

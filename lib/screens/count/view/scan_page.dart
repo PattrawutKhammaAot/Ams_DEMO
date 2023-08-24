@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:ams_count/app.dart';
 import 'package:ams_count/blocs/count/count_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
+import 'package:ams_count/config/app_data.dart';
 import 'package:ams_count/models/count/countScanAssetsModel.dart';
 import 'package:ams_count/models/count/uploadImage_output_Model.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
@@ -83,7 +88,6 @@ class _ScanPageState extends State<ScanPage> {
       focus.requestFocus();
       return "Please Input Field";
     } else {
-      print("NotEmpty");
       focus.requestFocus();
       return null;
     }
@@ -107,6 +111,54 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
+  Future _buttonSave() async {
+    if (formKeyList[0].currentState!.validate() &&
+        formKeyList[1].currentState!.validate()) {
+      if (_departmentController.text.isNotEmpty ||
+          _locationController.text.isNotEmpty) {
+        if (await AppData.getMode() == "Offline") {
+          printInfo(info: "offline");
+          await CountScan_OutputModel().insert(CountScan_OutputModel(
+              ASSETS_CODE: _barCodeController.text.trim(),
+              PLAN_CODE: planCode,
+              LOCATION_ID: locationId,
+              DEPARTMENT_ID: departmentId,
+              IS_SCAN_NOW: true,
+              REMARK: _remarkController.text.isEmpty
+                  ? "-"
+                  : _remarkController.text.trim(),
+              STATUS_ID: statusId));
+          AlertWarningNew().alertShowOK(context,
+              title: "Save Success",
+              desc: "",
+              type: AlertType.success, onPress: () {
+            _assetNoController.clear();
+            _nameController.clear();
+            _serialNumberController.clear();
+            _classController.clear();
+            _useDateController.clear();
+            _barCodeController.clear();
+            _remarkController.clear();
+            _barcodeFocusNode.requestFocus();
+            Navigator.pop(context);
+          });
+        } else {
+          BlocProvider.of<CountBloc>(context).add(PostCountScanSaveAssetEvent(
+              CountScan_OutputModel(
+                  ASSETS_CODE: _barCodeController.text.trim(),
+                  PLAN_CODE: planCode,
+                  LOCATION_ID: locationId,
+                  DEPARTMENT_ID: departmentId,
+                  IS_SCAN_NOW: true,
+                  REMARK: _remarkController.text.isEmpty
+                      ? "-"
+                      : _remarkController.text.trim(),
+                  STATUS_ID: statusId)));
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
@@ -116,20 +168,48 @@ class _ScanPageState extends State<ScanPage> {
     super.initState();
   }
 
-  _UploadFromCamera() async {
+  _uploadPhotoToServer() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.camera,
       maxWidth: 1200,
       maxHeight: 1200,
     );
     if (pickedFile != null) {
-      imageFile = File(pickedFile.path);
+      imageFile = await File(pickedFile.path);
 
       BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
           UploadImageModelOutput(
               ASSETS_CODE: _barCodeController.text.toUpperCase(),
-              FILES: imageFile)));
+              FILES: imageFile!)));
       setState(() {});
+    }
+  }
+
+  _uploadPhotoToSqlite() async {
+    var path = await getExternalStorageDirectory();
+    String randomFileName = Random().nextInt(1000000).toString();
+    final File newImage =
+        await imageFile!.copy('${path!.path}/${randomFileName}.jpg');
+
+    if (newImage != null) {
+      await ListImageAssetModel().insert({
+        "${ListImageAssetField.ASSETS_CODE}": _barCodeController.text,
+        "${ListImageAssetField.URL_IMAGE}": newImage.path,
+      });
+      AlertWarningNew().alertShowOK(context,
+          title: "Save Success",
+          desc: "Internet Offline Save Image to Local",
+          type: AlertType.success, onPress: () {
+        _assetNoController.clear();
+        _nameController.clear();
+        _serialNumberController.clear();
+        _classController.clear();
+        _useDateController.clear();
+        _barCodeController.clear();
+        _barcodeFocusNode.requestFocus();
+
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -222,10 +302,8 @@ class _ScanPageState extends State<ScanPage> {
               });
             }
           } else if (state is CountScanAssetsListErrorState) {}
-          if (state is CountScanAssetsLoadedState) {
-            var data = state.item.DATA;
+          if (state is CountScanSaveAssetsLoadedState) {
             if (state.item.STATUS == "SUCCESS") {
-              itemCountModel = CountScanAssetsModel.fromJson(data);
               AlertWarningNew().alertShowOK(context,
                   title: "${state.item.STATUS}",
                   desc: "${state.item.MESSAGE}",
@@ -241,32 +319,33 @@ class _ScanPageState extends State<ScanPage> {
               });
             } else {
               AlertWarningNew().alertShowOK(context,
-                  title: "Warning",
-                  desc: "${error}",
+                  title: "${state.item.STATUS}",
+                  desc: "${state.item.MESSAGE} ",
                   type: AlertType.warning, onPress: () {
                 _assetNoController.clear();
-                _nameController.clear();
-                _serialNumberController.clear();
-                _classController.clear();
-                _useDateController.clear();
-                _assetNoFocusNode.requestFocus();
+                _barCodeController.clear();
+                _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               });
             }
           }
           if (state is UploadImageLoadedState) {
+            AlertWarningNew().alertShowOK(context,
+                title: "${state.item.STATUS}",
+                desc: "${state.item.MESSAGE}",
+                type: AlertType.success, onPress: () {
+              _assetNoController.clear();
+              _nameController.clear();
+              _serialNumberController.clear();
+              _classController.clear();
+              _useDateController.clear();
+              _barCodeController.clear();
+              _barcodeFocusNode.requestFocus();
+
+              Navigator.pop(context);
+            });
           } else if (state is UploadImageErrorState) {
-            var path = await getExternalStorageDirectory();
-
-            final File newImage = await imageFile!
-                .copy('${path!.path}/${_barCodeController.text}.jpg');
-
-            if (newImage != null) {
-              await ListImageAssetModel().insert({
-                "${ListImageAssetField.ASSETS_CODE}": _barCodeController.text,
-                "${ListImageAssetField.URL_IMAGE}": newImage.path,
-              });
-            }
+            await _uploadPhotoToSqlite();
           }
           setState(() {});
         })
@@ -422,6 +501,7 @@ class _ScanPageState extends State<ScanPage> {
                       children: [
                         CustomTextInputField(
                           labelText: "BarCode",
+                          onChanged: (value) {},
                           focusNode: _barcodeFocusNode,
                           onFieldSubmitted: (value) {
                             BlocProvider.of<CountBloc>(context)
@@ -578,6 +658,7 @@ class _ScanPageState extends State<ScanPage> {
                               child: CustomTextInputField(
                                 onFieldSubmitted: (value) {},
                                 focusNode: _remarkFocusNode,
+                                controller: _remarkController,
                                 isHideLable: true,
                                 labelText: "Remark",
                                 maxLines: 2,
@@ -599,19 +680,19 @@ class _ScanPageState extends State<ScanPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            imageFile != null
-                                ? Image.file(
-                                    imageFile ?? File(""),
-                                    width: 150,
-                                    height: 150,
-                                  )
-                                : Label("No File")
-                          ],
-                        ),
+                        // Row(
+                        //   crossAxisAlignment: CrossAxisAlignment.center,
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     imageFile != null
+                        //         ? Image.file(
+                        //             imageFile ?? File(""),
+                        //             width: 150,
+                        //             height: 150,
+                        //           )
+                        //         : Label("No File")
+                        //   ],
+                        // ),
                         SizedBox(
                           height: 5,
                         ),
@@ -644,24 +725,8 @@ class _ScanPageState extends State<ScanPage> {
               leading: LineIcons.save,
               iconColor: Colors.white,
               color: colorActive,
-              onPress: () {
-                if (formKeyList[0].currentState!.validate() &&
-                    formKeyList[1].currentState!.validate()) {
-                  if (_departmentController.text.isNotEmpty &&
-                      _locationController.text.isNotEmpty) {
-                    BlocProvider.of<CountBloc>(context).add(
-                        PostCountScanAssetEvent(CountScan_OutputModel(
-                            ASSETS_CODE: _barCodeController.text.trim(),
-                            PLAN_CODE: planCode,
-                            LOCATION_ID: locationId,
-                            DEPARTMENT_ID: departmentId,
-                            IS_SCAN_NOW: true,
-                            REMARK: _remarkController.text.isEmpty
-                                ? "-"
-                                : _remarkController.text.trim(),
-                            STATUS_ID: statusId)));
-                  }
-                }
+              onPress: () async {
+                await _buttonSave();
               },
             ),
           ),
@@ -677,11 +742,10 @@ class _ScanPageState extends State<ScanPage> {
               iconColor: Colors.white,
               color: colorWarning,
               onPress: () {
-                _UploadFromCamera();
                 if (_barCodeController.text.isNotEmpty) {
                   _validateDropdown();
                   if (isCheckdropdown == true) {
-                    _UploadFromCamera();
+                    _uploadPhotoToServer();
                   }
                 } else {
                   AlertWarningNew().alertShowOK(context,
@@ -697,10 +761,4 @@ class _ScanPageState extends State<ScanPage> {
       ],
     );
   }
-}
-
-class RIKeys {
-  static final riKey1 = const Key('__RIKEY1__');
-  static final riKey2 = const Key('__RIKEY2__');
-  static final riKey3 = const Key('__RIKEY3__');
 }

@@ -53,18 +53,17 @@ class _CountPageState extends State<CountPage> {
     AppData.getMode().then((test) {
       mode = test;
     });
-    loadData();
 
     super.initState();
   }
 
   Future<void> loadData() async {
-    if (mode == "Online") {
+    if (await AppData.getMode() == "Online") {
       await ResponseModel().update(
           check: itemCheck.DATA,
           uncheck: itemUncheck.DATA,
           total: itemCheckAll.DATA);
-    } else if (mode == "Offline") {
+    } else if (await AppData.getMode() == "Offline") {
       var itemSql = await ResponseModel().query();
       if (itemSql.isNotEmpty) {
         itemCheck.DATA = await itemSql[0]['${CheckAllField.CHECK}'];
@@ -131,14 +130,20 @@ class _CountPageState extends State<CountPage> {
             setState(() {
               itemCheckAll = state.item;
             });
-          } else if (state is CheckAllErrorState) {}
+            loadData();
+          } else if (state is CheckAllErrorState) {
+            loadData();
+          }
           //Check select
           if (state is CheckTotalLoadingState) {
           } else if (state is CheckTotalLoadedState) {
             setState(() {
               itemCheck = state.item;
             });
-          } else if (state is CheckTotalErrorState) {}
+            loadData();
+          } else if (state is CheckTotalErrorState) {
+            loadData();
+          }
 
           //Uncheck
           if (state is CheckUncheckLoadingState) {
@@ -146,8 +151,10 @@ class _CountPageState extends State<CountPage> {
             setState(() {
               itemUncheck = state.item;
             });
-          } else if (state is CheckUncheckErrorState) {}
-          loadData();
+            loadData();
+          } else if (state is CheckUncheckErrorState) {
+            loadData();
+          }
         })
       ],
       child: Scaffold(

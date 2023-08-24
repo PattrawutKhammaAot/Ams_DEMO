@@ -26,9 +26,7 @@ part 'count_state.dart';
 class CountBloc extends Bloc<CountEvent, CountState> {
   Dio dio = Dio();
   CountBloc() : super(CountInitial()) {
-    on<CountEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+    on<CountEvent>((event, emit) {});
     on<GetListCountPlanEvent>(
       (event, emit) async {
         try {
@@ -120,14 +118,14 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }
       },
     );
-    on<PostCountScanAssetEvent>(
+    on<PostCountScanSaveAssetEvent>(
       (event, emit) async {
         try {
-          emit(CountScanAssetsLoadingState());
-          final mlist = await fetchCountScanAssetsModel(event.items);
-          emit(CountScanAssetsLoadedState(mlist));
+          emit(CountScanSaveAssetsLoadingState());
+          final mlist = await fetchCountScanSaveAssetsModel(event.items);
+          emit(CountScanSaveAssetsLoadedState(mlist));
         } catch (e) {
-          emit(CountScanAssetsErrorState(e.toString()));
+          emit(CountScanSaveAssetsErrorState(e.toString()));
         }
       },
     );
@@ -147,13 +145,14 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         try {
           emit(UploadImageLoadingState());
           final mlist = await fetchUploadImage(event.items);
-          emit(UploadImageLoadedState());
+          emit(UploadImageLoadedState(mlist));
         } catch (e) {
           emit(UploadImageErrorState(e.toString()));
         }
       },
     );
   }
+
   Future<List<CountPlanModel>> fetchGetListCountPlan() async {
     try {
       var apiController = APIController();
@@ -167,7 +166,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -182,7 +180,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -200,7 +197,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -218,7 +214,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -237,7 +232,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -266,13 +260,11 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      print(e);
-      print(s);
       throw Exception();
     }
   }
 
-  Future<CountScanMain> fetchCountScanAssetsModel(
+  Future<CountScanMain> fetchCountScanSaveAssetsModel(
       CountScan_OutputModel output) async {
     late String token = "";
     token = await AppData.getToken();
@@ -292,15 +284,10 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }),
       );
 
-      printInfo(info: "${configHost}");
-      printInfo(info: "${responese.data}");
-
       CountScanMain post = CountScanMain.fromJson(responese.data);
 
       return post;
     } catch (e, s) {
-      print(e);
-      print(s);
       throw Exception();
     }
   }
@@ -317,10 +304,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
               (json) => ListImageAssetModel.fromJson(json))
           .toList();
 
-      printInfo(info: "${itemData}");
       return post;
     } catch (e, s) {
-      printError(info: "Exception occured: $e StackTrace: $s");
       throw Exception();
     }
   }
@@ -341,7 +326,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     try {
       FormData formData = FormData.fromMap({
         "assetCode": output.ASSETS_CODE,
-        "files": MultipartFile.fromFileSync(
+        "files": await MultipartFile.fromFileSync(
           output.FILES!.path,
           filename: "${output.ASSETS_CODE}.jpg",
         ),
@@ -352,12 +337,10 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         data: formData,
       );
 
-      printInfo(info: "${configHost}");
-      printInfo(info: "${response.data}");
+      CountScanMain post = CountScanMain.fromJson(response.data);
 
-      return CountScanMain();
+      return post;
     } catch (e, s) {
-      printError(info: "Exception occurred: $e StackTrace: $s");
       throw Exception();
     }
   }

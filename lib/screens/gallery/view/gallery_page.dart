@@ -39,8 +39,6 @@ class _GalleryPageState extends State<GalleryPage> {
     super.initState();
   }
 
-
-
   void _serachItemModel(String value) {
     List<ListImageAssetModel> searchResults = _tempimageList
         .where((element) => element.ASSETS_CODE == value)
@@ -61,6 +59,8 @@ class _GalleryPageState extends State<GalleryPage> {
           if (state is GetListImageAssetLoadedState) {
             _imageList = state.item;
             _tempimageList = state.item;
+
+            printInfo(info: "${state.item.length}");
           } else if (state is GetListImageAssetErrorState) {
             var itemSql = await ListImageAssetModel().queryAllRows();
             _imageList = itemSql

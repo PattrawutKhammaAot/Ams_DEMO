@@ -74,8 +74,8 @@ class PostCountScanAssetListEvent extends CountEvent {
   List<Object> get prop => [items];
 }
 
-class PostCountScanAssetEvent extends CountEvent {
-  PostCountScanAssetEvent(this.items);
+class PostCountScanSaveAssetEvent extends CountEvent {
+  PostCountScanSaveAssetEvent(this.items);
   CountScan_OutputModel items;
   @override
   List<Object> get prop => [items];

@@ -1,8 +1,11 @@
 import 'package:ams_count/data/database/quickTypes/quickTypes.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../data/database/dbsqlite.dart';
+
 class CountScan_OutputModel {
   const CountScan_OutputModel({
+    this.ID,
     this.ASSETS_CODE,
     this.PLAN_CODE,
     this.LOCATION_ID,
@@ -11,6 +14,7 @@ class CountScan_OutputModel {
     this.REMARK,
     this.STATUS_ID,
   });
+  final int? ID;
   final String? ASSETS_CODE;
   final String? PLAN_CODE;
   final int? LOCATION_ID;
@@ -21,6 +25,7 @@ class CountScan_OutputModel {
 
   List<Object> get props => [
         ASSETS_CODE!,
+        ID!,
         PLAN_CODE!,
         LOCATION_ID!,
         DEPARTMENT_ID!,
@@ -31,6 +36,7 @@ class CountScan_OutputModel {
 
   static CountScan_OutputModel fromJson(dynamic json) {
     return CountScan_OutputModel(
+      ID: json[CountScanOutputField.ID],
       ASSETS_CODE: json[CountScanOutputField.ASSETS_CODE],
       PLAN_CODE: json[CountScanOutputField.PLAN_CODE],
       LOCATION_ID: json[CountScanOutputField.LOCATION_ID],
@@ -52,4 +58,40 @@ class CountScan_OutputModel {
       CountScanOutputField.STATUS_ID: STATUS_ID,
     };
   }
+
+  createTable(Database db, int newVersion) async {
+    await db.execute('CREATE TABLE ${CountScanOutputField.TABLE_NAME} ('
+        '${QuickTypes.ID_PRIMARYKEY},'
+        '${CountScanOutputField.ASSETS_CODE} ${QuickTypes.TEXT},'
+        '${CountScanOutputField.PLAN_CODE} ${QuickTypes.TEXT},'
+        '${CountScanOutputField.LOCATION_ID} ${QuickTypes.INTEGER},'
+        '${CountScanOutputField.DEPARTMENT_ID} ${QuickTypes.INTEGER},'
+        '${CountScanOutputField.IS_SCAN_NOW} ${QuickTypes.TEXT},'
+        '${CountScanOutputField.REMARK} ${QuickTypes.TEXT},'
+        '${CountScanOutputField.STATUS_ID} ${QuickTypes.INTEGER}'
+        ')');
+  }
+
+  Future<int> insert(CountScan_OutputModel data) async {
+    try {
+      final db = await DbSqlite().database;
+
+      return await db.insert(CountScanOutputField.TABLE_NAME, data.toJson());
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+}
+
+class CountScanOutputField {
+  static const String TABLE_NAME = 't_CountScanOutputField';
+  static const String ID = 'ID';
+  static const String ASSETS_CODE = 'assetCode';
+  static const String PLAN_CODE = 'planCode';
+  static const String LOCATION_ID = 'locationId';
+  static const String DEPARTMENT_ID = 'departmentId';
+  static const String IS_SCAN_NOW = 'isScanNow';
+  static const String REMARK = 'remark';
+  static const String STATUS_ID = 'statusId';
 }

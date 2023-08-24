@@ -194,22 +194,22 @@ class CountScanAssetsListErrorState extends CountState {
 }
 
 ///Get CountScanAssets
-class CountScanAssetsLoadingState extends CountState {
-  const CountScanAssetsLoadingState();
+class CountScanSaveAssetsLoadingState extends CountState {
+  const CountScanSaveAssetsLoadingState();
   @override
   List<Object> get props => [];
 }
 
-class CountScanAssetsLoadedState extends CountState {
-  const CountScanAssetsLoadedState(this.item);
+class CountScanSaveAssetsLoadedState extends CountState {
+  const CountScanSaveAssetsLoadedState(this.item);
   final CountScanMain item;
 
   @override
   List<Object> get props => [item];
 }
 
-class CountScanAssetsErrorState extends CountState {
-  const CountScanAssetsErrorState(this.error);
+class CountScanSaveAssetsErrorState extends CountState {
+  const CountScanSaveAssetsErrorState(this.error);
   final String error;
 
   @override
@@ -247,11 +247,11 @@ class UploadImageLoadingState extends CountState {
 }
 
 class UploadImageLoadedState extends CountState {
-  const UploadImageLoadedState();
-  // final List<ListImageAssetModel> item;
+  const UploadImageLoadedState(this.item);
+  final CountScanMain item;
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [item];
 }
 
 class UploadImageErrorState extends CountState {
