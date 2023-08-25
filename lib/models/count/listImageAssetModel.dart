@@ -117,7 +117,7 @@ class ListImageAssetModel {
   }
 
   Future<void> uploadImageAndDelete(BuildContext context) async {
-    var itemSql = await ListImageAssetModel().queryAllRows();
+    var itemSql = await queryAllRows();
     if (itemSql.isNotEmpty) {
       for (var item in itemSql) {
         printInfo(info: '${item[ListImageAssetField.ASSETS_CODE]} Test Image');
