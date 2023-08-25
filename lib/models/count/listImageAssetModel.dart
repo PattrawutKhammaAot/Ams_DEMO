@@ -46,6 +46,7 @@ class ListImageAssetModel {
 
   Future<int> insert(ListImageAssetModel data) async {
     try {
+      var itemSql = queryAllRows();
       final db = await DbSqlite().database;
 
       return await db.insert(ListImageAssetField.TABLE_NAME, data.toJson());
@@ -119,11 +120,13 @@ class ListImageAssetModel {
     var itemSql = await ListImageAssetModel().queryAllRows();
     if (itemSql.isNotEmpty) {
       for (var item in itemSql) {
+        printInfo(info: '${item[ListImageAssetField.ASSETS_CODE]} Test Image');
+        printInfo(info: '${item[ListImageAssetField.URL_IMAGE]} Test Image');
         BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
             UploadImageModelOutput(
                 ASSETS_CODE: item[ListImageAssetField.ASSETS_CODE],
                 FILES: File(item[ListImageAssetField.URL_IMAGE]))));
-        await deleteDataByID(item[ListImageAssetField.ID]);
+        deleteDataByID(item[ListImageAssetField.ID]);
         File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
       }
     }

@@ -13,6 +13,7 @@ import 'blocs/count/count_bloc.dart';
 import 'blocs/home/home.dart';
 import 'blocs/network/network.dart';
 import 'config/app_data.dart';
+import 'data/database/dbsqlite.dart';
 import 'data/models/api_response.dart';
 import 'models/count/listImageAssetModel.dart';
 import 'models/count/uploadImage_output_Model.dart';
@@ -145,7 +146,6 @@ class _AppViewState extends State<AppView> {
                       duration: const Duration(seconds: 5));
                   await ListImageAssetModel().uploadImageAndDelete(context);
                   await CountScan_OutputModel().sendDataToserver(context);
-                  setState(() {});
 
                   EasyLoading.dismiss();
                 }

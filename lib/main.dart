@@ -5,6 +5,6 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await DbSqlite().initializeDatabase();
+
   runApp(const App());
 }

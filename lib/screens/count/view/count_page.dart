@@ -4,6 +4,7 @@ import 'package:ams_count/data/models/default_response.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
 
 import 'package:ams_count/widgets/alert.dart';
+import 'package:ams_count/widgets/alert_new.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,8 @@ class _CountPageState extends State<CountPage> {
   Future<void> _addDataSqlite() async {
     var itemSql = await CountPlanModel().queryAllRows();
     if (itemSql.isNotEmpty) {
-      await DbSqlite().deleteAll(tableName: '${CountPlanField.TABLE_NAME}');
+      await DbSqlite()
+          .deleteAll(context, tableName: '${CountPlanField.TABLE_NAME}');
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
       }
@@ -113,8 +115,7 @@ class _CountPageState extends State<CountPage> {
             });
 
             await _addDataSqlite();
-          }
-          if (state is GetListCountPlanErrorState) {
+          } else if (state is GetListCountPlanErrorState) {
             var itemSql = await CountPlanModel().queryAllRows();
             setState(() {
               itemModel =
@@ -193,10 +194,8 @@ class _CountPageState extends State<CountPage> {
                                     ? Expanded(
                                         child: CustomRangePoint(
                                           color: Colors.red,
-                                          valueRangePointer: double.parse(
-                                              itemUncheck.DATA.toString()),
-                                          allItem: double.parse(
-                                              itemCheckAll.DATA.toString()),
+                                          valueRangePointer: itemUncheck.DATA,
+                                          allItem: itemUncheck.DATA,
                                           text: "Uncheck",
                                         ),
                                       )
@@ -225,10 +224,8 @@ class _CountPageState extends State<CountPage> {
                                     ? Expanded(
                                         child: CustomRangePoint(
                                           color: colorActive,
-                                          valueRangePointer: double.parse(
-                                              itemCheck.DATA.toString()),
-                                          allItem: double.parse(
-                                              itemCheckAll.DATA.toString()),
+                                          valueRangePointer: itemCheck.DATA,
+                                          allItem: itemCheckAll.DATA,
                                           text: "Check",
                                         ),
                                       )

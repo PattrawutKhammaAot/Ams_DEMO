@@ -225,6 +225,8 @@ class _ScanPageState extends State<ScanPage> {
       listeners: [
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetLocationLoadedState) {
+            await DbSqlite()
+                .deleteAll(context, tableName: '${LocationField.TABLE_NAME}');
             for (var item in state.item) {
               await LocationModel().insert(item.toJson());
             }
@@ -233,14 +235,11 @@ class _ScanPageState extends State<ScanPage> {
             var itemSql = await LocationModel().query();
             _locationModel =
                 itemSql.map((map) => LocationModel.fromJson(map)).toList();
-
-            AlertWarningNew()
-                .alertShowOK(context, title: "this Location ${itemSql.length}");
           }
           if (state is GetDepartmentLoadedState) {
             _departmentModel = state.item;
             await DbSqlite()
-                .deleteAll(tableName: '${DepartmentField.TABLE_NAME}');
+                .deleteAll(context, tableName: '${DepartmentField.TABLE_NAME}');
             for (var item in state.item) {
               await DepartmentModel().insert(item.toJson());
             }
@@ -250,10 +249,10 @@ class _ScanPageState extends State<ScanPage> {
                 itemSql.map((map) => DepartmentModel.fromJson(map)).toList();
           }
           if (state is GetStatusAssetLoadedState) {
-            await DbSqlite()
-                .deleteAll(tableName: '${StatusAssetField.TABLE_NAME}');
+            await DbSqlite().deleteAll(context,
+                tableName: '${StatusAssetField.TABLE_NAME}');
             for (var item in state.item) {
-              await StatusAssetCountModel().insert(item.toJson());
+              await StatusAssetCountModel().insert(item);
             }
             _statusAssetCountModel = state.item;
           } else if (state is GetStatusAssetErrorState) {

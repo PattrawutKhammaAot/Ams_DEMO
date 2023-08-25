@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../data/database/dbsqlite.dart';
@@ -79,6 +80,7 @@ class CountPlanModel {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
+      printInfo(info: "Insert Count");
       final db = await DbSqlite().database;
 
       return await db.insert(CountPlanField.TABLE_NAME, data);

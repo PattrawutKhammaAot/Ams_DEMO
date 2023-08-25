@@ -4,6 +4,8 @@ import 'package:ams_count/models/count/responeModel.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/master/statusAssetCountModel.dart';
+import 'package:ams_count/widgets/alert_new.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -62,12 +64,18 @@ class DbSqlite {
     CountScan_OutputModel().createTable(db, newVersion);
   }
 
-  Future<void> deleteAll({
+  Future<void> deleteAll(
+    BuildContext context, {
     String? tableName,
   }) async {
     try {
       Database db = await DbSqlite().database;
-      int count = await db.delete('${tableName!}');
+      await db.delete('${tableName!}');
+
+      // AlertWarningNew().alertShowOK(context, title: "Table ${tableName}",
+      //     onPress: () {
+      //   Navigator.pop(context);
+      // });
 
       printInfo(info: "Deleted Table = ${tableName}");
     } catch (e) {

@@ -9,6 +9,7 @@ import 'package:ams_count/models/count/uploadImage_output_Model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get_utils/get_utils.dart';
 
 import '../../config/api_path.dart';
@@ -164,8 +165,19 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           .map<CountPlanModel>((json) => CountPlanModel.fromJson(json))
           .toList();
 
+      // if (response['status'] == "SUCCESS") {
+      //   var itemSql = await CountPlanModel().queryAllRows();
+      //   if (itemSql.isEmpty) {
+      //     for (var item in post) {
+      //       await CountPlanModel().insert(item.toJson());
+      //     }
+      //   }
+      // }
       return post;
     } catch (e, s) {
+      print(e);
+      print(s);
+      EasyLoading.showError("$e");
       throw Exception();
     }
   }
@@ -177,6 +189,17 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           useAuth: true);
 
       ResponseModel post = ResponseModel.fromJson(response);
+      if (response['status'] == "SUCCES") {
+        if (apinfunctiong == 'GetCountCheckTotal') {
+          await ResponseModel().update(check: post.DATA);
+        }
+        if (apinfunctiong == 'GetCountCheckAllTotal') {
+          await ResponseModel().update(total: post.DATA);
+        }
+        if (apinfunctiong == 'GetCountCheckUncheckTotal') {
+          await ResponseModel().update(uncheck: post.DATA);
+        }
+      }
 
       return post;
     } catch (e, s) {
@@ -194,6 +217,14 @@ class CountBloc extends Bloc<CountEvent, CountState> {
       List<LocationModel> post = itemData
           .map<LocationModel>((json) => LocationModel.fromJson(json))
           .toList();
+      if (response['status'] == "SUCCESS") {
+        var itemSql = await LocationModel().query();
+        if (itemSql.isEmpty) {
+          for (var item in post) {
+            await LocationModel().insert(item.toJson());
+          }
+        }
+      }
 
       return post;
     } catch (e, s) {
@@ -212,6 +243,15 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           .map<DepartmentModel>((json) => DepartmentModel.fromJson(json))
           .toList();
 
+      if (response['status'] == "SUCCESS") {
+        var itemSql = await DepartmentModel().query();
+        if (itemSql.isEmpty) {
+          for (var item in post) {
+            await DepartmentModel().insert(item.toJson());
+          }
+        }
+      }
+
       return post;
     } catch (e, s) {
       throw Exception();
@@ -229,7 +269,17 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           .map<StatusAssetCountModel>(
               (json) => StatusAssetCountModel.fromJson(json))
           .toList();
-
+      if (response['status'] == "SUCCESS") {
+        var itemSql = await StatusAssetCountModel().query();
+        if (itemSql.isEmpty) {
+          for (var item in post) {
+            await StatusAssetCountModel().insert(StatusAssetCountModel(
+                STATUS_CODE: item.STATUS_CODE,
+                STATUS_ID: item.STATUS_ID,
+                STATUS_NAME: item.STATUS_NAME));
+          }
+        }
+      }
       return post;
     } catch (e, s) {
       throw Exception();
@@ -315,9 +365,9 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();
 
-    Dio dio = Dio();
+    printInfo(info: "Config ${configHost}");
 
-    printInfo(info: output.toJson().toString());
+    Dio dio = Dio();
 
     dio.options.headers['Authorization'] = 'Bearer $token';
     dio.options.headers['Application-Key'] = appKey;
@@ -344,6 +394,9 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
+      print(e);
+      print(s);
+
       throw Exception();
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ams_count/config/api_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import '../../../app.dart';
 //import '../../../blocs/home/home.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
+import '../../../data/database/dbsqlite.dart';
 import '../../../widgets/widget.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -40,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     _usernameController.text = "";
     _passwordController.text = "";
     // offlineChecked = false;
+    DbSqlite().initializeDatabase().then((value) => {});
 
     super.initState();
   }

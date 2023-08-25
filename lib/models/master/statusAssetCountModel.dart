@@ -41,13 +41,39 @@ class StatusAssetCountModel {
     return await db.query(StatusAssetField.TABLE_NAME);
   }
 
-  Future<int> insert(Map<String, dynamic> data) async {
+  Future<int> insert(StatusAssetCountModel data) async {
     try {
       final db = await DbSqlite().database;
-      return await db.insert(StatusAssetField.TABLE_NAME, data);
+      return await db.insert(StatusAssetField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
       print(ex);
       rethrow;
+    }
+  }
+
+  Future<void> insertOrUpdate(StatusAssetCountModel data) async {
+    final db = await DbSqlite().database;
+
+    List<Map<String, dynamic>> existingRows = await db.query(
+      StatusAssetField.TABLE_NAME,
+      where: "${StatusAssetField.STATUS_ID} = ?",
+      whereArgs: [data.STATUS_ID],
+    );
+
+    if (existingRows.isNotEmpty) {
+      // Update existing data
+      await db.update(
+        StatusAssetField.TABLE_NAME,
+        data.toJson(),
+        where: "${StatusAssetField.STATUS_ID} = ?",
+        whereArgs: [data.STATUS_ID],
+      );
+    } else {
+      // Insert new data
+      await db.insert(
+        StatusAssetField.TABLE_NAME,
+        data.toJson(),
+      );
     }
   }
 }

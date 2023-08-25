@@ -10,8 +10,8 @@ class CustomRangePoint extends StatelessWidget {
       required this.allItem,
       this.color,
       this.text});
-  final double? valueRangePointer;
-  final double? allItem;
+  final int? valueRangePointer;
+  final int? allItem;
 
   final Color? color;
   final String? text;
@@ -25,7 +25,7 @@ class CustomRangePoint extends StatelessWidget {
         axes: <RadialAxis>[
           RadialAxis(
               minimum: 0,
-              maximum: allItem!,
+              maximum: double.parse(allItem.toString()),
               showLabels: false,
               showTicks: false,
               startAngle: 270,
@@ -80,7 +80,7 @@ class CustomRangePoint extends StatelessWidget {
               ],
               pointers: <GaugePointer>[
                 RangePointer(
-                    value: valueRangePointer!,
+                    value: double.tryParse(valueRangePointer.toString())!,
                     cornerStyle: CornerStyle.bothCurve,
                     enableAnimation: true,
                     animationDuration: 2400,
