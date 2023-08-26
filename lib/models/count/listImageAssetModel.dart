@@ -120,14 +120,10 @@ class ListImageAssetModel {
     var itemSql = await queryAllRows();
     if (itemSql.isNotEmpty) {
       for (var item in itemSql) {
-        printInfo(info: '${item[ListImageAssetField.ASSETS_CODE]} Test Image');
-        printInfo(info: '${item[ListImageAssetField.URL_IMAGE]} Test Image');
         BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
             UploadImageModelOutput(
                 ASSETS_CODE: item[ListImageAssetField.ASSETS_CODE],
                 FILES: File(item[ListImageAssetField.URL_IMAGE]))));
-        deleteDataByID(item[ListImageAssetField.ID]);
-        File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
       }
     }
   }

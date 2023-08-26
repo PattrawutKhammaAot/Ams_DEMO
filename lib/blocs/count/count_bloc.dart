@@ -6,9 +6,11 @@ import 'package:ams_count/models/count/countScanAssetsModel.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/models/count/main/countScanAssetMain.dart';
 import 'package:ams_count/models/count/uploadImage_output_Model.dart';
+import 'package:ams_count/widgets/alert_new.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get_utils/get_utils.dart';
 
@@ -389,8 +391,30 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         data: formData,
       );
       printInfo(info: "${response.data}");
-
+      var itemSql = await ListImageAssetModel().queryAllRows();
       CountScanMain post = CountScanMain.fromJson(response.data);
+      if (post.MESSAGE == ["SUCCESS"]) {
+        if (itemSql.isNotEmpty) {
+          for (var item in itemSql) {
+            await ListImageAssetModel()
+                .deleteDataByID(item[ListImageAssetField.ID]);
+            File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
+          }
+        }
+      } else {
+        if (itemSql.isNotEmpty) {
+          for (var item in itemSql) {
+            if (item[ListImageAssetField.URL_IMAGE] != null) {
+              await ListImageAssetModel()
+                  .deleteDataByID(item[ListImageAssetField.ID]);
+
+              File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
+              EasyLoading.showError(
+                  "รูปภาพไม่สามารถอัพโหลดได้ AssetCode = ${item[ListImageAssetField.ASSETS_CODE]}");
+            }
+          }
+        }
+      }
 
       return post;
     } catch (e, s) {
