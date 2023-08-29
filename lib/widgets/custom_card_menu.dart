@@ -23,53 +23,22 @@ class CustomCardMenu extends StatelessWidget {
               borderSide: BorderSide.none),
           color: colorPrimary,
           child: Padding(
-            padding:
-                const EdgeInsets.only(top: 10, right: 4, left: 4, bottom: 14),
-            child: Row(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 80,
-                    child: Card(
-                      shape: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.all(Radius.circular(8))),
-                      color: Colors.white,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image.asset(
-                              "assets/images/${pathImage}",
-                              fit: BoxFit.cover,
-                              width: 50,
-                            ),
-                          ),
-                        ],
-                      ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 60,
+                    child: Image.asset(
+                      "assets/images/${pathImage}",
+                      fit: BoxFit.fill,
+                      width: 50,
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Label(
-                    text!,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                Expanded(
-                  child: Icon(
-                    Icons.keyboard_arrow_right,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                )
+                Label("${text}")
               ],
             ),
           ),

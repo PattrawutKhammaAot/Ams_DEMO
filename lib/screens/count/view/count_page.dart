@@ -136,8 +136,7 @@ class _CountPageState extends State<CountPage> {
             loadData();
           }
           //Check select
-          if (state is CheckTotalLoadingState) {
-          } else if (state is CheckTotalLoadedState) {
+          if (state is CheckTotalLoadedState) {
             setState(() {
               itemCheck = state.item;
             });
