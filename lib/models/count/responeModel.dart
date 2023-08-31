@@ -63,7 +63,7 @@ class ResponseModel {
     try {
       String sql =
           "UPDATE ${CheckAllField.TABLE_NAME} SET ${CheckAllField.UNCHECK} = '${uncheck}', ${CheckAllField.CHECK} = '${check}', ${CheckAllField.TOTAL} = '${total}'";
-      printInfo(info: "TestPrint : = ${sql}");
+
       return await db.rawUpdate(sql);
     } catch (e, s) {
       print(e);

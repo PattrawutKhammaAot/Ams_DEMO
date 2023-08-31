@@ -1,6 +1,7 @@
 import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/models/count/responeModel.dart';
+import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/master/statusAssetCountModel.dart';
@@ -62,6 +63,7 @@ class DbSqlite {
     LocationModel().createTable(db, newVersion);
     StatusAssetCountModel().createTable(db, newVersion);
     CountScan_OutputModel().createTable(db, newVersion);
+    DashBoardAssetStatusModel().createTable(db, newVersion);
   }
 
   Future<void> deleteAll(
@@ -76,8 +78,6 @@ class DbSqlite {
       //     onPress: () {
       //   Navigator.pop(context);
       // });
-
-      printInfo(info: "Deleted Table = ${tableName}");
     } catch (e) {
       print('Error deleting from SQLite: $e');
     }

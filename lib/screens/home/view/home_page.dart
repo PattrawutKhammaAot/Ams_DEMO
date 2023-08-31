@@ -1,31 +1,25 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:ams_count/config/api_path.dart';
-import 'package:ams_count/models/master/locationModel.dart';
-import 'package:ams_count/models/master/statusAssetCountModel.dart';
-import 'package:ams_count/widgets/label.dart';
+import 'package:ams_count/blocs/asset/assets_bloc.dart';
+import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../../app.dart';
 import '../../../blocs/count/count_bloc.dart';
 import '../../../blocs/home/bloc/home_bloc.dart';
-import '../../../blocs/home/home.dart';
+import '../../../config/api_path.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
-import '../../../data/database/dbsqlite.dart';
 import '../../../data/models/dashboard/DashboardCountPlan.dart';
-import '../../../models/count/countPlanModel.dart';
 import '../../../models/count/responeModel.dart';
-import '../../../models/master/departmentModel.dart';
+import '../../../models/master/statusAssetCountModel.dart';
 import '../../../widgets/custom_card_menu.dart';
-import '../../../widgets/widget.dart';
+import '../../../widgets/custom_range_pointer.dart';
+import '../../../widgets/label.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -46,12 +40,15 @@ class _HomePageState extends State<HomePage> {
   ResponseModel itemCheckAll = ResponseModel();
   ResponseModel itemCheck = ResponseModel();
   ResponseModel itemUncheck = ResponseModel();
+
+  DashBoardAssetStatusModel itemStatusDashboard =
+      const DashBoardAssetStatusModel();
   String? mode;
   List<String> images = [
     "assets/images/bg_mainMenu2.jpg",
-    "assets/images/bg_mainMenu1.jpg"
+    "assets/images/bg_mainMenu1.jpg",
   ];
-  Timer? _timer;
+  Timer? time;
   int currentImage = 0;
   PageController _pageController = PageController();
 
@@ -69,7 +66,9 @@ class _HomePageState extends State<HomePage> {
     BlocProvider.of<CountBloc>(context).add(const CheckAllTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckUncheckEvent());
-    Timer.periodic(Duration(seconds: 5), (Timer timer) {
+    BlocProvider.of<AssetsBloc>(context)
+        .add(const GetDashBoardAssetStatusEvent());
+    Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       autoChangeImage();
     });
     super.initState();
@@ -95,13 +94,13 @@ class _HomePageState extends State<HomePage> {
     if (nextPage < images.length) {
       _pageController.animateToPage(
         nextPage.toInt(),
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
         curve: Curves.easeInOut,
       );
     } else {
       _pageController.animateToPage(
         0,
-        duration: Duration(seconds: 1),
+        duration: const Duration(seconds: 1),
         curve: Curves.easeInOut,
       );
     }
@@ -120,180 +119,377 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> loadData() async {
-    if (mode == "Online") {
-      await ResponseModel().update(
-          check: itemCheck.DATA,
-          uncheck: itemUncheck.DATA,
-          total: itemCheckAll.DATA);
-    }
-    setState(() {});
-  }
-
-  List<StatusAssetCountModel> itemStatus = [];
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: colorPrimary.withOpacity(0.5),
-        elevation: 0,
-        titleTextStyle: const TextStyle(fontSize: 24.0),
-        centerTitle: true,
-        title: const Text(
-          'Asset Mangement System',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AssetsBloc, AssetsState>(listener: (context, state) async {
+          if (state is GetDashBoardAssetStatusLoadedState) {
+            setState(() {
+              itemStatusDashboard = state.item;
+            });
+          } else if (state is GetDashBoardAssetStatusErrorState) {
+            var itemSql = await DashBoardAssetStatusModel().query();
+          }
+        })
+      ],
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: colorPrimary.withOpacity(0.5),
+          elevation: 0,
+          titleTextStyle: const TextStyle(fontSize: 24.0),
+          centerTitle: true,
+          title: const Text(
+            'Asset Mangement System',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
-      drawer: CustomDrawer(name: name),
-      body: RefreshIndicator(
-        onRefresh: () async =>
-            context.read<HomeBloc>().add(HomeEvent_LoadCountDashboard()),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: PageView.builder(
-                            padEnds: false,
-                            itemCount: images.length,
-                            pageSnapping: true,
-                            onPageChanged: (i) {},
-                            controller: _pageController,
-                            itemBuilder: (context, pagePosition) {
-                              return Container(
-                                  child: Image.asset(
-                                images[pagePosition],
-                                fit: BoxFit.fill,
-                              ));
-                            }))),
-                SizedBox(
-                  height: 30,
-                ),
-                Expanded(
-                    child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(child: SizedBox()),
-                      Center(
-                        child: Wrap(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: BlocBuilder<HomeBloc, HomeState>(
-                                  builder: (context, state) {
-                                    if (state is HomeLoaded) {
-                                      final dashboardCountPlan =
-                                          state.dashboardCountPlan;
-                                      return CountListWidget(
-                                        dashboardCountPlan: dashboardCountPlan,
-                                      );
-                                    } else {
-                                      return Text("");
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
+        drawer: CustomDrawer(name: name),
+        body: RefreshIndicator(
+          onRefresh: () async =>
+              context.read<HomeBloc>().add(HomeEvent_LoadCountDashboard()),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                      child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: PageView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              padEnds: false,
+                              itemCount: images.length,
+                              pageSnapping: true,
+                              onPageChanged: (i) {},
+                              controller: _pageController,
+                              itemBuilder: (context, pagePosition) {
+                                return Container(
+                                    child: Image.asset(
+                                  images[pagePosition],
+                                  fit: BoxFit.fill,
+                                ));
+                              }))),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Expanded(
+                      child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Expanded(child: SizedBox()),
+                        Center(
+                          child: Wrap(
                             children: [
-                              SizedBox(
-                                width: 250,
-                                child: Card(
-                                  child: Label("text"),
+                              Container(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: BlocBuilder<HomeBloc, HomeState>(
+                                    builder: (context, state) {
+                                      if (state is HomeLoaded) {
+                                        final dashboardCountPlan =
+                                            state.dashboardCountPlan;
+                                        return CountListWidget(
+                                          dashboardCountPlan:
+                                              dashboardCountPlan,
+                                        );
+                                      } else {
+                                        return const Text("");
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
-                              SizedBox(
-                                width: 250,
-                                child: Card(
-                                  child: Label("text"),
-                                ),
-                              )
                             ],
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      )
-                    ],
-                  ),
-                ))
-              ],
-            ),
-            Align(
-                alignment: Alignment.center,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  height: 150,
-                  child: Card(
-                    shape: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(12)),
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Row(
-                            children: [
-                              CustomCardMenu(
-                                  text: "My Assets",
-                                  pathImage: "iconAssets.png",
-                                  onTap: () => Get.toNamed('/MyassetsPage')),
-                              CustomCardMenu(
-                                  text: "Count",
-                                  pathImage: "count.png",
-                                  onTap: () async {
-                                    await AppData.setApiUrl(apiUrl);
-                                    Get.toNamed('/CountPage');
-                                  }),
-                              CustomCardMenu(
-                                  text: "Gallery",
-                                  pathImage: "gallery.png",
-                                  onTap: () => Get.toNamed('/GalleryPage')),
-                              CustomCardMenu(
-                                  text: "Report",
-                                  pathImage: "iconreport.png",
-                                  onTap: () => Get.toNamed('/ReportPage')),
-                              CustomCardMenu(
-                                  text: "Transfer",
-                                  pathImage: "icontransfer.png",
-                                  onTap: () => Get.toNamed('/TransferPage')),
-                            ],
-                          )
-                        ],
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: itemStatusDashboard.RESULT_ALL != null
+                                  ? _DashBoardStatusBottom()
+                                  : CircularProgressIndicator()),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        )
+                      ],
+                    ),
+                  ))
+                ],
+              ),
+              Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    margin: const EdgeInsets.all(0),
+                    height: 110,
+                    width: MediaQuery.of(context).size.width,
+                    child: Card(
+                      elevation: 10,
+                      shape: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: colorPrimary.withOpacity(0.3)),
+                          borderRadius: BorderRadius.circular(6)),
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(0.0),
+                        child: ListView(
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            Row(
+                              children: [
+                                CustomCardMenu(
+                                    backgroundColor: Colors.transparent,
+                                    text: "My Assets",
+                                    pathImage: "iconAssets.png",
+                                    onTap: () => Get.toNamed('/MyassetsPage')),
+                                CustomCardMenu(
+                                    backgroundColor: Colors.transparent,
+                                    text: "Count",
+                                    pathImage: "count.png",
+                                    onTap: () async {
+                                      await AppData.setApiUrl(apiUrl);
+                                      Get.toNamed('/CountPage');
+                                    }),
+                                CustomCardMenu(
+                                    backgroundColor: Colors.transparent,
+                                    text: "Gallery",
+                                    pathImage: "gallery.png",
+                                    onTap: () => Get.toNamed('/GalleryPage')),
+                                CustomCardMenu(
+                                    backgroundColor: Colors.transparent,
+                                    text: "Report",
+                                    pathImage: "iconreport.png",
+                                    onTap: () => Get.toNamed('/ReportPage')),
+                                CustomCardMenu(
+                                    backgroundColor: Colors.transparent,
+                                    text: "Transfer",
+                                    pathImage: "icontransfer.png",
+                                    onTap: () => Get.toNamed('/TransferPage')),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                )),
-          ],
+                  )),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _DashBoardStatusBottom() {
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      children: [
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.grey.withOpacity(0.2),
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: Label(
+                        "Result All",
+                        color: colorPrimary,
+                        fontWeight: FontWeight.bold,
+                      )),
+                      Expanded(
+                        child: CustomRangePoint(
+                          color: colorActive,
+                          valueRangePointer: itemStatusDashboard.RESULT_ALL,
+                          allItem: itemStatusDashboard.RESULT_ALL,
+                          text: "",
+                          colorText: colorPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.amberAccent.withOpacity(0.2),
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Label(
+                    "Result Normal",
+                    color: colorPrimary,
+                    fontWeight: FontWeight.bold,
+                  )),
+                  Expanded(
+                    child: CustomRangePoint(
+                      color: colorActive,
+                      valueRangePointer: itemStatusDashboard.RESULT_NORMAL,
+                      allItem: itemStatusDashboard.RESULT_ALL,
+                      text: "",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.white,
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Label(
+                    "Result Repair",
+                    color: colorPrimary,
+                    fontWeight: FontWeight.bold,
+                  )),
+                  Expanded(
+                    child: CustomRangePoint(
+                      color: colorActive,
+                      valueRangePointer: itemStatusDashboard.RESULT_REPAIR,
+                      allItem: itemStatusDashboard.RESULT_ALL,
+                      text: "",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.white,
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Label(
+                    "Result Borrow",
+                    color: colorPrimary,
+                    fontWeight: FontWeight.bold,
+                  )),
+                  Expanded(
+                    child: CustomRangePoint(
+                      color: colorActive,
+                      valueRangePointer: itemStatusDashboard.RESULT_BORROW,
+                      allItem: itemStatusDashboard.RESULT_ALL,
+                      text: "",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.white,
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Label(
+                    "Result Sale",
+                    color: colorPrimary,
+                    fontWeight: FontWeight.bold,
+                  )),
+                  Expanded(
+                    child: CustomRangePoint(
+                      color: colorActive,
+                      valueRangePointer: itemStatusDashboard.RESULT_SALE,
+                      allItem: itemStatusDashboard.RESULT_ALL,
+                      text: "",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 250,
+          child: Card(
+            elevation: 0,
+            color: Colors.white,
+            shape: OutlineInputBorder(
+                borderSide: const BorderSide(color: colorPrimary),
+                borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Label(
+                    "Result WriteOff",
+                    color: colorPrimary,
+                    fontWeight: FontWeight.bold,
+                  )),
+                  Expanded(
+                    child: CustomRangePoint(
+                      color: colorActive,
+                      valueRangePointer: itemStatusDashboard.RESULT_WRITEOFF,
+                      allItem: itemStatusDashboard.RESULT_ALL,
+                      text: "",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -308,7 +504,7 @@ class CustomDrawer extends StatelessWidget {
       child: Column(
         children: [
           _buildProfile(),
-          ListTile(
+          const ListTile(
             leading: Icon(
               Icons.dashboard,
               color: Colors.red,
@@ -316,27 +512,27 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Dashboard"),
             //onTap: () => _showMyDialog(context),
           ),
-          ListTile(
+          const ListTile(
             //onTap: () => _PickFile(context),
             title: Text("Import"),
             leading: Icon(Icons.import_contacts, color: Colors.deepOrange),
           ),
-          ListTile(
+          const ListTile(
             //onTap: () => _showDialogQRImage(context),
             title: Text("Count"),
             leading: Icon(Icons.qr_code_scanner, color: Colors.green),
           ),
-          ListTile(
+          const ListTile(
             //onTap: () => _showScanQRCode(context),
             title: Text("Gallery"),
-            leading: const Icon(Icons.photo_library, color: Colors.lightBlue),
+            leading: Icon(Icons.photo_library, color: Colors.lightBlue),
           ),
-          ListTile(
+          const ListTile(
             //onTap: () => Navigator.pushNamed(context, AppRoute.map),
             title: Text("Export"),
             leading: Icon(Icons.import_export, color: Colors.amber),
           ),
-          Spacer(),
+          const Spacer(),
           _buildSettingButton(),
           _buildLogoutButton(),
         ],
@@ -354,7 +550,7 @@ class CustomDrawer extends StatelessWidget {
         //     backgroundImage: AssetImage(logoImage),
         //   ),
         // ),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.contain,
             image: AssetImage(logoImage),
@@ -365,15 +561,15 @@ class CustomDrawer extends StatelessWidget {
 
         accountName: Text(
           "Username : " + name,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        accountEmail: Text('Asset Mangement System'),
+        accountEmail: const Text('Asset Mangement System'),
       );
 
   Builder _buildLogoutButton() => Builder(
         builder: (context) => ListTile(
-          leading: Icon(Icons.exit_to_app),
-          title: Text('Log out'),
+          leading: const Icon(Icons.exit_to_app),
+          title: const Text('Log out'),
           onTap: () => {
             AppData.setToken(""),
             Get.toNamed('/Login'),
@@ -382,7 +578,7 @@ class CustomDrawer extends StatelessWidget {
       );
 
   Builder _buildSettingButton() => Builder(
-        builder: (context) => SafeArea(
+        builder: (context) => const SafeArea(
           child: ListTile(
             leading: Icon(Icons.settings),
             title: Text('Setting'),
@@ -403,10 +599,10 @@ class CountListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int touchedIndex = -1;
-    int countAll = dashboardCountPlan.data?.resultAll ?? 0;
-    int countStatusOpen = dashboardCountPlan.data?.resultOpen ?? 0;
-    int countStatusCounting = dashboardCountPlan.data?.resultCounting ?? 0;
-    int countStatusClose = dashboardCountPlan.data?.resultClose ?? 0;
+    int countAll = dashboardCountPlan.data?.resultAll ?? 10;
+    int countStatusOpen = dashboardCountPlan.data?.resultOpen ?? 2;
+    int countStatusCounting = dashboardCountPlan.data?.resultCounting ?? 2;
+    int countStatusClose = dashboardCountPlan.data?.resultClose ?? 6;
 
     List<PieChartSectionData> showingSections() {
       return List.generate(3, (i) {
@@ -483,10 +679,10 @@ class CountListWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
-                Text(
+                const Text(
                   'PLAN COUNT',
                   style: TextStyle(
                       fontSize: 20,
@@ -497,7 +693,7 @@ class CountListWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Container(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                           left: 5, right: 15, top: 15, bottom: 15),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -545,7 +741,8 @@ class CountListWidget extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.only(right: 50, bottom: 5),
+                            padding:
+                                const EdgeInsets.only(right: 50, bottom: 5),
                             height: 50,
                             child: AspectRatio(
                               aspectRatio: 1,
@@ -575,7 +772,7 @@ class CountListWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     ),
                   ],
@@ -630,71 +827,3 @@ class Indicator extends StatelessWidget {
     );
   }
 }
- // Container(
-                        //   padding: EdgeInsets.all(20),
-                        //   margin: EdgeInsets.only(top: 100),
-                        //   child: Column(
-                        //     children: [
-                        //       // CustomCardMenu(
-                        //       //     text: "My Assets",
-                        //       //     pathImage: "count.png",
-                        //       //     onTap: () => {
-
-                        //       //         }),
-                        //       // CustomCardMenu(
-                        //       //     text: "Count",
-                        //       //     pathImage: "gallery.png",
-                        //       //     onTap: () => Get.toNamed('/CountPage')),
-                        //       Row(
-                        //         children: [
-                        //           Expanded(
-                        // child: CustomCardMenu(
-                        //     text: "My Assets",
-                        //     pathImage: "iconAssets.png",
-                        //     onTap: () =>
-                        //         Get.toNamed('/MyassetsPage')),
-                        //           ),
-                        //           Expanded(
-                        //             child: CustomCardMenu(
-                        //                 text: "Count",
-                        //                 pathImage: "count.png",
-                        //                 onTap: () async {
-                        //                   await AppData.setApiUrl(apiUrl);
-                        //                   Get.toNamed('/CountPage');
-                        //                 }),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //       Row(
-                        //         children: [
-                        //           Expanded(
-                        //             child: CustomCardMenu(
-                        //                 text: "Gallery",
-                        //                 pathImage: "gallery.png",
-                        //                 onTap: () =>
-                        //                     Get.toNamed('/GalleryPage')),
-                        //           ),
-                        //           Expanded(
-                        //             child: CustomCardMenu(
-                        //                 text: "Report",
-                        //                 pathImage: "iconreport.png",
-                        //                 onTap: () =>
-                        //                     Get.toNamed('/ReportPage')),
-                        //           ),
-                        //         ],
-                        //       ),
-
-                        //       Row(
-                        //         children: [
-                        //           Expanded(
-                        //             child: CustomCardMenu(
-                        //                 text: "Transfer",
-                        //                 pathImage: "icontransfer.png",
-                        //                 onTap: () =>
-                        //                     Get.toNamed('/TransferPage')),
-                        //           )
-                        //         ],
-                        //       ),
-                        //     ],
-                        //   ),
-                        // )x

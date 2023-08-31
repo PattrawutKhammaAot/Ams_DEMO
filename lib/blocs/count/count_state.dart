@@ -261,3 +261,26 @@ class UploadImageErrorState extends CountState {
   @override
   List<Object> get props => [error];
 }
+
+///POST UploadImage
+class PostCountScanAlreadyCheckLoadingState extends CountState {
+  const PostCountScanAlreadyCheckLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class PostCountScanAlreadyCheckLoadedState extends CountState {
+  const PostCountScanAlreadyCheckLoadedState(this.item);
+  final CountScanMain item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class PostCountScanAlreadyCheckErrorState extends CountState {
+  const PostCountScanAlreadyCheckErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}

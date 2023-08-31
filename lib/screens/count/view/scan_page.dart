@@ -117,7 +117,6 @@ class _ScanPageState extends State<ScanPage> {
       if (_departmentController.text.isNotEmpty ||
           _locationController.text.isNotEmpty) {
         if (await AppData.getMode() == "Offline") {
-          printInfo(info: "offline");
           await CountScan_OutputModel().insert(CountScan_OutputModel(
               ASSETS_CODE: _barCodeController.text.trim(),
               PLAN_CODE: planCode,
@@ -192,8 +191,6 @@ class _ScanPageState extends State<ScanPage> {
     final File newImage =
         await imageFile!.copy('${path!.path}/${randomFileName}.jpg');
 
-    printInfo(info: '${randomFileName}');
-
     if (newImage != null) {
       await ListImageAssetModel().insert(ListImageAssetModel(
           ASSETS_CODE: _barCodeController.text, URL_IMAGE: newImage.path));
@@ -266,7 +263,9 @@ class _ScanPageState extends State<ScanPage> {
             var data = state.item.DATA;
 
             error = state.item.MESSAGE;
-            if (state.item.STATUS == "SUCCESS") {
+            if (state.item.STATUS == "SUCCESS" ||
+                state.item.MESSAGE ==
+                    'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
               itemCountListModel = CountScanAssetsModel.fromJson(data);
               _serialNumberController.text =
                   itemCountListModel.ASSET_SERIALNO ?? "-";
@@ -281,26 +280,61 @@ class _ScanPageState extends State<ScanPage> {
                   ? DateFormat("yyyy-MM-dd").format(parsedDate)
                   : "-";
               _useDateController.text = formattedDate;
-              AlertWarningNew().alertShowOK(context,
-                  title: "Warning",
-                  desc: "${error}",
-                  type: AlertType.warning, onPress: () {
-                Navigator.pop(context);
-              });
+
+              if (state.item.MESSAGE ==
+                  'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
+                AlertWarningNew().alertShow(context,
+                    title: "Warning",
+                    desc: "${error}",
+                    type: AlertType.warning, onPress: () {
+                  BlocProvider.of<CountBloc>(context).add(
+                      PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
+                          ASSETS_CODE: _assetNoController.text,
+                          PLAN_CODE: planCode,
+                          LOCATION_ID: locationId,
+                          DEPARTMENT_ID: departmentId,
+                          IS_SCAN_NOW: true,
+                          STATUS_ID: statusId,
+                          REMARK: _remarkController.text)));
+                  Navigator.pop(context);
+                }, onBack: () {
+                  Navigator.pop(context);
+                });
+              }
+
               setState(() {});
-            } else {
-              AlertWarningNew().alertShowOK(context,
+            } else if (error ==
+                "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่") {
+              printInfo(info: "Testet");
+              AlertWarningNew().alertShow(context,
                   title: "Warning",
                   desc: "${error}",
                   type: AlertType.warning, onPress: () {
+                _assetNoFocusNode.requestFocus();
+                Navigator.pop(context);
+              }, onBack: () {
+                _barCodeController.clear();
                 _assetNoController.clear();
                 _nameController.clear();
                 _serialNumberController.clear();
                 _classController.clear();
                 _useDateController.clear();
                 _assetNoFocusNode.requestFocus();
+                _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               });
+            } else {
+              AlertWarningNew().alertShowOK(
+                context,
+                title: "Warning",
+                desc: "${error}",
+                type: AlertType.warning,
+                onPress: () {
+                  _barcodeFocusNode.requestFocus();
+                  _barCodeController.clear();
+                  Navigator.pop(context);
+                },
+              );
             }
           } else if (state is CountScanAssetsListErrorState) {}
           if (state is CountScanSaveAssetsLoadedState) {
@@ -352,8 +386,6 @@ class _ScanPageState extends State<ScanPage> {
         })
       ],
       child: Scaffold(
-        // extendBody: true,
-        // extendBodyBehindAppBar: true,
         backgroundColor: Colors.white,
         appBar: AppBar(
           actions: [

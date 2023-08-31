@@ -105,7 +105,7 @@ class ListImageAssetModel {
   Future<void> deleteDataByID(int id) async {
     try {
       Database db = await DbSqlite().database;
-      printInfo(info: "${id}");
+  
       int count = await db.delete(
         ListImageAssetField.TABLE_NAME,
         where: "${ListImageAssetField.ID} = ?",

@@ -6,6 +6,7 @@ import 'package:ams_count/config/app_data.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
+import 'package:ams_count/widgets/widget.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +17,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/database/quickTypes/quickTypes.dart';
+import '../../../data/models/api_response.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -47,6 +49,11 @@ class _GalleryPageState extends State<GalleryPage> {
       _imageList = searchResults;
     } else {
       _imageList = _tempimageList;
+      Alert.show(
+          title: 'Data Invalid',
+          message: "Please Input Again",
+          type: ReturnStatus.WARNING,
+          crossPage: true);
     }
     setState(() {});
   }
@@ -59,8 +66,6 @@ class _GalleryPageState extends State<GalleryPage> {
           if (state is GetListImageAssetLoadedState) {
             _imageList = state.item;
             _tempimageList = state.item;
-
-            printInfo(info: "${state.item.length}");
           } else if (state is GetListImageAssetErrorState) {
             var itemSql = await ListImageAssetModel().queryAllRows();
             _imageList = itemSql
@@ -109,9 +114,6 @@ class _GalleryPageState extends State<GalleryPage> {
                                       padding: const EdgeInsets.all(2.0),
                                       child: GestureDetector(
                                         onTap: () {
-                                          printInfo(
-                                              info:
-                                                  "${_imageList[index].URL_IMAGE}");
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {

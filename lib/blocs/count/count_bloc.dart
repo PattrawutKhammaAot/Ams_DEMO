@@ -121,6 +121,17 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }
       },
     );
+    on<PostCountScanAlreadyCheckEvent>(
+      (event, emit) async {
+        try {
+          emit(PostCountScanAlreadyCheckLoadingState());
+          final mlist = await fetchCountScanAlreadyChecked(event.items);
+          emit(PostCountScanAlreadyCheckLoadedState(mlist));
+        } catch (e) {
+          emit(PostCountScanAlreadyCheckErrorState(e.toString()));
+        }
+      },
+    );
     on<PostCountScanSaveAssetEvent>(
       (event, emit) async {
         try {
@@ -167,14 +178,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           .map<CountPlanModel>((json) => CountPlanModel.fromJson(json))
           .toList();
 
-      // if (response['status'] == "SUCCESS") {
-      //   var itemSql = await CountPlanModel().queryAllRows();
-      //   if (itemSql.isEmpty) {
-      //     for (var item in post) {
-      //       await CountPlanModel().insert(item.toJson());
-      //     }
-      //   }
-      // }
       return post;
     } catch (e, s) {
       print(e);
@@ -306,7 +309,33 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }),
       );
 
-      printInfo(info: "${responese.data}");
+      // var itemData = responese.data['data'];
+      CountScanMain post = CountScanMain.fromJson(responese.data);
+
+      return post;
+    } catch (e, s) {
+      throw Exception();
+    }
+  }
+
+  Future<CountScanMain> fetchCountScanAlreadyChecked(
+      CountScan_OutputModel output) async {
+    var configHost = await AppData.getApiUrl();
+    late String token = "";
+    token = await AppData.getToken();
+    try {
+      Response responese = await dio.post(
+        '${configHost}Count/CountScanAssetAlreadyChecked',
+        data: json.encode(output),
+        options: Options(headers: {
+          HttpHeaders.authorizationHeader: "Bearer $token",
+          HttpHeaders.contentTypeHeader: "application/json; charset=UTF-8",
+          "Application-Key": appKey,
+          "Action-By": await AppData.getUserName(),
+          "Locale-Id": await AppData.getLocalId(),
+        }),
+      );
+
       // var itemData = responese.data['data'];
       CountScanMain post = CountScanMain.fromJson(responese.data);
 
@@ -322,7 +351,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();
 
-    printInfo(info: "${output.toJson()}");
     try {
       Response responese = await dio.post(
         '${configHost}Count/CountSaveStatusAsset',
@@ -367,8 +395,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();
 
-    printInfo(info: "Config ${configHost}");
-
     Dio dio = Dio();
 
     dio.options.headers['Authorization'] = 'Bearer $token';
@@ -390,7 +416,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         '${configHost}Count/CountUploadImage',
         data: formData,
       );
-      printInfo(info: "${response.data}");
+
       var itemSql = await ListImageAssetModel().queryAllRows();
       CountScanMain post = CountScanMain.fromJson(response.data);
       if (post.MESSAGE == ["SUCCESS"]) {

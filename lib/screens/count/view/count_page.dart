@@ -1,10 +1,8 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/database/dbsqlite.dart';
-import 'package:ams_count/data/models/default_response.dart';
-import 'package:ams_count/models/count/CountScan_output.dart';
 
 import 'package:ams_count/widgets/alert.dart';
-import 'package:ams_count/widgets/alert_new.dart';
+
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
+import '../../../blocs/asset/assets_bloc.dart';
 import '../../../blocs/count/count_bloc.dart';
 
 import '../../../config/app_data.dart';
@@ -194,7 +193,7 @@ class _CountPageState extends State<CountPage> {
                                         child: CustomRangePoint(
                                           color: Colors.red,
                                           valueRangePointer: itemUncheck.DATA,
-                                          allItem: itemUncheck.DATA,
+                                          allItem: itemCheckAll.DATA,
                                           text: "Uncheck",
                                         ),
                                       )

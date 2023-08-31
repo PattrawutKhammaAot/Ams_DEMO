@@ -1,6 +1,7 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class CustomRangePoint extends StatelessWidget {
@@ -9,12 +10,15 @@ class CustomRangePoint extends StatelessWidget {
       required this.valueRangePointer,
       required this.allItem,
       this.color,
-      this.text});
+      this.text,
+      this.colorText});
   final int? valueRangePointer;
   final int? allItem;
 
   final Color? color;
   final String? text;
+
+  final Color? colorText;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,10 @@ class CustomRangePoint extends StatelessWidget {
         axes: <RadialAxis>[
           RadialAxis(
               minimum: 0,
-              maximum: double.parse(allItem.toString()),
+              maximum: double.parse(
+                  allItem.toString() == "0" || allItem.toString().isEmpty
+                      ? "1".toString()
+                      : allItem.toString()),
               showLabels: false,
               showTicks: false,
               startAngle: 270,
@@ -61,7 +68,8 @@ class CustomRangePoint extends StatelessWidget {
                                   '${valueRangePointer?.toInt() ?? "-"} / ${allItem?.toInt() ?? "-"}',
                                   style: TextStyle(
                                       fontFamily: 'Times',
-                                      fontSize: 12,
+                                      fontSize: 14,
+                                      color: colorText,
                                       fontWeight: FontWeight.w400,
                                       fontStyle: FontStyle.italic),
                                 ),

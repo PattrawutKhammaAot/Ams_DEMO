@@ -94,3 +94,10 @@ class UploadImageEvent extends CountEvent {
   @override
   List<Object> get prop => [items];
 }
+
+class PostCountScanAlreadyCheckEvent extends CountEvent {
+  PostCountScanAlreadyCheckEvent(this.items);
+  CountScan_OutputModel items;
+  @override
+  List<Object> get prop => [items];
+}
