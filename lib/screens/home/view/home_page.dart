@@ -11,6 +11,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../blocs/count/count_bloc.dart';
 import '../../../blocs/home/bloc/home_bloc.dart';
+import '../../../blocs/report/report_bloc.dart';
 import '../../../config/api_path.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
@@ -41,8 +42,7 @@ class _HomePageState extends State<HomePage> {
   ResponseModel itemCheck = ResponseModel();
   ResponseModel itemUncheck = ResponseModel();
 
-  DashBoardAssetStatusModel itemStatusDashboard =
-      const DashBoardAssetStatusModel();
+  DashBoardAssetStatusModel itemStatusDashboard = DashBoardAssetStatusModel();
   String? mode;
   List<String> images = [
     "assets/images/bg_mainMenu2.jpg",
@@ -66,6 +66,8 @@ class _HomePageState extends State<HomePage> {
     BlocProvider.of<CountBloc>(context).add(const CheckAllTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckUncheckEvent());
+    BlocProvider.of<ReportBloc>(context)
+        .add(GetListCountDetailForReportEvent(""));
     BlocProvider.of<AssetsBloc>(context)
         .add(const GetDashBoardAssetStatusEvent());
     Timer.periodic(const Duration(seconds: 5), (Timer timer) {
@@ -129,7 +131,22 @@ class _HomePageState extends State<HomePage> {
               itemStatusDashboard = state.item;
             });
           } else if (state is GetDashBoardAssetStatusErrorState) {
+            printInfo(info: "Test print Error");
             var itemSql = await DashBoardAssetStatusModel().query();
+            for (var item in itemSql) {
+              itemStatusDashboard.RESULT_ALL = item[DashboardField.RESULT_ALL];
+              itemStatusDashboard.RESULT_NORMAL =
+                  item[DashboardField.RESULT_NORMAL];
+              itemStatusDashboard.RESULT_REPAIR =
+                  item[DashboardField.RESULT_REPAIR];
+              itemStatusDashboard.RESULT_BORROW =
+                  item[DashboardField.RESULT_BORROW];
+              itemStatusDashboard.RESULT_SALE =
+                  item[DashboardField.RESULT_SALE];
+              itemStatusDashboard.RESULT_WRITEOFF =
+                  item[DashboardField.RESULT_WRITEOFF];
+            }
+            setState(() {});
           }
         })
       ],
@@ -203,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                                               dashboardCountPlan,
                                         );
                                       } else {
-                                        return const Text("");
+                                        return CircularProgressIndicator();
                                       }
                                     },
                                   ),
@@ -212,15 +229,15 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: itemStatusDashboard.RESULT_ALL != null
-                                  ? _DashBoardStatusBottom()
-                                  : CircularProgressIndicator()),
-                        ),
+                        itemStatusDashboard.RESULT_ALL != null
+                            ? Expanded(
+                                flex: 2,
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15),
+                                    child: _DashBoardStatusBottom()),
+                              )
+                            : CircularProgressIndicator(),
                         const SizedBox(
                           height: 15,
                         )
@@ -302,9 +319,9 @@ class _HomePageState extends State<HomePage> {
           width: 250,
           child: Card(
             elevation: 0,
-            color: Colors.grey.withOpacity(0.2),
+            color: colorInfo.withOpacity(0.5),
             shape: OutlineInputBorder(
-                borderSide: const BorderSide(color: colorPrimary),
+                borderSide: BorderSide.none,
                 borderRadius: BorderRadius.circular(12)),
             child: Stack(
               children: [
@@ -340,7 +357,7 @@ class _HomePageState extends State<HomePage> {
             elevation: 0,
             color: Colors.amberAccent.withOpacity(0.2),
             shape: OutlineInputBorder(
-                borderSide: const BorderSide(color: colorPrimary),
+                borderSide: BorderSide.none,
                 borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: EdgeInsets.all(8.0),

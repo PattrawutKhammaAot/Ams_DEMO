@@ -38,7 +38,6 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
           DashBoardAssetStatusModel.fromJson(itemData);
 
       if (response['status'] == "SUCCESS") {
-        printInfo(info: "Test Update ");
         await DashBoardAssetStatusModel().update(values: {
           DashboardField.RESULT_ALL: post.RESULT_ALL,
           DashboardField.RESULT_NORMAL: post.RESULT_NORMAL,

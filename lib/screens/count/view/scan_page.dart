@@ -71,6 +71,7 @@ class _ScanPageState extends State<ScanPage> {
   int statusId = 0;
   int departmentId = 0;
   int locationId = 0;
+  String _scanDate = "";
   String? planCode;
   String? error;
   List<LocationModel> _locationModel = [];
@@ -165,6 +166,9 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
     _barcodeFocusNode.requestFocus();
     _barcodeFocusNode.requestFocus();
+    _loadDataFormReportPage().then((item) {
+      _requestApiFirstTime();
+    });
     super.initState();
   }
 
@@ -211,19 +215,57 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  _loadDataFormReportPage() async {
     planCode = arguments?['planCode'] ?? "Please Select Plan";
+    locationId = arguments?['locationID'] ?? 0;
+    departmentId = arguments?['departmentID'] ?? 0;
+    // statusId = arguments?['statusName'] ?? 0;
     _barCodeController.text =
         arguments?['assetsCode'] ?? _barCodeController.text;
 
-    scanDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _departmentController.text = departmentId.toString();
+    _locationController.text = locationId.toString();
+    _statusController.text = statusId.toString();
+    setState(() {});
+
+    printInfo(info: "Location ID ${locationId}");
+    printInfo(info: "Location ID ${planCode}");
+  }
+
+  _requestApiFirstTime() {
+    if (_barCodeController.text.isNotEmpty) {
+      BlocProvider.of<CountBloc>(context).add(PostCountScanAssetListEvent([
+        CountScan_OutputModel(
+            ASSETS_CODE: _barCodeController.text.trim(),
+            PLAN_CODE: planCode,
+            LOCATION_ID: locationId,
+            DEPARTMENT_ID: departmentId,
+            IS_SCAN_NOW: true,
+            REMARK: _remarkController.text.isEmpty
+                ? "-"
+                : _remarkController.text.trim(),
+            STATUS_ID: statusId)
+      ]));
+      // BlocProvider.of<CountBloc>(context).add(PostCountScanAlreadyCheckEvent(
+      //     CountScan_OutputModel(
+      //         ASSETS_CODE: _assetNoController.text,
+      //         PLAN_CODE: planCode,
+      //         LOCATION_ID: locationId,
+      //         DEPARTMENT_ID: departmentId,
+      //         IS_SCAN_NOW: true,
+      //         STATUS_ID: statusId,
+      //         REMARK: _remarkController.text)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetLocationLoadedState) {
             await DbSqlite()
-                .deleteAll(context, tableName: '${LocationField.TABLE_NAME}');
+                .deleteAll(tableName: '${LocationField.TABLE_NAME}');
             for (var item in state.item) {
               await LocationModel().insert(item.toJson());
             }
@@ -236,7 +278,7 @@ class _ScanPageState extends State<ScanPage> {
           if (state is GetDepartmentLoadedState) {
             _departmentModel = state.item;
             await DbSqlite()
-                .deleteAll(context, tableName: '${DepartmentField.TABLE_NAME}');
+                .deleteAll(tableName: '${DepartmentField.TABLE_NAME}');
             for (var item in state.item) {
               await DepartmentModel().insert(item.toJson());
             }
@@ -246,8 +288,8 @@ class _ScanPageState extends State<ScanPage> {
                 itemSql.map((map) => DepartmentModel.fromJson(map)).toList();
           }
           if (state is GetStatusAssetLoadedState) {
-            await DbSqlite().deleteAll(context,
-                tableName: '${StatusAssetField.TABLE_NAME}');
+            await DbSqlite()
+                .deleteAll(tableName: '${StatusAssetField.TABLE_NAME}');
             for (var item in state.item) {
               await StatusAssetCountModel().insert(item);
             }
@@ -273,6 +315,9 @@ class _ScanPageState extends State<ScanPage> {
               _classController.text = itemCountListModel.CLASSNAME ?? "-";
               _remarkController.text = itemCountListModel.REMARK ?? "";
               _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
+
+              _serialNumberController.text =
+                  itemCountListModel.ASSET_SERIALNO ?? "";
               _useDateController.text =
                   itemCountListModel.ASSET_DATEOFUSE ?? "-";
               DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
@@ -327,7 +372,7 @@ class _ScanPageState extends State<ScanPage> {
               AlertWarningNew().alertShowOK(
                 context,
                 title: "Warning",
-                desc: "${error}",
+                desc: "${error} ",
                 type: AlertType.warning,
                 onPress: () {
                   _barcodeFocusNode.requestFocus();
@@ -436,6 +481,16 @@ class _ScanPageState extends State<ScanPage> {
                               flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
+                                  value: departmentId != 0 &&
+                                          _departmentModel.any((item) =>
+                                              item.DEPARTMENT_ID ==
+                                              departmentId)
+                                      ? _departmentModel
+                                          .firstWhere((item) =>
+                                              item.DEPARTMENT_ID ==
+                                              departmentId)
+                                          .DEPARTMENT_NAME
+                                      : null,
                                   focusNode: _departmenFocusNode,
                                   validator: (value) {
                                     if (_departmentController.text.isEmpty &&
@@ -480,6 +535,14 @@ class _ScanPageState extends State<ScanPage> {
                               flex: 2,
                               child: SizedBox(
                                 child: CustomDropdownButton2(
+                                  value: locationId != 0 &&
+                                          _locationModel.any((item) =>
+                                              item.LOCATION_ID == locationId)
+                                      ? _locationModel
+                                          .firstWhere((item) =>
+                                              item.LOCATION_ID == locationId)
+                                          .LOCATION_NAME
+                                      : null,
                                   focusNode: _locationFocusNode,
                                   validator: (value) {
                                     if (_locationController.text.isEmpty &&
@@ -604,9 +667,13 @@ class _ScanPageState extends State<ScanPage> {
                         CustomDropdownButton2(
                           focusNode: _statusFocusNode,
                           labelText: "Status",
-                          value: _statusAssetCountModel.isNotEmpty
-                              ? (_statusAssetCountModel[0]
-                                  .STATUS_NAME) // ให้ค่าเริ่มต้นเป็นค่าแรกใน Model (หรือค่าที่คุณต้องการ)
+                          value: statusId != 0 &&
+                                  _statusAssetCountModel
+                                      .any((item) => item.STATUS_ID == statusId)
+                              ? _statusAssetCountModel
+                                  .firstWhere(
+                                      (item) => item.STATUS_ID == statusId)
+                                  .STATUS_NAME
                               : null,
                           items: _statusAssetCountModel.map((item) {
                             statusId = 15;

@@ -4,7 +4,7 @@ import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
 
 class DashBoardAssetStatusModel {
-  const DashBoardAssetStatusModel({
+  DashBoardAssetStatusModel({
     this.ID,
     this.RESULT_ALL,
     this.RESULT_NORMAL,
@@ -14,12 +14,12 @@ class DashBoardAssetStatusModel {
     this.RESULT_WRITEOFF,
   });
   final int? ID;
-  final int? RESULT_ALL;
-  final int? RESULT_NORMAL;
-  final int? RESULT_REPAIR;
-  final int? RESULT_BORROW;
-  final int? RESULT_SALE;
-  final int? RESULT_WRITEOFF;
+  int? RESULT_ALL;
+  int? RESULT_NORMAL;
+  int? RESULT_REPAIR;
+  int? RESULT_BORROW;
+  int? RESULT_SALE;
+  int? RESULT_WRITEOFF;
 
   List<Object> get props => [
         ID!,

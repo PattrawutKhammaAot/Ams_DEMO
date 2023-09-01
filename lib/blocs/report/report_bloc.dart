@@ -1,3 +1,4 @@
+import 'package:ams_count/data/database/dbsqlite.dart';
 import 'package:ams_count/widgets/alert.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -44,17 +45,18 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
                 (json) => ListCountDetailReportModel.fromJson(json))
             .toList();
 
-        // if (response['status'] == "SUCCESS") {
-        //   printInfo(info: "Test Update ");
-        //   await DashBoardAssetStatusModel().update(values: {
-        //     DashboardField.RESULT_ALL: post.RESULT_ALL,
-        //     DashboardField.RESULT_NORMAL: post.RESULT_NORMAL,
-        //     DashboardField.RESULT_REPAIR: post.RESULT_REPAIR,
-        //     DashboardField.RESULT_BORROW: post.RESULT_BORROW,
-        //     DashboardField.RESULT_SALE: post.RESULT_SALE,
-        //     DashboardField.RESULT_WRITEOFF: post.RESULT_WRITEOFF,
-        //   });
-        // }
+        var querySql = await ListCountDetailReportModel().query();
+        if (querySql.isEmpty) {
+          for (var item in post) {
+            await ListCountDetailReportModel().insert(item.toJson());
+          }
+        } else if (querySql.isNotEmpty && param == "") {
+          await DbSqlite()
+              .deleteAll(tableName: ListCountDetailReportField.TABLE_NAME);
+          for (var item in post) {
+            await ListCountDetailReportModel().insert(item.toJson());
+          }
+        }
 
         return post;
       } else {

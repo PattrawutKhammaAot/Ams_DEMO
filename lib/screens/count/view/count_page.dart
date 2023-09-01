@@ -90,8 +90,7 @@ class _CountPageState extends State<CountPage> {
   Future<void> _addDataSqlite() async {
     var itemSql = await CountPlanModel().queryAllRows();
     if (itemSql.isNotEmpty) {
-      await DbSqlite()
-          .deleteAll(context, tableName: '${CountPlanField.TABLE_NAME}');
+      await DbSqlite().deleteAll(tableName: '${CountPlanField.TABLE_NAME}');
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
       }

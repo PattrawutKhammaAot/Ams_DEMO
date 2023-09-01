@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ams_count/data/database/dbsqlite.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/countScanAssetsModel.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
@@ -177,6 +178,20 @@ class CountBloc extends Bloc<CountEvent, CountState> {
       List<CountPlanModel> post = itemData
           .map<CountPlanModel>((json) => CountPlanModel.fromJson(json))
           .toList();
+
+      if (response['status'] == "SUCCESS") {
+        var itemSql = await CountPlanModel().queryAllRows();
+        if (itemSql.isEmpty) {
+          for (var item in post) {
+            await CountPlanModel().insert(item.toJson());
+          }
+        } else {
+          DbSqlite().deleteAll(tableName: CountPlanField.TABLE_NAME);
+          for (var item in post) {
+            await CountPlanModel().insert(item.toJson());
+          }
+        }
+      }
 
       return post;
     } catch (e, s) {

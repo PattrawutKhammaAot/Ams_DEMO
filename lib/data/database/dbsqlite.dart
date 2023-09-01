@@ -5,6 +5,7 @@ import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/master/statusAssetCountModel.dart';
+import 'package:ams_count/models/report/listCountDetail_report_model.dart';
 import 'package:ams_count/widgets/alert_new.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -64,10 +65,11 @@ class DbSqlite {
     StatusAssetCountModel().createTable(db, newVersion);
     CountScan_OutputModel().createTable(db, newVersion);
     DashBoardAssetStatusModel().createTable(db, newVersion);
+    ListCountDetailReportModel().createTable(db, newVersion);
   }
 
   Future<void> deleteAll(
-    BuildContext context, {
+    {
     String? tableName,
   }) async {
     try {

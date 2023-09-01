@@ -40,6 +40,11 @@ const colorFacebook = Color.fromRGBO(23, 116, 245, 1.0);
 const colorGoogle = Color.fromRGBO(220, 78, 65, 1.0);
 const colorLine = Color.fromRGBO(53, 207, 0, 1.0);
 
+///
+const colorGreen_Linear1 = Color(0xFF95F093);
+const colorGreen_Linear2 = Color(0xFF2EF8AF);
+const colorblueAccent = Color(0xFF00A9B6);
+
 const fontFamily = 'Noto';
 
 const assetImage = 'assets/images';
