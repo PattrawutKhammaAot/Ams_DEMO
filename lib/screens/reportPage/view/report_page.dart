@@ -75,12 +75,11 @@ class _ReportPageState extends State<ReportPage> {
         }),
         BlocListener<ReportBloc, ReportState>(listener: (context, state) async {
           if (state is GetListCountDetailLoadedState) {
-            if (state.item.isNotEmpty) {
+            if (itemCountDetail.isEmpty) {
               itemCountDetail = state.item;
               tempitemCountDetail = state.item;
-            } else {
-              itemCountDetail.clear();
             }
+
             setState(() {});
           } else if (state is GetListCountDetailErrorState) {
             var itemSql = await ListCountDetailReportModel().query();
