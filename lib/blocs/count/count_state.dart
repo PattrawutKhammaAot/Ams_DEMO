@@ -284,3 +284,26 @@ class PostCountScanAlreadyCheckErrorState extends CountState {
   @override
   List<Object> get props => [error];
 }
+
+///POST CountSaveNewAssetNewPlan
+class PostCountSaveNewAssetNewPlanLoadingState extends CountState {
+  const PostCountSaveNewAssetNewPlanLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class PostCountSaveNewAssetNewPlanLoadedState extends CountState {
+  const PostCountSaveNewAssetNewPlanLoadedState(this.item);
+  final CountScanMain item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class PostCountSaveNewAssetNewPlanErrorState extends CountState {
+  const PostCountSaveNewAssetNewPlanErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}

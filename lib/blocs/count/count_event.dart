@@ -101,3 +101,10 @@ class PostCountScanAlreadyCheckEvent extends CountEvent {
   @override
   List<Object> get prop => [items];
 }
+
+class PostCountSaveNewAssetNewPlanEvent extends CountEvent {
+  PostCountSaveNewAssetNewPlanEvent(this.items);
+  CountScan_OutputModel items;
+  @override
+  List<Object> get prop => [items];
+}

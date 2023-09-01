@@ -20,6 +20,7 @@ import 'package:ams_count/widgets/label.dart';
 import 'package:ams_count/widgets/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -349,13 +350,22 @@ class _ScanPageState extends State<ScanPage> {
               }
 
               setState(() {});
-            } else if (error ==
+            }
+            if (error ==
                 "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่") {
-              printInfo(info: "Testet");
               AlertWarningNew().alertShow(context,
                   title: "Warning",
                   desc: "${error}",
                   type: AlertType.warning, onPress: () {
+                BlocProvider.of<CountBloc>(context).add(
+                    PostCountSaveNewAssetNewPlanEvent(CountScan_OutputModel(
+                        ASSETS_CODE: _assetNoController.text,
+                        PLAN_CODE: planCode,
+                        LOCATION_ID: locationId,
+                        DEPARTMENT_ID: departmentId,
+                        IS_SCAN_NOW: true,
+                        STATUS_ID: statusId,
+                        REMARK: _remarkController.text)));
                 _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
@@ -427,6 +437,10 @@ class _ScanPageState extends State<ScanPage> {
             });
           } else if (state is UploadImageErrorState) {
             await _uploadPhotoToSqlite();
+          }
+
+          if (state is PostCountSaveNewAssetNewPlanLoadedState) {
+            EasyLoading.showSuccess("Success");
           }
           setState(() {});
         })

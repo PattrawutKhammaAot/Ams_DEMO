@@ -122,6 +122,17 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }
       },
     );
+    on<PostCountSaveNewAssetNewPlanEvent>(
+      (event, emit) async {
+        try {
+          emit(PostCountSaveNewAssetNewPlanLoadingState());
+          final mlist = await fetchCountNewAssetNewPlan(event.items);
+          emit(PostCountSaveNewAssetNewPlanLoadedState(mlist));
+        } catch (e) {
+          emit(PostCountSaveNewAssetNewPlanErrorState(e.toString()));
+        }
+      },
+    );
     on<PostCountScanAlreadyCheckEvent>(
       (event, emit) async {
         try {
@@ -372,6 +383,33 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     try {
       Response responese = await dio.post(
         '${configHost}Count/CountSaveStatusAsset',
+        data: json.encode(output),
+        options: Options(headers: {
+          HttpHeaders.authorizationHeader: "Bearer $token",
+          HttpHeaders.contentTypeHeader: "application/json; charset=UTF-8",
+          "Application-Key": appKey,
+          "Action-By": await AppData.getUserName(),
+          "Locale-Id": await AppData.getLocalId(),
+        }),
+      );
+
+      CountScanMain post = CountScanMain.fromJson(responese.data);
+
+      return post;
+    } catch (e, s) {
+      throw Exception();
+    }
+  }
+
+  Future<CountScanMain> fetchCountNewAssetNewPlan(
+      CountScan_OutputModel output) async {
+    late String token = "";
+    token = await AppData.getToken();
+    var configHost = await AppData.getApiUrl();
+
+    try {
+      Response responese = await dio.post(
+        '${configHost}Count/CountSaveNewAssetNotPlan',
         data: json.encode(output),
         options: Options(headers: {
           HttpHeaders.authorizationHeader: "Bearer $token",
