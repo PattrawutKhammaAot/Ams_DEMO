@@ -365,7 +365,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
         }),
       );
 
-      // var itemData = responese.data['data'];
       CountScanMain post = CountScanMain.fromJson(responese.data);
 
       return post;
@@ -424,6 +423,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
+      EasyLoading.showError("$e");
       throw Exception();
     }
   }
@@ -442,6 +442,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
+      EasyLoading.showError("$e");
       throw Exception();
     }
   }
