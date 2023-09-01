@@ -329,6 +329,9 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
+      EasyLoading.showError("${configHost}");
+      print(e);
+      print(s);
       throw Exception();
     }
   }

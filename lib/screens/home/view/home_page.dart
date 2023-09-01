@@ -130,6 +130,7 @@ class _HomePageState extends State<HomePage> {
             setState(() {
               itemStatusDashboard = state.item;
             });
+            await AppData.setApiUrl(apiUrl);
           } else if (state is GetDashBoardAssetStatusErrorState) {
             printInfo(info: "Test print Error");
             var itemSql = await DashBoardAssetStatusModel().query();

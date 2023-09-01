@@ -97,18 +97,19 @@ class _ScanPageState extends State<ScanPage> {
   void _validateDropdown() {
     if (_departmentController.text.isEmpty &&
         _locationController.text.isEmpty) {
-      print("1");
       formKeyList[1].currentState!.validate();
     } else if (_locationController.text.isEmpty &&
             _departmentController.text.isNotEmpty ||
         _departmentController.text.isEmpty &&
+            _locationController.text.isNotEmpty ||
+        _departmentController.text.isNotEmpty &&
             _locationController.text.isNotEmpty) {
-      print("object");
       formKeyList[1].currentState!.validate();
       isCheckdropdown = true;
       setState(() {});
     } else {
-      print("Null");
+      print(_departmentController.text);
+      print(_locationController.text);
     }
   }
 
