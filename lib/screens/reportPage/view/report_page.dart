@@ -33,6 +33,8 @@ class _ReportPageState extends State<ReportPage> {
   String valueselected = '';
   @override
   void initState() {
+    BlocProvider.of<ReportBloc>(context)
+        .add(GetListCountDetailForReportEvent(""));
     BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
     super.initState();
   }
