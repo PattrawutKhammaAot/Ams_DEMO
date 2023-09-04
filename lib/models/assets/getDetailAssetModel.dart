@@ -135,8 +135,8 @@ class GetDetailAssetModel {
   final String? COMPANY_CODE;
   final String? COMPANY_NAME;
   final int? BRAND_ID;
-  final int? BRAND_NAME;
-  final String? MODEL_ID;
+  final String? BRAND_NAME;
+  final int? MODEL_ID;
   final String? MODEL_NAME;
   final int? BRANCH_ID;
   final String? BRANCH_CODE;

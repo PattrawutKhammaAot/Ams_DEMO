@@ -26,7 +26,7 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
         }
       },
     );
-     on<GetDetailAssetEvent>(
+    on<GetDetailAssetEvent>(
       (event, emit) async {
         try {
           emit(GetDetailAssetLoadingState());
@@ -79,8 +79,6 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
       GetDetailAssetModel post = GetDetailAssetModel.fromJson(itemData);
       return post;
     } catch (e, s) {
-      print(e);
-      print(s);
       throw Exception();
     }
   }

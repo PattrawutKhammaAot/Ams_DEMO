@@ -30,6 +30,7 @@ class CustomDropdownButton2 extends StatelessWidget {
       focusNode: focusNode,
       value: value,
       decoration: InputDecoration(
+        hintStyle: TextStyle(),
         hintText: hintText,
         filled: true,
         fillColor: Colors.white,

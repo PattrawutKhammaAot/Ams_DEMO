@@ -1,5 +1,6 @@
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
+import 'package:ams_count/config/app_data.dart';
 import 'package:ams_count/models/assets/getDetailAssetModel.dart';
 import 'package:ams_count/widgets/alert.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
@@ -28,7 +29,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
   TextEditingController _lifeYear = TextEditingController();
   TextEditingController _assetStatus = TextEditingController();
   TextEditingController _company = TextEditingController();
-  TextEditingController _branchName = TextEditingController();
+  TextEditingController _brandName = TextEditingController();
   TextEditingController _building = TextEditingController();
   TextEditingController _room = TextEditingController();
   TextEditingController _location = TextEditingController();
@@ -44,7 +45,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
     _lifeYear.text = itemModel.LIFE_YEAR.toString();
     _assetStatus.text = itemModel.STATUS_NAME ?? "-";
     _company.text = itemModel.COMPANY_NAME ?? "-";
-    _branchName.text = itemModel.BRANCH_NAME ?? "-";
+    _brandName.text = itemModel.BRAND_NAME ?? "-";
     _building.text = itemModel.BUILDING_NAME ?? "-";
     _room.text = itemModel.ROOM_NAME ?? "-";
     _location.text = itemModel.LOCATION_NAME ?? "-";
@@ -90,13 +91,27 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
           if (state is GetDetailAssetLoadedState) {
             _detailAssetModel = state.item;
             _setValueController(_detailAssetModel);
+            AlertSnackBar.show(
+                title: 'SUCCESS',
+                message: "Get Data Success",
+                type: ReturnStatus.SUCCESS,
+                crossPage: true);
+
             setState(() {});
           } else if (state is GetDetailAssetErrorState) {
-            AlertSnackBar.show(
-                title: '${state.error}',
-                message: 'Please Connection Internet',
-                type: ReturnStatus.WARNING,
-                crossPage: true);
+            if (await AppData.getMode() == 'Offline') {
+              AlertSnackBar.show(
+                  title: 'No Internet',
+                  message: 'Please Connection Internet',
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+            } else {
+              AlertSnackBar.show(
+                  title: 'AssetNo invaild',
+                  message: 'Please try Again',
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+            }
           }
         })
       ],
@@ -112,40 +127,59 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                 height: 5,
               ),
               Expanded(
-                child: Swiper(
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Image.network(
-                          "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      );
-                    } else if (index == 1) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Image.network(
-                          "https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?cs=srgb&dl=pexels-pixabay-268533.jpg&fm=jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      );
-                    } else if (index == 2) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Image.network(
-                          "https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_640.jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  },
-                  itemCount: 3,
-                  pagination: SwiperPagination(),
-                  control: SwiperControl(color: colorPrimary),
-                ),
+                child: _detailAssetModel.ASSET_NAME != null
+                    ? Swiper(
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: _detailAssetModel.IMG1 != null
+                                  ? Image.network(
+                                      "${_detailAssetModel.IMG1}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/nopictureAvaliable.png',
+                                    ),
+                            );
+                          } else if (index == 1) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: _detailAssetModel.IMG1 != null
+                                  ? Image.network(
+                                      "${_detailAssetModel.IMG1}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/nopictureAvaliable.png',
+                                    ),
+                            );
+                          } else if (index == 2) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: _detailAssetModel.IMG3 != null
+                                  ? Image.network(
+                                      "${_detailAssetModel.IMG3}",
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/nopictureAvaliable.png',
+                                    ),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
+                        itemCount: 3,
+                        pagination: SwiperPagination(),
+                        control: SwiperControl(color: colorPrimary),
+                      )
+                    : Image.asset(
+                        'assets/images/nopictureAvaliable.png',
+                      ),
               ),
               SizedBox(
                 height: 10,
@@ -186,55 +220,128 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                   if (index == 0) {
                                     return SingleChildScrollView(
                                       physics: BouncingScrollPhysics(),
-                                      child: Column(
-                                        children: [
-                                          _textInput("Asset No",
-                                              enabled: false,
-                                              focusNode: focusAsset,
-                                              controller: _assetNo,
-                                              onFieldSubmitted: (value) {
-                                            if (value.isNotEmpty) {
-                                              BlocProvider.of<AssetsBloc>(
-                                                      context)
-                                                  .add(GetDetailAssetEvent(
-                                                      value));
-                                            }
-                                          },
-                                              suffixIcon: IconButton(
-                                                  onPressed: () async {
-                                                    await _scanBarcode();
-                                                  },
-                                                  icon: Icon(Icons.qr_code))),
-                                          _textInput("Asset Name",
-                                              controller: _assetName),
-                                          _textInput("Used Date",
-                                              controller: _usedDate),
-                                          _textInput("Life Year",
-                                              controller: _lifeYear),
-                                          _textInput("Asset Status",
-                                              controller: _assetStatus),
-                                        ],
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            CustomTextInputField(
+                                                labelText: "Asset No",
+                                                isHideLable: true,
+                                                readOnly: false,
+                                                focusNode: focusAsset,
+                                                controller: _assetNo,
+                                                onFieldSubmitted: (value) {
+                                                  if (value.isNotEmpty) {
+                                                    BlocProvider.of<AssetsBloc>(
+                                                            context)
+                                                        .add(
+                                                            GetDetailAssetEvent(
+                                                                value));
+                                                  }
+                                                },
+                                                suffixIcon: IconButton(
+                                                    onPressed: () async {
+                                                      await _scanBarcode();
+                                                    },
+                                                    icon: Icon(Icons.qr_code))),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Asset Name",
+                                                controller: _assetName),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Used Date",
+                                                controller: _usedDate),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Life Year",
+                                                controller: _lifeYear),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Asset Status",
+                                                controller: _assetStatus),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   } else {
                                     return SingleChildScrollView(
                                       physics: BouncingScrollPhysics(),
-                                      child: Column(
-                                        children: [
-                                          _textInput("Company",
-                                              controller: _company),
-                                          _textInput("Branch",
-                                              controller: _branchName),
-                                          _textInput("Building",
-                                              controller: _building),
-                                          _textInput("Room", controller: _room),
-                                          _textInput("Location",
-                                              controller: _location),
-                                          _textInput("Department",
-                                              controller: _department),
-                                          _textInput("Owner",
-                                              controller: _owner),
-                                        ],
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Company",
+                                                controller: _company),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Brand",
+                                                controller: _brandName),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Building",
+                                                controller: _building),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Room",
+                                                controller: _room),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Location",
+                                                controller: _location),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Department",
+                                                controller: _department),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextInputField(
+                                                isHideLable: true,
+                                                readOnly: true,
+                                                labelText: "Owner",
+                                                controller: _owner),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   }
