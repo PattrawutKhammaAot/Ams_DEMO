@@ -81,7 +81,8 @@ class _CountPageState extends State<CountPage> {
     if (searchResults.isNotEmpty) {
       itemModel = searchResults;
     } else {
-      Alert.show(title: "Plan Invaild", message: "Please Input or Scan Again");
+      AlertSnackBar.show(
+          title: "Plan Invaild", message: "Please Input or Scan Again");
       itemModel = _tempitemModel;
     }
     setState(() {});

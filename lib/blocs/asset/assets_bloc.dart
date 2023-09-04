@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:get/get.dart';
 
 import '../../data/network/providers/api_controller.dart';
+import '../../models/assets/getDetailAssetModel.dart';
 
 part 'assets_event.dart';
 part 'assets_state.dart';
@@ -22,6 +23,17 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
           emit(GetDashBoardAssetStatusLoadedState(mlist));
         } catch (e) {
           emit(GetDashBoardAssetStatusErrorState(e.toString()));
+        }
+      },
+    );
+     on<GetDetailAssetEvent>(
+      (event, emit) async {
+        try {
+          emit(GetDetailAssetLoadingState());
+          final mlist = await fetchGetDetailAsset(event.assetCode);
+          emit(GetDetailAssetLoadedState(mlist));
+        } catch (e) {
+          emit(GetDetailAssetErrorState(e.toString()));
         }
       },
     );
@@ -48,6 +60,23 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
         });
       }
 
+      return post;
+    } catch (e, s) {
+      print(e);
+      print(s);
+      throw Exception();
+    }
+  }
+
+  Future<GetDetailAssetModel> fetchGetDetailAsset(String param) async {
+    try {
+      var apiController = APIController();
+      var response = await apiController
+          .getData('Asset/GetDetailAsset', "assetCode=$param", useAuth: true);
+
+      var itemData = response['data'];
+
+      GetDetailAssetModel post = GetDetailAssetModel.fromJson(itemData);
       return post;
     } catch (e, s) {
       print(e);

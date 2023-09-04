@@ -15,6 +15,7 @@ import '../../../blocs/report/report_bloc.dart';
 import '../../../config/api_path.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
+import '../../../data/database/dbsqlite.dart';
 import '../../../data/models/dashboard/DashboardCountPlan.dart';
 import '../../../models/count/responeModel.dart';
 import '../../../models/master/statusAssetCountModel.dart';
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   ResponseModel itemCheckAll = ResponseModel();
   ResponseModel itemCheck = ResponseModel();
   ResponseModel itemUncheck = ResponseModel();
-
+  Data dashBoardCountPlan = Data();
   DashBoardAssetStatusModel itemStatusDashboard = DashBoardAssetStatusModel();
   String? mode;
   List<String> images = [
@@ -149,6 +150,17 @@ class _HomePageState extends State<HomePage> {
             }
             setState(() {});
           }
+        }),
+        BlocListener<HomeBloc, HomeState>(listener: (context, state) async {
+          if (state is HomeLoaded) {
+            dashBoardCountPlan = state.dashboardCountPlan.data!;
+            setState(() {});
+          } else {
+            var itemSql = await Data().query();
+            printInfo(info: "test${itemSql[0]['resultAll']}");
+            dashBoardCountPlan = Data.fromJson(itemSql.first);
+            // dashBoardCountPlan = itemSql.map((e) => Data.fromJson(e));
+          }
         })
       ],
       child: Scaffold(
@@ -211,19 +223,8 @@ class _HomePageState extends State<HomePage> {
                                     const EdgeInsets.only(left: 10, right: 10),
                                 child: Align(
                                   alignment: Alignment.center,
-                                  child: BlocBuilder<HomeBloc, HomeState>(
-                                    builder: (context, state) {
-                                      if (state is HomeLoaded) {
-                                        final dashboardCountPlan =
-                                            state.dashboardCountPlan;
-                                        return CountListWidget(
-                                          dashboardCountPlan:
-                                              dashboardCountPlan,
-                                        );
-                                      } else {
-                                        return CircularProgressIndicator();
-                                      }
-                                    },
+                                  child: CountListWidget(
+                                    dashboardCountPlan: dashBoardCountPlan,
                                   ),
                                 ),
                               ),
@@ -607,7 +608,7 @@ class CustomDrawer extends StatelessWidget {
 }
 
 class CountListWidget extends StatelessWidget {
-  final DashboardCountPlan dashboardCountPlan;
+  final Data dashboardCountPlan;
 
   const CountListWidget({
     Key? key,
@@ -617,10 +618,10 @@ class CountListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int touchedIndex = -1;
-    int countAll = dashboardCountPlan.data?.resultAll ?? 10;
-    int countStatusOpen = dashboardCountPlan.data?.resultOpen ?? 2;
-    int countStatusCounting = dashboardCountPlan.data?.resultCounting ?? 2;
-    int countStatusClose = dashboardCountPlan.data?.resultClose ?? 6;
+    int countAll = dashboardCountPlan.resultAll ?? 10;
+    int countStatusOpen = dashboardCountPlan.resultOpen ?? 2;
+    int countStatusCounting = dashboardCountPlan.resultCounting ?? 2;
+    int countStatusClose = dashboardCountPlan.resultClose ?? 6;
 
     List<PieChartSectionData> showingSections() {
       return List.generate(3, (i) {

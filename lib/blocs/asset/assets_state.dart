@@ -30,3 +30,25 @@ class GetDashBoardAssetStatusErrorState extends AssetsState {
   @override
   List<Object> get props => [error];
 }
+
+class GetDetailAssetLoadingState extends AssetsState {
+  const GetDetailAssetLoadingState();
+  @override
+  List<Object> get props => [];
+}
+
+class GetDetailAssetLoadedState extends AssetsState {
+  const GetDetailAssetLoadedState(this.item);
+  final GetDetailAssetModel item;
+
+  @override
+  List<Object> get props => [item];
+}
+
+class GetDetailAssetErrorState extends AssetsState {
+  const GetDetailAssetErrorState(this.error);
+  final String error;
+
+  @override
+  List<Object> get props => [error];
+}

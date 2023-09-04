@@ -16,7 +16,7 @@ class APIController {
   Future<void> exceptionHandle(Object exception) async {
     try {
       if (exception.toString() == 'Unauthorized') {
-        Alert.show(
+        AlertSnackBar.show(
             title: 'Session timeout',
             message: 'Your session has timed out. Please login again',
             type: ReturnStatus.WARNING,
@@ -33,7 +33,7 @@ class APIController {
             textConfirm: 'OK',
             onPressed: () {});
       } else {
-        Alert.show(
+        AlertSnackBar.show(
             title: "Network Exception",
             message: exception.toString(),
             type: ReturnStatus.ERROR);
@@ -76,7 +76,7 @@ class APIController {
         navigateToLogin();
         return;
       } else {
-        Alert.show(
+        AlertSnackBar.show(
             message: 'Failed in calling a API', type: ReturnStatus.WARNING);
       }
 
@@ -108,7 +108,8 @@ class APIController {
 
       if (resp.statusCode == 200) {
         if (resp.data["status"] == "LOGOUT") {
-          Alert.show(message: 'Session timeout', type: ReturnStatus.WARNING);
+          AlertSnackBar.show(
+              message: 'Session timeout', type: ReturnStatus.WARNING);
           navigateToLogin();
           return;
         }
@@ -117,7 +118,7 @@ class APIController {
           if (resp.data["message"] != 'Search Success' &&
               resp.data["message"] != 'Get Success' &&
               resp.data["message"] != '') {
-            Alert.show(
+            AlertSnackBar.show(
                 message: resp.data["message"],
                 type:
                     statusFromString(ReturnStatus.values, resp.data["status"]));
@@ -127,7 +128,7 @@ class APIController {
           if (kDebugMode) {
             print("Failed to call post");
           }
-          Alert.show(
+          AlertSnackBar.show(
               message: resp.data["message"],
               type: statusFromString(ReturnStatus.values, resp.data["status"]));
           return resp.data;
@@ -136,7 +137,7 @@ class APIController {
         navigateToLogin();
         return;
       } else {
-        Alert.show(
+        AlertSnackBar.show(
             message: 'Failed in calling a API', type: ReturnStatus.WARNING);
       }
     }
@@ -209,7 +210,7 @@ class APIController {
         navigateToLogin();
         return;
       } else {
-        Alert.show(
+        AlertSnackBar.show(
             message: 'Failed in calling a API', type: ReturnStatus.WARNING);
       }
     }

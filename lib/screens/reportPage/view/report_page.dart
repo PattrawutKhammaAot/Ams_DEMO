@@ -47,7 +47,7 @@ class _ReportPageState extends State<ReportPage> {
       itemCountDetail = searchResults;
     } else {
       itemCountDetail = tempitemCountDetail;
-      Alert.show(
+      AlertSnackBar.show(
           title: 'Data Invaild',
           message: ' Please Select View Again',
           type: ReturnStatus.WARNING,
@@ -155,6 +155,16 @@ class _ReportPageState extends State<ReportPage> {
                                             'statusName': itemCountDetail[index]
                                                     .STATUS_NAME ??
                                                 15,
+                                            'scanDate': itemCountDetail[index]
+                                                        .STATUS_CHECK !=
+                                                    "Unchecked"
+                                                ? DateFormat("yyyy-MM-dd")
+                                                    .format(DateTime.parse(
+                                                        itemCountDetail[index]
+                                                            .CHECK_DATE
+                                                            .toString()))
+                                                : "",
+                                            'typePage': "reportPage"
                                           });
                                         },
                                         item: itemCountDetail[index],

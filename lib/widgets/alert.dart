@@ -5,13 +5,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../config/config.dart';
 import '../data/models/api_response.dart';
 
-class Alert {
+class AlertSnackBar {
   static void show({
     bool? showDefaultText = true,
     String? title,
     String? message,
     Color? color = colorSuccess,
-    ReturnStatus? type,
+    ReturnStatus type = ReturnStatus.WARNING,
     Duration? duration,
     bool? crossPage = false,
   }) {
@@ -72,7 +72,10 @@ class Alert {
             icon: leadingIcon,
             onPressed: cancel,
           )),
-      title: (_) => Text(showTitle, style: const TextStyle(fontWeight: FontWeight.bold),),
+      title: (_) => Text(
+        showTitle,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
       subtitle: (_) => Text(message ?? ''),
       trailing: (cancel) => IconButton(
         icon: const Icon(Icons.close),

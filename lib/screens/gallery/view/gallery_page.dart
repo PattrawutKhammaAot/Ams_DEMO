@@ -49,7 +49,7 @@ class _GalleryPageState extends State<GalleryPage> {
       _imageList = searchResults;
     } else {
       _imageList = _tempimageList;
-      Alert.show(
+      AlertSnackBar.show(
           title: 'Data Invalid',
           message: "Please Input Again",
           type: ReturnStatus.WARNING,
@@ -67,6 +67,11 @@ class _GalleryPageState extends State<GalleryPage> {
             _imageList = state.item;
             _tempimageList = state.item;
           } else if (state is GetListImageAssetErrorState) {
+            AlertSnackBar.show(
+                title: 'No internet',
+                message: "Please Connection Internet",
+                type: ReturnStatus.WARNING,
+                crossPage: true);
             var itemSql = await ListImageAssetModel().queryAllRows();
             _imageList = itemSql
                 .map((item) => ListImageAssetModel.fromJson(item))

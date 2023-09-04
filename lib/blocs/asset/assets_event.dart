@@ -15,3 +15,12 @@ class GetDashBoardAssetStatusEvent extends AssetsEvent {
   @override
   List<Object> get prop => [];
 }
+
+class GetDetailAssetEvent extends AssetsEvent {
+  const GetDetailAssetEvent(this.assetCode);
+
+  final String assetCode;
+
+  @override
+  List<Object> get prop => [assetCode];
+}

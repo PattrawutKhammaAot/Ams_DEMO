@@ -13,7 +13,7 @@ import 'package:ams_count/models/count/uploadImage_output_Model.dart';
 import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/master/statusAssetCountModel.dart';
-import 'package:ams_count/widgets/alert_new.dart';
+
 import 'package:ams_count/widgets/custom_dropdown2.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
@@ -28,11 +28,16 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../../../data/database/dbsqlite.dart';
+import '../../../data/models/api_response.dart';
 import '../../../models/count/CountScan_output.dart';
 import '../../../models/count/listImageAssetModel.dart';
+import 'package:ams_count/widgets/alert.dart' as AlertDialog1;
+
+import '../../../widgets/alert_new.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -219,11 +224,18 @@ class _ScanPageState extends State<ScanPage> {
 
   _loadDataFormReportPage() async {
     planCode = arguments?['planCode'] ?? "Please Select Plan";
-    locationId = arguments?['locationID'] ?? 0;
-    departmentId = arguments?['departmentID'] ?? 0;
-    // statusId = arguments?['statusName'] ?? 0;
-    _barCodeController.text =
-        arguments?['assetsCode'] ?? _barCodeController.text;
+
+    if (arguments?['typePage'] == "reportPage") {
+      locationId = arguments?['locationID'] ?? 0;
+      departmentId = arguments?['departmentID'] ?? 0;
+      scanDate.text =
+          arguments?['scanDate'] == "" ? "-" : arguments?['scanDate'];
+
+      _barCodeController.text =
+          arguments?['assetsCode'] ?? _barCodeController.text;
+    } else {
+      scanDate.text = DateFormat("yyyy-MM-dd").format(DateTime.now());
+    }
 
     _departmentController.text = departmentId.toString();
     _locationController.text = locationId.toString();
@@ -262,6 +274,7 @@ class _ScanPageState extends State<ScanPage> {
 
   @override
   Widget build(BuildContext context) {
+    // scanDate.text = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
     return MultiBlocListener(
       listeners: [
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
@@ -307,9 +320,7 @@ class _ScanPageState extends State<ScanPage> {
             var data = state.item.DATA;
 
             error = state.item.MESSAGE;
-            if (state.item.STATUS == "SUCCESS" ||
-                state.item.MESSAGE ==
-                    'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
+            if (state.item.STATUS == "SUCCESS") {
               itemCountListModel = CountScanAssetsModel.fromJson(data);
               _serialNumberController.text =
                   itemCountListModel.ASSET_SERIALNO ?? "-";
@@ -328,35 +339,35 @@ class _ScanPageState extends State<ScanPage> {
                   : "-";
               _useDateController.text = formattedDate;
 
-              if (state.item.MESSAGE ==
-                  'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
-                AlertWarningNew().alertShow(context,
-                    title: "Warning",
-                    desc: "${error}",
-                    type: AlertType.warning, onPress: () {
-                  BlocProvider.of<CountBloc>(context).add(
-                      PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
-                          ASSETS_CODE: _assetNoController.text,
-                          PLAN_CODE: planCode,
-                          LOCATION_ID: locationId,
-                          DEPARTMENT_ID: departmentId,
-                          IS_SCAN_NOW: true,
-                          STATUS_ID: statusId,
-                          REMARK: _remarkController.text)));
-                  Navigator.pop(context);
-                }, onBack: () {
-                  Navigator.pop(context);
-                });
-              }
-
               setState(() {});
             }
-            if (error ==
+            if (state.item.MESSAGE ==
+                'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
+              printInfo(info: "Test");
+              AlertWarningNew().alertShow(context,
+                  type: AlertType.warning,
+                  title: "Warning",
+                  desc: "${error}", onPress: () {
+                BlocProvider.of<CountBloc>(context).add(
+                    PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
+                        ASSETS_CODE: _assetNoController.text,
+                        PLAN_CODE: planCode,
+                        LOCATION_ID: locationId,
+                        DEPARTMENT_ID: departmentId,
+                        IS_SCAN_NOW: true,
+                        STATUS_ID: statusId,
+                        REMARK: _remarkController.text)));
+                Navigator.pop(context);
+              }, onBack: () {
+                Navigator.pop(context);
+              });
+            }
+            if (state.item.MESSAGE ==
                 "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่") {
               AlertWarningNew().alertShow(context,
+                  type: AlertType.warning,
                   title: "Warning",
-                  desc: "${error}",
-                  type: AlertType.warning, onPress: () {
+                  desc: "${error}", onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
                     PostCountSaveNewAssetNewPlanEvent(CountScan_OutputModel(
                         ASSETS_CODE: _assetNoController.text,
@@ -379,26 +390,28 @@ class _ScanPageState extends State<ScanPage> {
                 _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               });
-            } else {
-              AlertWarningNew().alertShowOK(
-                context,
-                title: "Warning",
-                desc: "${error} ",
-                type: AlertType.warning,
-                onPress: () {
-                  _barcodeFocusNode.requestFocus();
-                  _barCodeController.clear();
-                  Navigator.pop(context);
-                },
-              );
             }
-          } else if (state is CountScanAssetsListErrorState) {}
+            if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!") {
+              AlertSnackBar.show(
+                  title: '${error}',
+                  message: "กรุณาใส่ Barcode ใหม่",
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+            }
+          } else if (state is CountScanAssetsListErrorState) {
+            AlertSnackBar.show(
+                title: 'No internet',
+                message: "Please Connection Internet",
+                type: ReturnStatus.WARNING,
+                crossPage: true);
+            _assetNoFocusNode.requestFocus();
+          }
           if (state is CountScanSaveAssetsLoadedState) {
             if (state.item.STATUS == "SUCCESS") {
               AlertWarningNew().alertShowOK(context,
+                  type: AlertType.success,
                   title: "${state.item.STATUS}",
-                  desc: "${state.item.MESSAGE}",
-                  type: AlertType.success, onPress: () {
+                  desc: "${state.item.MESSAGE}", onPress: () {
                 _assetNoController.clear();
                 _nameController.clear();
                 _serialNumberController.clear();
@@ -410,9 +423,9 @@ class _ScanPageState extends State<ScanPage> {
               });
             } else {
               AlertWarningNew().alertShowOK(context,
+                  type: AlertType.success,
                   title: "${state.item.STATUS}",
-                  desc: "${state.item.MESSAGE} ",
-                  type: AlertType.warning, onPress: () {
+                  desc: "${state.item.MESSAGE} ", onPress: () {
                 _assetNoController.clear();
                 _barCodeController.clear();
                 _barcodeFocusNode.requestFocus();
@@ -508,12 +521,10 @@ class _ScanPageState extends State<ScanPage> {
                                       : null,
                                   focusNode: _departmenFocusNode,
                                   validator: (value) {
-                                    if (_departmentController.text.isEmpty &&
-                                        _locationController.text.isEmpty) {
+                                    if (locationId == 0 && departmentId == 0) {
                                       _departmenFocusNode.requestFocus();
                                       return "Please Select Department";
-                                    } else if (_locationController
-                                        .text.isNotEmpty) {
+                                    } else {
                                       return null;
                                     }
                                   },
@@ -536,7 +547,6 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.DEPARTMENT_NAME == value)
                                             .DEPARTMENT_ID ??
                                         0;
-                                    _validateDropdown();
                                   },
                                 ),
                               ),
@@ -560,12 +570,9 @@ class _ScanPageState extends State<ScanPage> {
                                       : null,
                                   focusNode: _locationFocusNode,
                                   validator: (value) {
-                                    if (_locationController.text.isEmpty &&
-                                        _departmentController.text.isEmpty) {
-                                      _locationFocusNode.requestFocus();
+                                    if (locationId == 0 && departmentId == 0) {
                                       return "Please Selcetion Location";
-                                    } else if (_departmentController
-                                        .text.isNotEmpty) {
+                                    } else {
                                       return null;
                                     }
                                   },
@@ -588,7 +595,6 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.LOCATION_NAME == value)
                                             .LOCATION_ID ??
                                         0;
-                                    _validateDropdown();
                                   },
                                 ),
                               ),
@@ -615,19 +621,22 @@ class _ScanPageState extends State<ScanPage> {
                           onChanged: (value) {},
                           focusNode: _barcodeFocusNode,
                           onFieldSubmitted: (value) {
-                            BlocProvider.of<CountBloc>(context)
-                                .add(PostCountScanAssetListEvent([
-                              CountScan_OutputModel(
-                                  ASSETS_CODE: _barCodeController.text.trim(),
-                                  PLAN_CODE: planCode,
-                                  LOCATION_ID: locationId,
-                                  DEPARTMENT_ID: departmentId,
-                                  IS_SCAN_NOW: true,
-                                  REMARK: _remarkController.text.isEmpty
-                                      ? "-"
-                                      : _remarkController.text.trim(),
-                                  STATUS_ID: statusId)
-                            ]));
+                            printInfo(info: "${_locationController.text}");
+                            if (formKeyList[1].currentState!.validate()) {
+                              BlocProvider.of<CountBloc>(context)
+                                  .add(PostCountScanAssetListEvent([
+                                CountScan_OutputModel(
+                                    ASSETS_CODE: _barCodeController.text.trim(),
+                                    PLAN_CODE: planCode,
+                                    LOCATION_ID: locationId,
+                                    DEPARTMENT_ID: departmentId,
+                                    IS_SCAN_NOW: true,
+                                    REMARK: _remarkController.text.isEmpty
+                                        ? "-"
+                                        : _remarkController.text.trim(),
+                                    STATUS_ID: statusId)
+                              ]));
+                            }
                           },
                           controller: _barCodeController,
                           isHideLable: true,
@@ -795,19 +804,6 @@ class _ScanPageState extends State<ScanPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        // Row(
-                        //   crossAxisAlignment: CrossAxisAlignment.center,
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     imageFile != null
-                        //         ? Image.file(
-                        //             imageFile ?? File(""),
-                        //             width: 150,
-                        //             height: 150,
-                        //           )
-                        //         : Label("No File")
-                        //   ],
-                        // ),
                         SizedBox(
                           height: 5,
                         ),
@@ -858,14 +854,13 @@ class _ScanPageState extends State<ScanPage> {
               color: colorWarning,
               onPress: () {
                 if (_barCodeController.text.isNotEmpty) {
-                  _validateDropdown();
-                  if (isCheckdropdown == true) {
+                  if (formKeyList[1].currentState!.validate()) {
                     _uploadPhotoToServer();
                   }
                 } else {
                   AlertWarningNew().alertShowOK(context,
-                      desc: " Please Input Barcode",
-                      type: AlertType.warning, onPress: () {
+                      type: AlertType.warning,
+                      desc: " Please Input Barcode", onPress: () {
                     Navigator.pop(context);
                   });
                 }

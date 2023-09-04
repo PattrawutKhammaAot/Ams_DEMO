@@ -1,3 +1,5 @@
+import 'package:rflutter_alert/rflutter_alert.dart';
+
 class QuickTypes {
   static const String ID_PRIMARYKEY = "ID INTEGER PRIMARY KEY AUTOINCREMENT";
   static const String TEXT = "TEXT NULL";
@@ -5,6 +7,7 @@ class QuickTypes {
   static const String REAL = "REAL";
 
   static const String dbFileName = 'AmsPDA.db';
+  static const AlertType alertType = AlertType.success;
 }
 
 class CountScanAssetsField {

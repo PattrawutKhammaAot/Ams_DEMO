@@ -136,14 +136,14 @@ class _AppViewState extends State<AppView> {
               listener: (context, state) async {
                 if (state is NetworkFailure) {
                   AppData.setMode("Offline");
-                  Alert.show(
+                  AlertSnackBar.show(
                       title: 'Connection Failed',
                       message: 'Check your internet connection and try again ',
                       type: ReturnStatus.ERROR,
                       duration: const Duration(seconds: 10));
                 } else if (state is NetworkSuccess) {
                   AppData.setMode("Online");
-                  Alert.show(
+                  AlertSnackBar.show(
                       title: 'Connection Successful',
                       message: 'You\'re Online Now',
                       type: ReturnStatus.SUCCESS,

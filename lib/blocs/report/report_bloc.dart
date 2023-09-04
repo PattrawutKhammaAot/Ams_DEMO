@@ -60,7 +60,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
 
         return post;
       } else {
-        Alert.show(
+        AlertSnackBar.show(
             title: '${response['status']}',
             message: '${response['message']}',
             type: ReturnStatus.WARNING,

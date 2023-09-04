@@ -1,3 +1,4 @@
+import 'package:ams_count/data/models/dashboard/DashboardCountPlan.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/models/count/responeModel.dart';
@@ -66,10 +67,10 @@ class DbSqlite {
     CountScan_OutputModel().createTable(db, newVersion);
     DashBoardAssetStatusModel().createTable(db, newVersion);
     ListCountDetailReportModel().createTable(db, newVersion);
+    Data().createTable(db, newVersion);
   }
 
-  Future<void> deleteAll(
-    {
+  Future<void> deleteAll({
     String? tableName,
   }) async {
     try {

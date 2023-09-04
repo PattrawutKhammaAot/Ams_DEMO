@@ -5,7 +5,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AlertWarningNew {
   void alertShow(BuildContext context,
-      {AlertType? type,
+      {AlertType? type ,
       String? title,
       String? desc,
       bool isHide = true,
@@ -13,7 +13,7 @@ class AlertWarningNew {
       Function()? onBack}) {
     Alert(
       context: context,
-      type: type,
+      type: type ?? AlertType.warning,
       title: title,
       desc: desc,
       buttons: [
