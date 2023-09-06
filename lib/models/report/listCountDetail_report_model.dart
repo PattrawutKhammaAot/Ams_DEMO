@@ -166,7 +166,13 @@ class ListCountDetailReportModel {
 
   Future<List<Map<String, dynamic>>> query() async {
     Database db = await DbSqlite().database;
-    return await db.query(ListCountDetailReportField.TABLE_NAME);
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query(ListCountDetailReportField.TABLE_NAME);
+    } else {
+      return [];
+    }
   }
 }
 

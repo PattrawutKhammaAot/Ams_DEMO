@@ -4,6 +4,7 @@ import 'package:ams_count/models/master/departmentModel.dart';
 import 'package:ams_count/models/master/locationModel.dart';
 import 'package:ams_count/models/transfer/selectdestinationModel.dart';
 import 'package:ams_count/models/transfer/transferAsset_outputModel.dart';
+import 'package:ams_count/screens/transfer/transfer.dart';
 import 'package:ams_count/widgets/custom_dropdown2.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 import '../../../config/app_constants.dart';
+import '../../../config/app_data.dart';
+import '../../../data/models/api_response.dart';
 import '../../../models/transfer/transferModel.dart';
+import '../../../widgets/alert.dart';
 
 class DestinationPage extends StatefulWidget {
-  const DestinationPage({super.key});
+  const DestinationPage({super.key, this.onChange});
+  final ValueChanged<bool>? onChange;
 
   @override
   State<DestinationPage> createState() => _DestinationPageState();
@@ -97,6 +102,23 @@ class _DestinationPageState extends State<DestinationPage> {
             ownerModel = state.item;
             setState(() {});
           }
+          if (state is TF_AssetPostLoadedState) {
+            if (state.item.STATUS == "SUCCESS") {
+              AlertSnackBar.show(
+                  title: '${state.item.STATUS}',
+                  message: "${state.item.MESSAGE}",
+                  type: ReturnStatus.SUCCESS,
+                  crossPage: true);
+
+              Get.back(result: {"ischecked": true});
+            }
+          } else if (state is TF_AssetPostErrorState) {
+            AlertSnackBar.show(
+                title: 'Exception',
+                message: "No internet",
+                type: ReturnStatus.SUCCESS,
+                crossPage: true);
+          }
         }),
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetDepartmentLoadedState) {
@@ -113,9 +135,9 @@ class _DestinationPageState extends State<DestinationPage> {
         floatingActionButton: ElevatedButton(
             style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(colorPrimary)),
-            onPressed: () {
-              for (var item in assetCode) {
-                List<int> _assetID = [item.ID ?? 0];
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                var localId = await AppData.getLocalId();
                 BlocProvider.of<TransferBloc>(context).add(TF_transferAsset(
                     TransferAssetOutputModel(
                         MOVE_NEW_COMPANYID: _companyID,
@@ -124,16 +146,17 @@ class _DestinationPageState extends State<DestinationPage> {
                         MOVE_NEW_ROOMID: _roomID,
                         MOVE_NEW_LOCATIONID: _locationID,
                         MOVE_NEW_DEPARTMENTID: _departmentID,
-                        MOVE_NEW_OWNERID: _ownerID,
-                        MOVE_DATE: DateTime.now().toString(),
-                        CREATE_DATE: DateTime.now().toString(),
-                        LIST_ASSET_ID: _assetID)));
-              }
-              if (_formKey.currentState!.validate()) {
-                printInfo(info: "Test");
+                        MOVE_NEW_OWNERID: _ownerID == 0 ? null : _ownerID,
+                        MOVE_DATE: null,
+                        CREATE_DATE: null,
+                        MOVE_REMARK: "-",
+                        LIST_ASSET_ID: assetIDs,
+                        MOVE_NEW_COSTCENTERID: null,
+                        MOVE_NEW_FLOORID: null,
+                        CREATE_BY: int.parse(localId))));
               }
             },
-            child: Label("Select Destination")),
+            child: Label("Confirm Destination")),
         appBar: AppBar(
           centerTitle: true,
           title: Label(
@@ -168,7 +191,7 @@ class _DestinationPageState extends State<DestinationPage> {
                               .firstWhere((item) => item.NAME == value)
                               .ID ??
                           0;
-                      printInfo(info: "${_companyID}");
+                  
                     },
                   ),
                   SizedBox(
@@ -296,7 +319,7 @@ class _DestinationPageState extends State<DestinationPage> {
                               .DEPARTMENT_ID ??
                           0;
 
-                      printInfo(info: "${_departmentID}");
+                      
                     },
                   ),
                   SizedBox(

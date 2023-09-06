@@ -88,7 +88,14 @@ class Data {
 
   Future<List<Map<String, dynamic>>> query() async {
     Database db = await DbSqlite().database;
-    return await db.query('t_dashboardPlanCount');
+
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query('t_dashboardPlanCount');
+    } else {
+      return [];
+    }
   }
 
   Future<int> update(Map<String, dynamic> data) async {

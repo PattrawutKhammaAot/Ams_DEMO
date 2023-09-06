@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 
 import '../../../config/config.dart';
 import '../../../widgets/widget.dart';
@@ -14,7 +15,7 @@ class ConnectionSettingPage extends StatefulWidget {
 }
 
 class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
-  late TextEditingController connectionUrlController ;
+  late TextEditingController connectionUrlController;
   String? connectionHint;
 
   @override
@@ -29,6 +30,8 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
     setState(() {
       connectionHint = tmpConnection;
     });
+
+    printInfo(info: "Test${tmpConnection}");
   }
 
   @override
@@ -39,26 +42,24 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           title: const Text('Connection Setting'),
         ),
         body: BlocProvider(
-          create: (context) => ConnectionSettingBloc()..add(const LoadSetting()),
+          create: (context) =>
+              ConnectionSettingBloc()..add(const LoadSetting()),
           child: BlocListener<ConnectionSettingBloc, ConnectionSettingState>(
             listener: (context, state) {
               if (state is ConnectionLoading) {
-                EasyLoading.show(  maskType: EasyLoadingMaskType.black);
-              }
-
-              else if (state is LoadedSetting) {
+                EasyLoading.show(maskType: EasyLoadingMaskType.black);
+              } else if (state is LoadedSetting) {
                 EasyLoading.dismiss();
                 connectionUrlController.text = state.connectionUrl;
               } else if (state is SaveSuccess) {
                 //EasyLoading.dismiss();
                 EasyLoading.showSuccess('Saved');
-              }else if (state is TestConnectionSuccess) {
+              } else if (state is TestConnectionSuccess) {
                 //EasyLoading.dismiss();
                 EasyLoading.showSuccess('Test Connect Successfully');
               } else if (state is ErrorMessage) {
@@ -69,7 +70,6 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
               }
             },
             child: BlocBuilder<ConnectionSettingBloc, ConnectionSettingState>(
-
               builder: (context, state) {
                 return Column(
                   children: [
@@ -78,7 +78,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                       child: CustomInputField(
                         controller: connectionUrlController,
                         labelText: 'Connection to server :',
-                        helperText: 'URL such as ${connectionHint ?? apiHint}',
+                        helperText: 'URL such as ${connectionHint ?? "-"}',
                         maxLines: 5,
                         onChanged: (e) {
                           // context.read<ConnectionSettingBloc>().add(C)
@@ -87,7 +87,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                     ),
                     const SizedBox(height: 18),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      padding: EdgeInsets.symmetric(horizontal: 18.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -95,15 +95,18 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               child: CustomButtonPrimary(
                             text: 'Test Connection',
                             onPress: () {
-                              context.read<ConnectionSettingBloc>().add(TestConnection(connectionUrlController.text));
+                              context.read<ConnectionSettingBloc>().add(
+                                  TestConnection(connectionUrlController.text));
                             },
                           )),
                           const SizedBox(width: 10),
                           Expanded(
                               child: CustomButtonPrimary(
                             text: 'Save',
-                            onPress: () {
-                              context.read<ConnectionSettingBloc>().add(Submit(connectionUrlController.text));
+                            onPress: () async {
+                              context
+                                  .read<ConnectionSettingBloc>()
+                                  .add(Submit(connectionUrlController.text));
                             },
                           )),
                         ],

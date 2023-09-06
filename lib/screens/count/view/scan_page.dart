@@ -241,9 +241,6 @@ class _ScanPageState extends State<ScanPage> {
     _locationController.text = locationId.toString();
     _statusController.text = statusId.toString();
     setState(() {});
-
-    printInfo(info: "Location ID ${locationId}");
-    printInfo(info: "Location ID ${planCode}");
   }
 
   _requestApiFirstTime() {
@@ -343,7 +340,6 @@ class _ScanPageState extends State<ScanPage> {
             }
             if (state.item.MESSAGE ==
                 'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
-              printInfo(info: "Test");
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
@@ -357,6 +353,7 @@ class _ScanPageState extends State<ScanPage> {
                         IS_SCAN_NOW: true,
                         STATUS_ID: statusId,
                         REMARK: _remarkController.text)));
+                _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
                 Navigator.pop(context);
@@ -621,7 +618,6 @@ class _ScanPageState extends State<ScanPage> {
                           onChanged: (value) {},
                           focusNode: _barcodeFocusNode,
                           onFieldSubmitted: (value) {
-                            printInfo(info: "${_locationController.text}");
                             if (formKeyList[1].currentState!.validate()) {
                               BlocProvider.of<CountBloc>(context)
                                   .add(PostCountScanAssetListEvent([
@@ -718,7 +714,6 @@ class _ScanPageState extends State<ScanPage> {
                                         (item) => item.STATUS_NAME == value)
                                     .STATUS_ID ??
                                 0;
-                            print(statusId);
                           },
                         ),
                         SizedBox(

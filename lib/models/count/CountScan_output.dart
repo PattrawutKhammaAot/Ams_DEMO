@@ -88,7 +88,13 @@ class CountScan_OutputModel {
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await DbSqlite().database;
-    return await db.query(CountScanOutputField.TABLE_NAME);
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query(CountScanOutputField.TABLE_NAME);
+    } else {
+      return [];
+    }
   }
 
   Future<void> deleteDataByID(int id) async {

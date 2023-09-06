@@ -50,14 +50,21 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
           DashBoardAssetStatusModel.fromJson(itemData);
 
       if (response['status'] == "SUCCESS") {
-        await DashBoardAssetStatusModel().update(values: {
-          DashboardField.RESULT_ALL: post.RESULT_ALL,
-          DashboardField.RESULT_NORMAL: post.RESULT_NORMAL,
-          DashboardField.RESULT_REPAIR: post.RESULT_REPAIR,
-          DashboardField.RESULT_BORROW: post.RESULT_BORROW,
-          DashboardField.RESULT_SALE: post.RESULT_SALE,
-          DashboardField.RESULT_WRITEOFF: post.RESULT_WRITEOFF,
-        });
+        var itemSql = await DashBoardAssetStatusModel().query();
+
+        if (itemSql.isEmpty) {
+          await DashBoardAssetStatusModel().insert(post.toJson());
+        } else {
+          await DashBoardAssetStatusModel().update(values: {
+            'ID': 1,
+            DashboardField.RESULT_ALL: post.RESULT_ALL,
+            DashboardField.RESULT_NORMAL: post.RESULT_NORMAL,
+            DashboardField.RESULT_REPAIR: post.RESULT_REPAIR,
+            DashboardField.RESULT_BORROW: post.RESULT_BORROW,
+            DashboardField.RESULT_SALE: post.RESULT_SALE,
+            DashboardField.RESULT_WRITEOFF: post.RESULT_WRITEOFF,
+          });
+        }
       }
 
       return post;

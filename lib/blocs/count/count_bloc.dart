@@ -322,6 +322,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
+
     try {
       Response responese = await dio.post(
         '${configHost}Count/CountScanAsset',

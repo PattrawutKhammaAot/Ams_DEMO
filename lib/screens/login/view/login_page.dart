@@ -28,7 +28,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late PackageInfo packageInfo;
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
   late String appVersion;
   late bool offlineChecked;
   final _usernameController = TextEditingController();
@@ -37,26 +45,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     appVersion = "";
-    getAppInfo();
+    _initPackageInfo();
 
     _usernameController.text = "";
     _passwordController.text = "";
-    // offlineChecked = false;
-    DbSqlite().initializeDatabase().then((value) => {});
 
     super.initState();
   }
 
-  Future<void> getAppInfo() async {
-    packageInfo = await PackageInfo.fromPlatform();
-
-    String appName = packageInfo.appName;
-    String packageName = packageInfo.packageName;
-    String version = packageInfo.version;
-    String buildNumber = packageInfo.buildNumber;
-
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
     setState(() {
-      appVersion = '$version ($buildNumber)';
+      _packageInfo = info;
     });
   }
 
@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   Text(
-                    'Version $appVersion',
+                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
                     style: const TextStyle(fontSize: 12),
                   ),
                   const Text(

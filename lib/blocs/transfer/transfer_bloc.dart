@@ -12,6 +12,7 @@ import '../../config/app_data.dart';
 import '../../data/network/providers/api_controller.dart';
 import '../../models/count/main/countScanAssetMain.dart';
 import '../../models/transfer/transferAsset_outputModel.dart';
+import '../../models/transfer/transferResponeseModel.dart';
 
 part 'transfer_event.dart';
 part 'transfer_state.dart';
@@ -71,7 +72,7 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
       try {
         emit(TF_AssetPostLoadingState());
         final mlist = await fetchPostTransferAsset(event.output);
-        emit(TF_AssetPostLoadedState());
+        emit(TF_AssetPostLoadedState(mlist));
       } catch (e) {
         emit(TF_AssetPostErrorState(e.toString()));
       }
@@ -106,14 +107,14 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
     }
   }
 
-  Future<CountScanMain> fetchPostTransferAsset(
+  Future<TransferResponeseModel> fetchPostTransferAsset(
       TransferAssetOutputModel output) async {
     var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
 
     try {
-      printInfo(info: "Test Send API ${jsonEncode(output.toJson())}");
+
       Response responese = await dio.post(
         '${configHost}Asset/TransferAsset',
         data: json.encode(output),
@@ -126,9 +127,12 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
         }),
       );
 
-      printInfo(info: "${responese}");
+      TransferResponeseModel post =
+          TransferResponeseModel.fromJson(responese.data);
 
-      return CountScanMain();
+   
+
+      return post;
     } catch (e, s) {
       print(e);
       print(s);

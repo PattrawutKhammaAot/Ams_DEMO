@@ -60,6 +60,8 @@ class _AppState extends State<App> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
+
+    DbSqlite().initializeDatabase().then((value) => {});
   }
 
   @override
@@ -101,18 +103,7 @@ class _AppViewState extends State<AppView> {
   int id = 0;
   @override
   Widget build(BuildContext context) {
-    EasyLoading
-        .instance
-        // ..displayDuration = const Duration(milliseconds: 2000)
-        // ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-        // ..loadingStyle = EasyLoadingStyle.dark
-        // ..indicatorSize = 45.0
-        // ..radius = 10.0
-        // ..progressColor = Colors.yellow
-        // ..backgroundColor = Colors.green
-        // ..indicatorColor = Colors.yellow
-        // ..textColor = Colors.yellow
-        .userInteractions = false;
+    EasyLoading.instance.userInteractions = false;
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,

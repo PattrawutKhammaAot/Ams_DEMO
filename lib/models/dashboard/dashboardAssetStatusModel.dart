@@ -63,17 +63,17 @@ class DashBoardAssetStatusModel {
         '${DashboardField.RESULT_SALE} ${QuickTypes.INTEGER},'
         '${DashboardField.RESULT_WRITEOFF} ${QuickTypes.INTEGER}'
         ')');
-    var itemRespone = await query();
-    if (itemRespone.isEmpty) {
-      insert({
-        '${DashboardField.RESULT_ALL}': 1,
-        '${DashboardField.RESULT_NORMAL}': 1,
-        '${DashboardField.RESULT_REPAIR}': 1,
-        '${DashboardField.RESULT_BORROW}': 1,
-        '${DashboardField.RESULT_SALE}': 1,
-        '${DashboardField.RESULT_WRITEOFF}': 1,
-      });
-    }
+    // var itemRespone = await query();
+    // if (itemRespone.isEmpty) {
+    //   insert({
+    //     '${DashboardField.RESULT_ALL}': 1,
+    //     '${DashboardField.RESULT_NORMAL}': 1,
+    //     '${DashboardField.RESULT_REPAIR}': 1,
+    //     '${DashboardField.RESULT_BORROW}': 1,
+    //     '${DashboardField.RESULT_SALE}': 1,
+    //     '${DashboardField.RESULT_WRITEOFF}': 1,
+    //   });
+    // }
   }
 
   Future<int> insert(Map<String, dynamic> data) async {
@@ -88,7 +88,13 @@ class DashBoardAssetStatusModel {
 
   Future<List<Map<String, dynamic>>> query() async {
     Database db = await DbSqlite().database;
-    return await db.query(DashboardField.TABLE_NAME);
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query(DashboardField.TABLE_NAME);
+    } else {
+      return [];
+    }
   }
 
   Future<int> update({

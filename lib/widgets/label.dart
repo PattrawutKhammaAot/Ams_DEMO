@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Label extends StatelessWidget {
-  Label(
-    this.text, {
-    super.key,
-    this.color = Colors.white,
-    this.fontSize = 16,
-    this.fontWeight,
-    this.textAlign,
-    this.fontStyle,
-  });
+  Label(this.text,
+      {super.key,
+      this.color = Colors.white,
+      this.fontSize = 16,
+      this.fontWeight,
+      this.textAlign,
+      this.fontStyle,
+      this.maxLine});
 
   final String text;
   final Color color;
@@ -17,12 +16,14 @@ class Label extends StatelessWidget {
   final FontWeight? fontWeight;
   final TextAlign? textAlign;
   final FontStyle? fontStyle;
+  final int? maxLine;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text ?? "",
       textAlign: textAlign,
+      maxLines: maxLine,
       style: TextStyle(
         color: color,
         fontSize: fontSize,

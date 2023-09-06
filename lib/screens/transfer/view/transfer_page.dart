@@ -1,5 +1,6 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/models/transfer/transferModel.dart';
+import 'package:ams_count/screens/transfer/transfer.dart';
 import 'package:ams_count/widgets/alert.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,9 @@ class _TransferPageState extends State<TransferPage> {
   TextEditingController _assetNo = TextEditingController();
 
   bool isVisible = false;
+  FocusNode focusAsset = FocusNode();
+  bool isDeleteList = false;
+  var arguments = Get.arguments as Map<String, dynamic>?;
 
   _scanBarcode() async {
     var res = await Navigator.push(
@@ -46,9 +50,16 @@ class _TransferPageState extends State<TransferPage> {
               message: 'Please ScanBarcode Again',
               type: ReturnStatus.WARNING,
               crossPage: true);
+          _assetNo.clear();
+          focusAsset.requestFocus();
         }
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -76,7 +87,9 @@ class _TransferPageState extends State<TransferPage> {
                 message: "Get Data Success",
                 type: ReturnStatus.SUCCESS,
                 crossPage: true);
+
             _assetNo.clear();
+            focusAsset.requestFocus();
             isVisibleList =
                 List.generate(listTransfer.length, (index) => false);
             setState(() {});
@@ -93,6 +106,8 @@ class _TransferPageState extends State<TransferPage> {
                   message: 'Please try Again',
                   type: ReturnStatus.WARNING,
                   crossPage: true);
+              _assetNo.clear();
+              focusAsset.requestFocus();
             }
           }
         })
@@ -110,10 +125,14 @@ class _TransferPageState extends State<TransferPage> {
                 backgroundColor: listTransfer.isEmpty
                     ? MaterialStatePropertyAll(Colors.grey)
                     : MaterialStatePropertyAll(colorPrimary)),
-            onPressed: () {
+            onPressed: () async {
               if (listTransfer.isNotEmpty) {
-                Get.toNamed('/SelectionDestination',
+                var item = await Get.toNamed('/SelectionDestination',
                     arguments: {'assetsCode': listTransfer});
+                if (item['ischecked'] == true) {
+                  listTransfer.clear();
+                  setState(() {});
+                }
               } else {
                 AlertSnackBar.show(
                     title: 'Oops something went wrong',
@@ -138,12 +157,13 @@ class _TransferPageState extends State<TransferPage> {
                           child: SizedBox(
                         height: 40,
                         child: TextFormField(
+                          focusNode: focusAsset,
+                          autofocus: true,
                           controller: _assetNo,
                           onFieldSubmitted: (value) {
                             if (value.isNotEmpty) {
                               BlocProvider.of<AssetsBloc>(context)
                                   .add(GetDetailAssetEvent(_assetNo.text));
-                              printInfo(info: "${value}");
                             }
                           },
                           decoration: InputDecoration(
@@ -169,6 +189,7 @@ class _TransferPageState extends State<TransferPage> {
               ),
               Expanded(
                 child: ListView.builder(
+                  physics: BouncingScrollPhysics(),
                   itemCount: listTransfer.length,
                   itemBuilder: (context, index) {
                     return Slidable(
@@ -209,27 +230,23 @@ class _TransferPageState extends State<TransferPage> {
                                   Stack(
                                     children: [
                                       Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 20, top: 10),
-                                          child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  isVisibleList[index] =
-                                                      !isVisibleList[index];
-                                                });
-                                              },
-                                              icon: isVisibleList[index] == true
-                                                  ? Icon(
-                                                      Icons.keyboard_arrow_down,
-                                                      size: 40,
-                                                    )
-                                                  : Icon(
-                                                      Icons.keyboard_arrow_up,
-                                                      size: 40,
-                                                    )),
-                                        ),
+                                        alignment: Alignment.topRight,
+                                        child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isVisibleList[index] =
+                                                    !isVisibleList[index];
+                                              });
+                                            },
+                                            icon: isVisibleList[index] == true
+                                                ? Icon(
+                                                    Icons.keyboard_arrow_down,
+                                                    size: 40,
+                                                  )
+                                                : Icon(
+                                                    Icons.keyboard_arrow_up,
+                                                    size: 40,
+                                                  )),
                                       ),
                                       Column(
                                         children: [
@@ -273,6 +290,7 @@ class _TransferPageState extends State<TransferPage> {
                                               child: Label(
                                                 "Asset Name : ${listTransfer[index].ASSET_NAME}",
                                                 color: colorPrimary,
+                                                maxLine: 2,
                                               ),
                                             ),
                                           ),

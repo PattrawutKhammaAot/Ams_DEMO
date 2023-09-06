@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_swiper_plus/flutter_swiper_plus.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../../../data/models/api_response.dart';
@@ -40,9 +41,13 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
   GetDetailAssetModel _detailAssetModel = GetDetailAssetModel();
 
   _setValueController(GetDetailAssetModel itemModel) {
+    String? _convertDate = DateFormat('yyyy-MM-dd').format(
+        DateTime.tryParse(itemModel.ASSET_DATE_OF_USE ?? "-") ??
+            DateTime.now());
     _assetName.text = itemModel.ASSET_NAME ?? "-";
-    _usedDate.text = itemModel.ASSET_DATE_OF_USE ?? "-";
-    _lifeYear.text = itemModel.LIFE_YEAR.toString();
+    _usedDate.text = itemModel.ASSET_DATE_OF_USE != null ? _convertDate : "-";
+    _lifeYear.text =
+        itemModel.LIFE_YEAR != null ? itemModel.LIFE_YEAR.toString() : "-";
     _assetStatus.text = itemModel.STATUS_NAME ?? "-";
     _company.text = itemModel.COMPANY_NAME ?? "-";
     _brandName.text = itemModel.BRAND_NAME ?? "-";
@@ -73,7 +78,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
               crossPage: true);
         }
       }
-      printInfo(info: "${_assetNo.text}");
+   
     });
   }
 
@@ -111,6 +116,8 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                   message: 'Please try Again',
                   type: ReturnStatus.WARNING,
                   crossPage: true);
+              focusAsset.requestFocus();
+              _assetNo.clear();
             }
           }
         })
@@ -247,35 +254,49 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                             SizedBox(
                                               height: 10,
                                             ),
-                                            CustomTextInputField(
-                                                isHideLable: true,
-                                                readOnly: true,
-                                                labelText: "Asset Name",
-                                                controller: _assetName),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            CustomTextInputField(
-                                                isHideLable: true,
-                                                readOnly: true,
-                                                labelText: "Used Date",
-                                                controller: _usedDate),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            CustomTextInputField(
-                                                isHideLable: true,
-                                                readOnly: true,
-                                                labelText: "Life Year",
-                                                controller: _lifeYear),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            CustomTextInputField(
-                                                isHideLable: true,
-                                                readOnly: true,
-                                                labelText: "Asset Status",
-                                                controller: _assetStatus),
+                                            _detailAssetModel.ASSET_NAME != null
+                                                ? Column(
+                                                    children: [
+                                                      CustomTextInputField(
+                                                          isHideLable: true,
+                                                          readOnly: true,
+                                                          labelText:
+                                                              "Asset Name",
+                                                          controller:
+                                                              _assetName),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      CustomTextInputField(
+                                                          isHideLable: true,
+                                                          readOnly: true,
+                                                          labelText:
+                                                              "Used Date",
+                                                          controller:
+                                                              _usedDate),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      CustomTextInputField(
+                                                          isHideLable: true,
+                                                          readOnly: true,
+                                                          labelText:
+                                                              "Life Year",
+                                                          controller:
+                                                              _lifeYear),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      CustomTextInputField(
+                                                          isHideLable: true,
+                                                          readOnly: true,
+                                                          labelText:
+                                                              "Asset Status",
+                                                          controller:
+                                                              _assetStatus),
+                                                    ],
+                                                  )
+                                                : SizedBox.shrink(),
                                           ],
                                         ),
                                       ),
@@ -346,7 +367,9 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                     );
                                   }
                                 },
-                                itemCount: 2,
+                                itemCount: _detailAssetModel.ASSET_NAME != null
+                                    ? 2
+                                    : 1,
                                 pagination: SwiperPagination(),
                               ),
                             ),

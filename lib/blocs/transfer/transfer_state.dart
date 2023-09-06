@@ -149,10 +149,11 @@ class TF_AssetPostLoadingState extends TransferState {
 }
 
 class TF_AssetPostLoadedState extends TransferState {
-  TF_AssetPostLoadedState();
+  TF_AssetPostLoadedState(this.item);
 
+  TransferResponeseModel item;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [item];
 }
 
 class TF_AssetPostErrorState extends TransferState {

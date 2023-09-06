@@ -56,7 +56,8 @@ class DepartmentModel {
       rethrow;
     }
   }
-   Future<int> update(Map<String, dynamic> data) async {
+
+  Future<int> update(Map<String, dynamic> data) async {
     try {
       final db = await DbSqlite().database;
       return await db.update(DepartmentField.TABLE_NAME, data);
@@ -65,11 +66,17 @@ class DepartmentModel {
       rethrow;
     }
   }
-  
 
   Future<List<Map<String, dynamic>>> query() async {
     Database db = await DbSqlite().database;
-    return await db.query(DepartmentField.TABLE_NAME);
+
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query(DepartmentField.TABLE_NAME);
+    } else {
+      return [];
+    }
   }
 }
 

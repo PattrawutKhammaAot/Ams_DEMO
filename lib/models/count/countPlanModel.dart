@@ -80,7 +80,6 @@ class CountPlanModel {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
-   
       final db = await DbSqlite().database;
 
       return await db.insert(CountPlanField.TABLE_NAME, data);
@@ -126,7 +125,13 @@ class CountPlanModel {
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await DbSqlite().database;
-    return await db.query(CountPlanField.TABLE_NAME);
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      return await db.query(CountPlanField.TABLE_NAME);
+    } else {
+      return [];
+    }
   }
 
   Future<void> deleteDataAllFromSQLite() async {

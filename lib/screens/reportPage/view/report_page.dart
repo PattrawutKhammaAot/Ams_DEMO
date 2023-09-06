@@ -65,7 +65,7 @@ class _ReportPageState extends State<ReportPage> {
             itemCountPlan = state.item;
             setState(() {});
 
-            printInfo(info: "${itemCountPlan.length}");
+           
           } else if (state is GetListCountPlanErrorState) {
             var itemSql = await CountPlanModel().queryAllRows();
             itemCountPlan =

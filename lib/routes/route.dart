@@ -36,5 +36,5 @@ final List<GetPage<dynamic>> routes = [
   GetPage(name: '/GalleryPage', page: () => const GalleryPage()),
   GetPage(name: '/ReportPage', page: () => const ReportPage()),
   GetPage(name: '/TransferPage', page: () => const TransferPage()),
-  GetPage(name: '/SelectionDestination', page: () => const DestinationPage()),
+  GetPage(name: '/SelectionDestination', page: () => DestinationPage()),
 ];
