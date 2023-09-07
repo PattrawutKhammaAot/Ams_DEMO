@@ -61,7 +61,7 @@ class _AppState extends State<App> {
       statusBarColor: Colors.transparent,
     ));
 
-    DbSqlite().initializeDatabase().then((value) => {});
+
   }
 
   @override

@@ -113,8 +113,9 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
     late String token = "";
     token = await AppData.getToken();
 
-    try {
+    
 
+    try {
       Response responese = await dio.post(
         '${configHost}Asset/TransferAsset',
         data: json.encode(output),
@@ -129,8 +130,6 @@ class TransferBloc extends Bloc<TransferEvent, TransferState> {
 
       TransferResponeseModel post =
           TransferResponeseModel.fromJson(responese.data);
-
-   
 
       return post;
     } catch (e, s) {

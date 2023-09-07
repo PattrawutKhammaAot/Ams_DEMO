@@ -37,6 +37,7 @@ import '../../../models/count/CountScan_output.dart';
 import '../../../models/count/listImageAssetModel.dart';
 import 'package:ams_count/widgets/alert.dart' as AlertDialog1;
 
+import '../../../models/report/listCountDetail_report_model.dart';
 import '../../../widgets/alert_new.dart';
 
 class ScanPage extends StatefulWidget {
@@ -90,6 +91,8 @@ class _ScanPageState extends State<ScanPage> {
   bool isCheckdropdown = false;
   String? selectedValue;
 
+  String? typePage;
+
   dynamic _validate(String values, FocusNode focus) {
     if (values.isEmpty) {
       focus.requestFocus();
@@ -119,26 +122,22 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  Future _buttonSave() async {
+  Future _buttonSave({String? type}) async {
     if (formKeyList[0].currentState!.validate() &&
         formKeyList[1].currentState!.validate()) {
       if (_departmentController.text.isNotEmpty ||
           _locationController.text.isNotEmpty) {
         if (await AppData.getMode() == "Offline") {
-          await CountScan_OutputModel().insert(CountScan_OutputModel(
-              ASSETS_CODE: _barCodeController.text.trim(),
-              PLAN_CODE: planCode,
-              LOCATION_ID: locationId,
-              DEPARTMENT_ID: departmentId,
-              IS_SCAN_NOW: true,
-              REMARK: _remarkController.text.isEmpty
-                  ? "-"
-                  : _remarkController.text.trim(),
-              STATUS_ID: statusId));
-          AlertWarningNew().alertShowOK(context,
-              title: "Save Success",
-              desc: "",
-              type: AlertType.success, onPress: () {
+          await CountScan_OutputModel()
+              .updateForAssetAndPlan(
+            assetCode: _barCodeController.text,
+            planCode: planCode!,
+            remark: _remarkController.text,
+            locationid: locationId,
+            departmentid: departmentId,
+            statusId: statusId,
+          )
+              .then((value) {
             _assetNoController.clear();
             _nameController.clear();
             _serialNumberController.clear();
@@ -147,6 +146,15 @@ class _ScanPageState extends State<ScanPage> {
             _barCodeController.clear();
             _remarkController.clear();
             _barcodeFocusNode.requestFocus();
+            departmentId = 0;
+            locationId = 0;
+            statusId = 0;
+          });
+
+          AlertWarningNew().alertShowOK(context,
+              title: "Save Success",
+              desc: "",
+              type: AlertType.success, onPress: () {
             Navigator.pop(context);
           });
         } else {
@@ -161,6 +169,18 @@ class _ScanPageState extends State<ScanPage> {
                       ? "-"
                       : _remarkController.text.trim(),
                   STATUS_ID: statusId)));
+          _assetNoController.clear();
+          _nameController.clear();
+          _serialNumberController.clear();
+          _classController.clear();
+          _useDateController.clear();
+          _barCodeController.clear();
+          _remarkController.clear();
+          _barcodeFocusNode.requestFocus();
+          departmentId = 0;
+          locationId = 0;
+          statusId = 0;
+          setState(() {});
         }
       }
     }
@@ -173,9 +193,8 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
     _barcodeFocusNode.requestFocus();
     _barcodeFocusNode.requestFocus();
-    _loadDataFormReportPage().then((item) {
-      _requestApiFirstTime();
-    });
+
+    _loadDataFormReportPage().then((item) {});
     super.initState();
   }
 
@@ -224,7 +243,7 @@ class _ScanPageState extends State<ScanPage> {
 
   _loadDataFormReportPage() async {
     planCode = arguments?['planCode'] ?? "Please Select Plan";
-
+    typePage = arguments?['typePage'] ?? "-";
     if (arguments?['typePage'] == "reportPage") {
       locationId = arguments?['locationID'] ?? 0;
       departmentId = arguments?['departmentID'] ?? 0;
@@ -266,6 +285,214 @@ class _ScanPageState extends State<ScanPage> {
       //         IS_SCAN_NOW: true,
       //         STATUS_ID: statusId,
       //         REMARK: _remarkController.text)));
+    }
+  }
+
+  _setvalueCountScan() async {
+    planCode;
+    var itemSql = await ListCountDetailReportModel()
+        .querySelectColumn(assetCode: _barCodeController.text);
+    List<ListCountDetailReportModel> itemModel = [];
+
+    if (itemSql.isNotEmpty) {
+      itemModel =
+          itemSql.map((e) => ListCountDetailReportModel.fromJson(e)).toList();
+
+      setState(() {});
+    }
+
+    if (itemSql.length == 0 && itemSql != null) {
+      AlertWarningNew().alertShowOK(context,
+          type: AlertType.warning, title: "ไม่พบข้อมูลสินทรัพย์", onPress: () {
+        Navigator.pop(context);
+        _barCodeController.clear();
+        _barcodeFocusNode.requestFocus();
+      });
+    } else if (!itemModel.any((element) => element.PLAN_CODE == planCode)) {
+      AlertWarningNew().alertShow(context,
+          type: AlertType.warning,
+          title:
+              "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่",
+          onPress: () async {
+        var item = itemModel
+            .where((element) => element.ASSET_CODE == _barCodeController.text)
+            .first;
+        _remarkController.text = item.REMARK ?? "-";
+        _assetNoController.text = item.ASSET_CODE ?? "-";
+        _nameController.text = item.ASSET_NAME ?? "-";
+        scanDate.text = item.CHECK_DATE ?? "-";
+        if (item.STATUS_NAME != null) {
+          statusId = _statusAssetCountModel
+                  .firstWhere(
+                      (element) => element.STATUS_NAME == item.STATUS_NAME)
+                  .STATUS_ID ??
+              15;
+        } else {
+          statusId = 0;
+          setState(() {});
+        }
+        await _setValue(status: "notPlan");
+        Navigator.pop(context);
+      }, onBack: () {
+        Navigator.pop(context);
+      });
+    } else {
+      var itemId =
+          itemModel.where((element) => element.PLAN_CODE == planCode).first;
+
+      //select Location only
+      if (departmentId == 0 && locationId != 0) {
+        if (locationId == itemId.BEFORE_LOCATION_ID) {
+          printInfo(info: "Item ID ${itemId.BEFORE_LOCATION_ID}");
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        } else {
+          AlertSnackBar.show(
+              title: 'Warning',
+              message: "ตรวจพบ สินทรัพย์สถานที่ไม่ตรงกับระบบ",
+              type: ReturnStatus.WARNING,
+              crossPage: true);
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        }
+      } // select Department Only
+      else if (departmentId != 0 && locationId == 0) {
+        if (departmentId == itemId.BEFORE_DEPARTMENT_ID) {
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        } else {
+          AlertSnackBar.show(
+              title: 'Warning',
+              message: "ตรวจพบ สินทรัพย์แผนกไม่ตรงกับระบบ",
+              type: ReturnStatus.WARNING,
+              crossPage: true);
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        }
+      }
+      //select Both
+      else {
+        if (departmentId == itemId.BEFORE_DEPARTMENT_ID &&
+            locationId == itemId.BEFORE_LOCATION_ID) {
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        } else {
+          AlertSnackBar.show(
+              title: 'Warning',
+              message: "ตรวจพบ สินทรัพย์สถานที่ และโลเคชั่น ไม่ตรงกับระบบ",
+              type: ReturnStatus.WARNING,
+              crossPage: true);
+          _checkStatus(itemId, onPress: () async {
+            await _setValue();
+          });
+        }
+      }
+    }
+
+    setState(() {});
+  }
+
+  _setValue({String? status}) async {
+    var item = await CountScan_OutputModel().queryAllRows();
+    bool foundMatch =
+        false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
+
+    for (var items in item) {
+      if (items[CountScanOutputField.ASSETS_CODE] == _barCodeController.text &&
+          items[CountScanOutputField.PLAN_CODE] == planCode) {
+        foundMatch = true; // ตั้งค่าเป็น true เมื่อพบข้อมูลที่ตรงกับเงื่อนไข
+        break; // หยุดลูปเมื่อพบข้อมูลที่ตรงกับเงื่อนไข
+      }
+    }
+
+    printInfo(info: "Test${foundMatch}");
+
+    if (!foundMatch) {
+      // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
+      await CountScan_OutputModel().insert(CountScan_OutputModel(
+        ASSETS_CODE: _barCodeController.text,
+        PLAN_CODE: planCode,
+        LOCATION_ID: locationId,
+        DEPARTMENT_ID: departmentId,
+        STATUS_ID: statusId,
+        IS_SCAN_NOW: true,
+        REMARK: _remarkController.text,
+        STATUS_REQUEST: status ?? statsCheck,
+      ));
+    } else {
+      await CountScan_OutputModel().update({
+        'assetCode': _barCodeController.text,
+        'planCode': planCode,
+        'locationId': locationId,
+        'departmentId': departmentId,
+        'isScanNow': "true",
+        'remark': _remarkController.text,
+        'statusId': statusId,
+        'statusRequest': status ?? statsCheck,
+      }, [
+        _barCodeController.text,
+      ]);
+    }
+  }
+
+  String statsCheck = "";
+
+  _checkStatus(ListCountDetailReportModel itemModel,
+      {dynamic Function()? onPress}) async {
+    if (itemModel.STATUS_CHECK == "Checked") {
+      AlertWarningNew().alertShow(context,
+          type: AlertType.warning,
+          title: "สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่",
+          onPress: () async {
+        _remarkController.text = itemModel.REMARK ?? "-";
+        _assetNoController.text = itemModel.ASSET_CODE ?? "-";
+        _nameController.text = itemModel.ASSET_NAME ?? "-";
+        scanDate.text = itemModel.CHECK_DATE ?? "-";
+        if (itemModel.STATUS_NAME != null) {
+          printInfo(info: "${itemModel.STATUS_NAME}");
+          statusId = _statusAssetCountModel
+                  .firstWhere(
+                      (element) => element.STATUS_NAME == itemModel.STATUS_NAME)
+                  .STATUS_ID ??
+              15;
+        } else {
+          statusId = _statusAssetCountModel
+                  .firstWhere((element) => element.STATUS_NAME == "อื่นๆ")
+                  .STATUS_ID ??
+              15;
+        }
+        statsCheck = "AlreadyChecked";
+        setState(() {});
+        onPress?.call();
+        Navigator.pop(context);
+      }, onBack: () {
+        Navigator.pop(context);
+      });
+    } else if (itemModel.STATUS_CHECK == 'Unchecked') {
+      printInfo(info: "test");
+      _remarkController.text = itemModel.REMARK ?? "-";
+      _assetNoController.text = itemModel.ASSET_CODE ?? "-";
+      _nameController.text = itemModel.ASSET_NAME ?? "-";
+      scanDate.text = itemModel.CHECK_DATE ?? "-";
+      if (itemModel.STATUS_NAME != null) {
+        statusId = _statusAssetCountModel
+                .firstWhere(
+                    (element) => element.STATUS_NAME == itemModel.STATUS_NAME)
+                .STATUS_ID ??
+            15;
+      } else {
+        statusId = 0;
+
+        setState(() {});
+      }
+      statsCheck = "Checked";
+      await _setValue();
+      setState(() {});
     }
   }
 
@@ -311,42 +538,99 @@ class _ScanPageState extends State<ScanPage> {
             _statusAssetCountModel = itemSql
                 .map((map) => StatusAssetCountModel.fromJson(map))
                 .toList();
+            printInfo(info: "Status Error");
+            setState(() {});
           }
 
           if (state is CountScanAssetsListLoadedState) {
             var data = state.item.DATA;
 
-            error = state.item.MESSAGE;
-            if (state.item.STATUS == "SUCCESS") {
+            if (data != null) {
               itemCountListModel = CountScanAssetsModel.fromJson(data);
-              _serialNumberController.text =
-                  itemCountListModel.ASSET_SERIALNO ?? "-";
-              _nameController.text = itemCountListModel.ASSETNAME ?? "-";
-              _classController.text = itemCountListModel.CLASSNAME ?? "-";
-              _remarkController.text = itemCountListModel.REMARK ?? "";
-              _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
 
-              _serialNumberController.text =
-                  itemCountListModel.ASSET_SERIALNO ?? "";
-              _useDateController.text =
-                  itemCountListModel.ASSET_DATEOFUSE ?? "-";
-              DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
-              String formattedDate = parsedDate != null
-                  ? DateFormat("yyyy-MM-dd").format(parsedDate)
-                  : "-";
-              _useDateController.text = formattedDate;
+              if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!") {
+                AlertSnackBar.show(
+                    title: '${error}',
+                    message: "กรุณาใส่ Barcode ใหม่",
+                    type: ReturnStatus.WARNING,
+                    crossPage: true);
+              }
 
-              setState(() {});
+              if (state.item.STATUS == "WARNING") {
+                AlertSnackBar.show(
+                    title: 'Warning',
+                    message: "${state.item.MESSAGE}",
+                    type: ReturnStatus.WARNING,
+                    crossPage: true);
+
+                error = state.item.MESSAGE;
+                _serialNumberController.text =
+                    itemCountListModel.ASSET_SERIALNO ?? "-";
+                _nameController.text = itemCountListModel.ASSETNAME ?? "-";
+                _classController.text = itemCountListModel.CLASSNAME ?? "-";
+                _remarkController.text = itemCountListModel.REMARK ?? "";
+                _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
+
+                _serialNumberController.text =
+                    itemCountListModel.ASSET_SERIALNO ?? "";
+                _useDateController.text =
+                    itemCountListModel.ASSET_DATEOFUSE ?? "-";
+                statusId = _statusAssetCountModel
+                        .firstWhere((element) =>
+                            element.STATUS_NAME ==
+                            itemCountListModel.STATUS_NAME)
+                        .STATUS_ID ??
+                    15;
+
+                DateTime? parsedDate =
+                    DateTime.tryParse(_useDateController.text);
+                String formattedDate = parsedDate != null
+                    ? DateFormat("yyyy-MM-dd").format(parsedDate)
+                    : "-";
+                _useDateController.text = formattedDate;
+
+                setState(() {});
+              }
+              if (state.item.MESSAGE == "อัพเดทข้อมูลสำเร็จ") {
+                error = state.item.MESSAGE;
+                _serialNumberController.text =
+                    itemCountListModel.ASSET_SERIALNO ?? "-";
+                _nameController.text = itemCountListModel.ASSETNAME ?? "-";
+                _classController.text = itemCountListModel.CLASSNAME ?? "-";
+                _remarkController.text = itemCountListModel.REMARK ?? "";
+                _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
+
+                _serialNumberController.text =
+                    itemCountListModel.ASSET_SERIALNO ?? "";
+                _useDateController.text =
+                    itemCountListModel.ASSET_DATEOFUSE ?? "-";
+                statusId = _statusAssetCountModel
+                        .firstWhere((element) =>
+                            element.STATUS_NAME ==
+                            itemCountListModel.STATUS_NAME)
+                        .STATUS_ID ??
+                    15;
+
+                DateTime? parsedDate =
+                    DateTime.tryParse(_useDateController.text);
+                String formattedDate = parsedDate != null
+                    ? DateFormat("yyyy-MM-dd").format(parsedDate)
+                    : "-";
+                _useDateController.text = formattedDate;
+
+                setState(() {});
+              }
             }
             if (state.item.MESSAGE ==
                 'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
+              printInfo(info: "this checked");
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
-                  desc: "${error}", onPress: () {
+                  desc: "${state.item.MESSAGE}", onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
                     PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
-                        ASSETS_CODE: _assetNoController.text,
+                        ASSETS_CODE: _barCodeController.text,
                         PLAN_CODE: planCode,
                         LOCATION_ID: locationId,
                         DEPARTMENT_ID: departmentId,
@@ -361,6 +645,7 @@ class _ScanPageState extends State<ScanPage> {
             }
             if (state.item.MESSAGE ==
                 "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่") {
+              setState(() {});
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
@@ -377,31 +662,11 @@ class _ScanPageState extends State<ScanPage> {
                 _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
-                _barCodeController.clear();
-                _assetNoController.clear();
-                _nameController.clear();
-                _serialNumberController.clear();
-                _classController.clear();
-                _useDateController.clear();
-                _assetNoFocusNode.requestFocus();
-                _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               });
             }
-            if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!") {
-              AlertSnackBar.show(
-                  title: '${error}',
-                  message: "กรุณาใส่ Barcode ใหม่",
-                  type: ReturnStatus.WARNING,
-                  crossPage: true);
-            }
           } else if (state is CountScanAssetsListErrorState) {
-            AlertSnackBar.show(
-                title: 'No internet',
-                message: "Please Connection Internet",
-                type: ReturnStatus.WARNING,
-                crossPage: true);
-            _assetNoFocusNode.requestFocus();
+            await _setvalueCountScan();
           }
           if (state is CountScanSaveAssetsLoadedState) {
             if (state.item.STATUS == "SUCCESS") {
@@ -451,6 +716,23 @@ class _ScanPageState extends State<ScanPage> {
 
           if (state is PostCountSaveNewAssetNewPlanLoadedState) {
             EasyLoading.showSuccess("Success");
+          }
+
+          if (state is PostCountScanAlreadyCheckLoadedState) {
+            _serialNumberController.text = state.item.ASSET_SERIALNO ?? "-";
+            _nameController.text = state.item.ASSETNAME ?? "-";
+            _classController.text = state.item.CLASSNAME ?? "-";
+            _remarkController.text = state.item.REMARK ?? "";
+            _assetNoController.text = state.item.ASSET_CODE ?? "";
+
+            _serialNumberController.text = state.item.ASSET_SERIALNO ?? "";
+            _useDateController.text = state.item.ASSET_DATEOFUSE ?? "-";
+            statusId = _statusAssetCountModel
+                    .firstWhere((element) =>
+                        element.STATUS_NAME == state.item.STATUS_NAME)
+                    .STATUS_ID ??
+                15;
+            setState(() {});
           }
           setState(() {});
         })
@@ -544,6 +826,8 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.DEPARTMENT_NAME == value)
                                             .DEPARTMENT_ID ??
                                         0;
+
+                                    _barcodeFocusNode.requestFocus();
                                   },
                                 ),
                               ),
@@ -592,6 +876,8 @@ class _ScanPageState extends State<ScanPage> {
                                                 item.LOCATION_NAME == value)
                                             .LOCATION_ID ??
                                         0;
+
+                                    _barcodeFocusNode.requestFocus();
                                   },
                                 ),
                               ),
@@ -663,6 +949,7 @@ class _ScanPageState extends State<ScanPage> {
                                               : _remarkController.text.trim(),
                                           STATUS_ID: statusId)
                                     ]));
+                                    _barcodeFocusNode.requestFocus();
                                   }
                                 });
                               },
@@ -696,7 +983,6 @@ class _ScanPageState extends State<ScanPage> {
                                   .STATUS_NAME
                               : null,
                           items: _statusAssetCountModel.map((item) {
-                            statusId = 15;
                             return DropdownMenuItem<String>(
                               value: item.STATUS_NAME,
                               child: Text(
@@ -708,6 +994,7 @@ class _ScanPageState extends State<ScanPage> {
                             );
                           }).toList(),
                           onChanged: (value) {
+                            printInfo(info: statusId.toString());
                             _statusController.text = value ?? "-";
                             statusId = _statusAssetCountModel
                                     .firstWhere(
@@ -867,3 +1154,78 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 }
+
+    // if (itemModel.length == 0) {
+    //   AlertWarningNew().alertShowOK(context,
+    //       type: AlertType.warning, title: "ไม่พบข้อมูลสินทรัพย์", onPress: () {
+    //     Navigator.pop(context);
+    //     _barCodeController.clear();
+    //     _barcodeFocusNode.requestFocus();
+    //   });
+    // } else {
+    //   for (var item in itemModel) {
+    //     if (item.ASSET_CODE == _barCodeController.text &&
+    //         item.PLAN_CODE == planCode) {
+    //       if (departmentId != 0 && locationId == 0) {
+    //         if (departmentId == item.BEFORE_DEPARTMENT_ID) {
+    //           printInfo(info: "TestCheck");
+    //         } else {
+    //           AlertSnackBar.show(
+    //               title: 'Warning',
+    //               message: "ตรวจพบ สินทรัพย์แผนกที่ไม่ตรงกับระบบ",
+    //               type: ReturnStatus.WARNING,
+    //               crossPage: true);
+    //           _checkStatus(item);
+    //           await _setValue();
+    //         }
+    //       } else if (departmentId == 0 && locationId != 0) {
+    //         if (locationId == item.BEFORE_LOCATION_ID) {
+    //           _checkStatus(item, onPress: () async {
+    //             await _setValue();
+    //           });
+    //         } else {
+    //           AlertSnackBar.show(
+    //               title: 'Warning',
+    //               message: "ตรวจพบ สินทรัพย์สถานที่ไม่ตรงกับระบบ",
+    //               type: ReturnStatus.WARNING,
+    //               crossPage: true);
+    //           _checkStatus(item);
+    //           await _setValue();
+    //         }
+    //       } else if (departmentId != 0 && locationId != 0) {
+    //         if (locationId == item.BEFORE_LOCATION_ID &&
+    //             departmentId == item.BEFORE_DEPARTMENT_ID) {
+    //           _checkStatus(item, onPress: () async {
+    //             await _setValue();
+    //           });
+    //         } else {
+    //           AlertSnackBar.show(
+    //               title: 'Warning',
+    //               message:
+    //                   "ตรวจพบ สินทรัพย์สถานที่/แผนกสินทรัพย์ไม่ตรงกันไม่ตรงกับระบบ",
+    //               type: ReturnStatus.WARNING,
+    //               crossPage: true);
+    //           _checkStatus(item);
+    //           await _setValue();
+    //         }
+    //       }
+    //     } else if (item.ASSET_CODE == _barCodeController.text &&
+    //         planCode != item.PLAN_CODE) {
+    //       printInfo(info: "${item.STATUS_CHECK}");
+    //       printInfo(info: "${item.ASSET_CODE}");
+    //       printInfo(info: "${item.PLAN_CODE}");
+    //       AlertWarningNew().alertShow(context,
+    //           type: AlertType.warning,
+    //           title:
+    //               "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่",
+    //           onPress: () async {
+    //         // _checkStatus(item, onPress: () async {
+    //         //   await _setValue();
+    //         // });
+    //         Navigator.pop(context);
+    //       }, onBack: () {
+    //         Navigator.pop(context);
+    //       });
+    //     }
+    //   }
+    // }

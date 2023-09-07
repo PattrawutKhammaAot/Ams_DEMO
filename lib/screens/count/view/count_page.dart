@@ -94,8 +94,11 @@ class _CountPageState extends State<CountPage> {
       await DbSqlite().deleteAll(tableName: '${CountPlanField.TABLE_NAME}');
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
+
+        printInfo(info: "Test Init");
       }
     } else {
+      printInfo(info: "Test InitEmpty");
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
       }
@@ -257,29 +260,29 @@ class _CountPageState extends State<CountPage> {
                             Expanded(
                                 child: CustomTextInputField(
                               focusNode: _searchCodeFocus,
-                              onChanged: (p0) => _serachItemModel(),
+                              // onChanged: (p0) => _serachItemModel(),
                               maxLines: 1,
                               onFieldSubmitted: (value) => _serachItemModel(),
                               label: null,
                               hintText: "Search Code",
                               controller: _searchController,
-                              suffixIcon: IconButton(
-                                  onPressed: () async {
-                                    var res = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SimpleBarcodeScannerPage(),
-                                        ));
-                                    setState(() {
-                                      if (res is String) {
-                                        _searchController.text = res;
-                                        _serachItemModel();
-                                        setState(() {});
-                                      }
-                                    });
-                                  },
-                                  icon: Icon(Icons.qr_code)),
+                              // suffixIcon: IconButton(
+                              //     onPressed: () async {
+                              //       var res = await Navigator.push(
+                              //           context,
+                              //           MaterialPageRoute(
+                              //             builder: (context) =>
+                              //                 const SimpleBarcodeScannerPage(),
+                              //           ));
+                              //       setState(() {
+                              //         if (res is String) {
+                              //           _searchController.text = res;
+                              //           _serachItemModel();
+                              //           setState(() {});
+                              //         }
+                              //       });
+                              //     },
+                              //     icon: Icon(Icons.qr_code)),
                             )),
                           ],
                         ),

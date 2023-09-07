@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ams_count/blocs/count/count_bloc.dart';
@@ -29,6 +30,7 @@ class GalleryPage extends StatefulWidget {
 class _GalleryPageState extends State<GalleryPage> {
   List<ListImageAssetModel> _imageList = [];
   List<ListImageAssetModel> _tempimageList = [];
+  Timer? _debounce;
   String? mode;
 
   @override
@@ -49,11 +51,13 @@ class _GalleryPageState extends State<GalleryPage> {
       _imageList = searchResults;
     } else {
       _imageList = _tempimageList;
-      AlertSnackBar.show(
-          title: 'Data Invalid',
-          message: "Please Input Again",
-          type: ReturnStatus.WARNING,
-          crossPage: true);
+      if (searchResults.isEmpty) {
+        AlertSnackBar.show(
+            title: 'Data Invalid',
+            message: "Please Input Again",
+            type: ReturnStatus.WARNING,
+            crossPage: false);
+      }
     }
     setState(() {});
   }
@@ -85,9 +89,15 @@ class _GalleryPageState extends State<GalleryPage> {
       ],
       child: Scaffold(
         appBar: EasySearchBar(
+          onSuggestionTap: (data) {
+            printInfo(info: "asdasd");
+          },
           title: Label("Gallery"),
           onSearch: (value) {
-            _serachItemModel(value);
+            if (_debounce?.isActive ?? false) _debounce!.cancel();
+            _debounce = Timer(const Duration(seconds: 1), () {
+              _serachItemModel(value);
+            });
           },
           searchHintText: "Please Input Barcode",
         ),

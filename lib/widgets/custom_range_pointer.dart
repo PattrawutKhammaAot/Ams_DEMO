@@ -42,49 +42,52 @@ class CustomRangePoint extends StatelessWidget {
                   thicknessUnit: GaugeSizeUnit.factor, thickness: 0.16),
               annotations: <GaugeAnnotation>[
                 GaugeAnnotation(
-                    angle: 60,
-                    widget: Column(
+                  angle: 60,
+                  widget: Container(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(child: SizedBox()),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            // Expanded(
-                            //   child: Text(
-                            //     "${valueRangePointer?.toInt() ?? "-"}",
-                            //     style: TextStyle(
-                            //         fontFamily: 'Times',
-                            //         fontSize: 12,
-                            //         fontWeight: FontWeight.w400,
-                            //         fontStyle: FontStyle.italic),
-                            //   ),
-                            // ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  '${valueRangePointer?.toInt() ?? "-"} / ${allItem?.toInt() ?? "-"}',
+                        Flexible(
+                          child: RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: '${valueRangePointer?.toInt() ?? "-"}/',
                                   style: TextStyle(
-                                      fontFamily: 'Times',
-                                      fontSize: 14,
+                                    fontFamily: 'Times',
+                                    fontSize: 16,
+                                    color: colorText,
+                                    fontWeight: FontWeight.w400,
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ),
+                                TextSpan(
+                                    text: '${allItem?.toInt() ?? "-"}',
+                                    style: TextStyle(
+                                      fontSize: 16,
                                       color: colorText,
                                       fontWeight: FontWeight.w400,
-                                      fontStyle: FontStyle.italic),
-                                ),
-                              ),
+                                      overflow: TextOverflow.ellipsis,
+                                    )),
+                              ],
                             ),
-                          ],
-                        ),
-                        Expanded(
-                          child: Label(
-                            "${text}",
-                            color: colorPrimary,
                           ),
-                        )
+                        ),
+                        text != null || text == ""
+                            ? FittedBox(
+                                fit: BoxFit.cover,
+                                child: Label(
+                                  "${text}",
+                                  color: colorPrimary,
+                                ),
+                              )
+                            : SizedBox.shrink()
                       ],
-                    )),
+                    ),
+                  ),
+                ),
               ],
               pointers: <GaugePointer>[
                 RangePointer(

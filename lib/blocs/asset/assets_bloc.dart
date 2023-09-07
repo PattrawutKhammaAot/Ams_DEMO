@@ -77,6 +77,7 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
 
   Future<GetDetailAssetModel> fetchGetDetailAsset(String param) async {
     try {
+      printInfo(info: "test  param${param}");
       var apiController = APIController();
       var response = await apiController
           .getData('Asset/GetDetailAsset', "assetCode=$param", useAuth: true);
@@ -86,6 +87,8 @@ class AssetsBloc extends Bloc<AssetsEvent, AssetsState> {
       GetDetailAssetModel post = GetDetailAssetModel.fromJson(itemData);
       return post;
     } catch (e, s) {
+      print(e);
+      print(s);
       throw Exception();
     }
   }

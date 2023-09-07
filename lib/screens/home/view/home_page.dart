@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
             titleTextStyle: const TextStyle(fontSize: 24.0),
             centerTitle: true,
             title: const Text(
-              'Asset Mangement System',
+              'Asset Management System',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -359,7 +359,6 @@ class _HomePageState extends State<HomePage> {
                             color: colorActive,
                             valueRangePointer: itemStatusDashboard.RESULT_ALL,
                             allItem: itemStatusDashboard.RESULT_ALL,
-                            text: "",
                             colorText: colorPrimary,
                           ),
                         ),
@@ -393,7 +392,6 @@ class _HomePageState extends State<HomePage> {
                         color: colorActive,
                         valueRangePointer: itemStatusDashboard.RESULT_NORMAL,
                         allItem: itemStatusDashboard.RESULT_ALL,
-                        text: "",
                       ),
                     ),
                   ],
@@ -424,7 +422,6 @@ class _HomePageState extends State<HomePage> {
                         color: colorActive,
                         valueRangePointer: itemStatusDashboard.RESULT_REPAIR,
                         allItem: itemStatusDashboard.RESULT_ALL,
-                        text: "",
                       ),
                     ),
                   ],
@@ -455,7 +452,6 @@ class _HomePageState extends State<HomePage> {
                         color: colorActive,
                         valueRangePointer: itemStatusDashboard.RESULT_BORROW,
                         allItem: itemStatusDashboard.RESULT_ALL,
-                        text: "",
                       ),
                     ),
                   ],
@@ -486,7 +482,6 @@ class _HomePageState extends State<HomePage> {
                         color: colorActive,
                         valueRangePointer: itemStatusDashboard.RESULT_SALE,
                         allItem: itemStatusDashboard.RESULT_ALL,
-                        text: "",
                       ),
                     ),
                   ],
@@ -517,7 +512,6 @@ class _HomePageState extends State<HomePage> {
                         color: colorActive,
                         valueRangePointer: itemStatusDashboard.RESULT_WRITEOFF,
                         allItem: itemStatusDashboard.RESULT_ALL,
-                        text: "",
                       ),
                     ),
                   ],
@@ -560,12 +554,12 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.photo, color: Colors.green),
           ),
           ListTile(
-            onTap: () => Get.toNamed("/TransferPage"),
+            onTap: () => Get.toNamed("/MyassetsPage"),
             title: Text("Report"),
             leading: Icon(Icons.report, color: Colors.lightBlue),
           ),
           ListTile(
-            onTap: () => Get.toNamed("/MyassetsPage"),
+            onTap: () => Get.toNamed("/TransferPage"),
             title: Text("Transfer"),
             leading: Icon(Iconic.transfer, color: Colors.amber),
           ),
@@ -600,7 +594,7 @@ class CustomDrawer extends StatelessWidget {
           "Username : " + name,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        accountEmail: const Text('Asset Mangement System'),
+        accountEmail: const Text('Asset Management System'),
       );
 
   Builder _buildLogoutButton() => Builder(

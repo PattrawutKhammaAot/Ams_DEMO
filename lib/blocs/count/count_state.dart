@@ -271,7 +271,7 @@ class PostCountScanAlreadyCheckLoadingState extends CountState {
 
 class PostCountScanAlreadyCheckLoadedState extends CountState {
   const PostCountScanAlreadyCheckLoadedState(this.item);
-  final CountScanMain item;
+  final CountScanAssetsModel item;
 
   @override
   List<Object> get props => [item];

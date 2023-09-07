@@ -203,6 +203,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           }
         }
       }
+      printInfo(info: "${response['data']}");
 
       return post;
     } catch (e, s) {
@@ -335,9 +336,10 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           "Locale-Id": await AppData.getLocalId(),
         }),
       );
-
-      // var itemData = responese.data['data'];
-      CountScanMain post = CountScanMain.fromJson(responese.data);
+      printInfo(info: "${responese.data}");
+      var itemData = responese.data;
+      CountScanMain post = CountScanMain.fromJson(itemData);
+      printInfo(info: "${post.DATA}");
 
       return post;
     } catch (e, s) {
@@ -347,11 +349,12 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     }
   }
 
-  Future<CountScanMain> fetchCountScanAlreadyChecked(
+  Future<CountScanAssetsModel> fetchCountScanAlreadyChecked(
       CountScan_OutputModel output) async {
     var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
+
     try {
       Response responese = await dio.post(
         '${configHost}Count/CountScanAssetAlreadyChecked',
@@ -364,11 +367,16 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           "Locale-Id": await AppData.getLocalId(),
         }),
       );
+      printInfo(info: "${responese.data}");
 
-      CountScanMain post = CountScanMain.fromJson(responese.data);
+      CountScanAssetsModel post =
+          CountScanAssetsModel.fromJson(responese.data['data']);
+      printInfo(info: "Sned ${post.PLAN_DETAIL_ID}");
 
       return post;
     } catch (e, s) {
+      print(e);
+      print(s);
       throw Exception();
     }
   }

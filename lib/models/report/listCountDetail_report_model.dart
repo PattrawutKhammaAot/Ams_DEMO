@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../data/database/dbsqlite.dart';
@@ -170,6 +171,36 @@ class ListCountDetailReportModel {
 
     if (databaseExists == true) {
       return await db.query(ListCountDetailReportField.TABLE_NAME);
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> querySelectColumn({
+    String? assetCode,
+  }) async {
+    Database db = await DbSqlite().database;
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      var query = await db.query(
+        ListCountDetailReportField.TABLE_NAME,
+        columns: [
+          ListCountDetailReportField.PLAN_CODE,
+          ListCountDetailReportField.ASSET_NAME,
+          ListCountDetailReportField.ASSET_CODE,
+          ListCountDetailReportField.STATUS_NAME,
+          ListCountDetailReportField.BEFORE_DEPARTMENT_ID,
+          ListCountDetailReportField.BEFORE_LOCATION_ID,
+          ListCountDetailReportField.CHECK_DATE,
+          ListCountDetailReportField.REMARK,
+          ListCountDetailReportField.STATUS_CHECK,
+        ],
+        where: '${ListCountDetailReportField.ASSET_CODE} = ?',
+        whereArgs: [assetCode], // แทนค่าใน where clause
+      );
+
+      return query;
     } else {
       return [];
     }

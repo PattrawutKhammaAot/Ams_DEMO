@@ -80,13 +80,19 @@ class _TransferPageState extends State<TransferPage> {
                 OWNER: state.item.OWNER_NAME,
                 DEPARTMENT: state.item.DEPARTMENT_NAME);
 
-            listTransfer.add(value);
-
-            AlertSnackBar.show(
-                title: 'SUCCESS',
-                message: "Get Data Success",
-                type: ReturnStatus.SUCCESS,
-                crossPage: true);
+            // ตรวจสอบว่า ASSET_NO ซ้ำกันหรือไม่
+            if (!listTransfer
+                .any((element) => element.ASSET_NO == value.ASSET_NO)) {
+              listTransfer.add(value);
+            } else {
+              // ASSET_NO ซ้ำกัน
+              AlertSnackBar.show(
+                title: 'Warning',
+                message: "มีหมายเลขสินทรัพย์ในรายการแล้ว",
+                type: ReturnStatus.WARNING,
+                crossPage: true,
+              );
+            }
 
             _assetNo.clear();
             focusAsset.requestFocus();
@@ -120,28 +126,31 @@ class _TransferPageState extends State<TransferPage> {
             fontSize: 22,
           ),
         ),
-        floatingActionButton: ElevatedButton(
-            style: ButtonStyle(
-                backgroundColor: listTransfer.isEmpty
-                    ? MaterialStatePropertyAll(Colors.grey)
-                    : MaterialStatePropertyAll(colorPrimary)),
-            onPressed: () async {
-              if (listTransfer.isNotEmpty) {
-                var item = await Get.toNamed('/SelectionDestination',
-                    arguments: {'assetsCode': listTransfer});
-                if (item['ischecked'] == true) {
-                  listTransfer.clear();
-                  setState(() {});
+        floatingActionButton: Align(
+          alignment: Alignment.bottomCenter,
+          child: ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor: listTransfer.isEmpty
+                      ? MaterialStatePropertyAll(Colors.grey)
+                      : MaterialStatePropertyAll(colorPrimary)),
+              onPressed: () async {
+                if (listTransfer.isNotEmpty) {
+                  var item = await Get.toNamed('/SelectionDestination',
+                      arguments: {'assetsCode': listTransfer});
+                  if (item['ischecked'] == true) {
+                    listTransfer.clear();
+                    setState(() {});
+                  }
+                } else {
+                  AlertSnackBar.show(
+                      title: 'Oops something went wrong',
+                      message: "Please Scan AssetNo",
+                      type: ReturnStatus.WARNING,
+                      crossPage: true);
                 }
-              } else {
-                AlertSnackBar.show(
-                    title: 'Oops something went wrong',
-                    message: "Please Scan AssetNo",
-                    type: ReturnStatus.WARNING,
-                    crossPage: true);
-              }
-            },
-            child: Label("Select Destination")),
+              },
+              child: Label("Select Destination")),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

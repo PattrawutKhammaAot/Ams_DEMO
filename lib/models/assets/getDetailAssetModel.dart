@@ -108,7 +108,7 @@ class GetDetailAssetModel {
     this.DEPPER_DAY,
   });
   final int? ASSET_ID;
-  final String? PARENTASSET_ID;
+  final int? PARENTASSET_ID;
   final String? PARENT_ASSET_CODE;
   final String? ASSET_NAME;
   final String? ASSET_CODE;
@@ -150,7 +150,7 @@ class GetDetailAssetModel {
   final int? FLOOR_ID;
   final String? FLOOR_CODE;
   final String? FLOOR_NAME;
-  final String? ROOM_ID;
+  final int? ROOM_ID;
   final String? ROOM_CODE;
   final String? ROOM_NAME;
   final int? LOCATION_ID;

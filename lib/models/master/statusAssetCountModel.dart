@@ -38,7 +38,7 @@ class StatusAssetCountModel {
 
   Future<List<Map<String, dynamic>>> query() async {
     Database db = await DbSqlite().database;
-
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
     if (databaseExists == true) {
       return await db.query(StatusAssetField.TABLE_NAME);
     } else {
