@@ -63,9 +63,8 @@ class _ReportPageState extends State<ReportPage> {
         BlocListener<CountBloc, CountState>(listener: (context, state) async {
           if (state is GetListCountPlanLoadedState) {
             itemCountPlan = state.item;
-            setState(() {});
 
-           
+            setState(() {});
           } else if (state is GetListCountPlanErrorState) {
             var itemSql = await CountPlanModel().queryAllRows();
             itemCountPlan =
@@ -154,7 +153,7 @@ class _ReportPageState extends State<ReportPage> {
                                                     0,
                                             'statusName': itemCountDetail[index]
                                                     .STATUS_NAME ??
-                                                15,
+                                                "-",
                                             'scanDate': itemCountDetail[index]
                                                         .STATUS_CHECK !=
                                                     "Unchecked"
@@ -164,6 +163,12 @@ class _ReportPageState extends State<ReportPage> {
                                                             .CHECK_DATE
                                                             .toString()))
                                                 : "",
+                                            'name': itemCountDetail[index]
+                                                    .ASSET_NAME ??
+                                                "-",
+                                            'remark':
+                                                itemCountDetail[index].REMARK ??
+                                                    "-",
                                             'typePage': "reportPage"
                                           });
                                         },

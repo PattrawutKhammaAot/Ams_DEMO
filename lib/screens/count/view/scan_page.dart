@@ -192,9 +192,7 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
     _barcodeFocusNode.requestFocus();
-    _barcodeFocusNode.requestFocus();
 
-    _loadDataFormReportPage().then((item) {});
     super.initState();
   }
 
@@ -252,6 +250,20 @@ class _ScanPageState extends State<ScanPage> {
 
       _barCodeController.text =
           arguments?['assetsCode'] ?? _barCodeController.text;
+      _assetNoController.text =
+          arguments?['assetsCode'] ?? _assetNoController.text;
+      _nameController.text = arguments?['name'] ?? _nameController.text;
+      _remarkController.text = arguments?['remark'] ?? _remarkController.text;
+
+      if (arguments?['statusName'] != "-") {
+        statusId = _statusAssetCountModel
+                .firstWhere((element) =>
+                    element.STATUS_NAME == arguments?['statusName'])
+                .STATUS_ID ??
+            15;
+      } else {
+        statusId = 0;
+      }
     } else {
       scanDate.text = DateFormat("yyyy-MM-dd").format(DateTime.now());
     }
@@ -262,31 +274,31 @@ class _ScanPageState extends State<ScanPage> {
     setState(() {});
   }
 
-  _requestApiFirstTime() {
-    if (_barCodeController.text.isNotEmpty) {
-      BlocProvider.of<CountBloc>(context).add(PostCountScanAssetListEvent([
-        CountScan_OutputModel(
-            ASSETS_CODE: _barCodeController.text.trim(),
-            PLAN_CODE: planCode,
-            LOCATION_ID: locationId,
-            DEPARTMENT_ID: departmentId,
-            IS_SCAN_NOW: true,
-            REMARK: _remarkController.text.isEmpty
-                ? "-"
-                : _remarkController.text.trim(),
-            STATUS_ID: statusId)
-      ]));
-      // BlocProvider.of<CountBloc>(context).add(PostCountScanAlreadyCheckEvent(
-      //     CountScan_OutputModel(
-      //         ASSETS_CODE: _assetNoController.text,
-      //         PLAN_CODE: planCode,
-      //         LOCATION_ID: locationId,
-      //         DEPARTMENT_ID: departmentId,
-      //         IS_SCAN_NOW: true,
-      //         STATUS_ID: statusId,
-      //         REMARK: _remarkController.text)));
-    }
-  }
+  // _requestApiFirstTime() {
+  //   if (_barCodeController.text.isNotEmpty) {
+  //     BlocProvider.of<CountBloc>(context).add(PostCountScanAssetListEvent([
+  //       CountScan_OutputModel(
+  //           ASSETS_CODE: _barCodeController.text.trim(),
+  //           PLAN_CODE: planCode,
+  //           LOCATION_ID: locationId,
+  //           DEPARTMENT_ID: departmentId,
+  //           IS_SCAN_NOW: true,
+  //           REMARK: _remarkController.text.isEmpty
+  //               ? "-"
+  //               : _remarkController.text.trim(),
+  //           STATUS_ID: statusId)
+  //     ]));
+  //     // BlocProvider.of<CountBloc>(context).add(PostCountScanAlreadyCheckEvent(
+  //     //     CountScan_OutputModel(
+  //     //         ASSETS_CODE: _assetNoController.text,
+  //     //         PLAN_CODE: planCode,
+  //     //         LOCATION_ID: locationId,
+  //     //         DEPARTMENT_ID: departmentId,
+  //     //         IS_SCAN_NOW: true,
+  //     //         STATUS_ID: statusId,
+  //     //         REMARK: _remarkController.text)));
+  //   }
+  // }
 
   _setvalueCountScan() async {
     planCode;
@@ -343,7 +355,6 @@ class _ScanPageState extends State<ScanPage> {
       //select Location only
       if (departmentId == 0 && locationId != 0) {
         if (locationId == itemId.BEFORE_LOCATION_ID) {
-          printInfo(info: "Item ID ${itemId.BEFORE_LOCATION_ID}");
           _checkStatus(itemId, onPress: () async {
             await _setValue();
           });
@@ -410,8 +421,6 @@ class _ScanPageState extends State<ScanPage> {
       }
     }
 
-    printInfo(info: "Test${foundMatch}");
-
     if (!foundMatch) {
       // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
       await CountScan_OutputModel().insert(CountScan_OutputModel(
@@ -454,7 +463,6 @@ class _ScanPageState extends State<ScanPage> {
         _nameController.text = itemModel.ASSET_NAME ?? "-";
         scanDate.text = itemModel.CHECK_DATE ?? "-";
         if (itemModel.STATUS_NAME != null) {
-          printInfo(info: "${itemModel.STATUS_NAME}");
           statusId = _statusAssetCountModel
                   .firstWhere(
                       (element) => element.STATUS_NAME == itemModel.STATUS_NAME)
@@ -474,7 +482,6 @@ class _ScanPageState extends State<ScanPage> {
         Navigator.pop(context);
       });
     } else if (itemModel.STATUS_CHECK == 'Unchecked') {
-      printInfo(info: "test");
       _remarkController.text = itemModel.REMARK ?? "-";
       _assetNoController.text = itemModel.ASSET_CODE ?? "-";
       _nameController.text = itemModel.ASSET_NAME ?? "-";
@@ -533,13 +540,16 @@ class _ScanPageState extends State<ScanPage> {
               await StatusAssetCountModel().insert(item);
             }
             _statusAssetCountModel = state.item;
+
+            _loadDataFormReportPage();
           } else if (state is GetStatusAssetErrorState) {
             var itemSql = await StatusAssetCountModel().query();
             _statusAssetCountModel = itemSql
                 .map((map) => StatusAssetCountModel.fromJson(map))
                 .toList();
-            printInfo(info: "Status Error");
+
             setState(() {});
+            _loadDataFormReportPage();
           }
 
           if (state is CountScanAssetsListLoadedState) {
@@ -623,7 +633,6 @@ class _ScanPageState extends State<ScanPage> {
             }
             if (state.item.MESSAGE ==
                 'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
-              printInfo(info: "this checked");
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
@@ -994,7 +1003,6 @@ class _ScanPageState extends State<ScanPage> {
                             );
                           }).toList(),
                           onChanged: (value) {
-                            printInfo(info: statusId.toString());
                             _statusController.text = value ?? "-";
                             statusId = _statusAssetCountModel
                                     .firstWhere(
@@ -1154,78 +1162,3 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 }
-
-    // if (itemModel.length == 0) {
-    //   AlertWarningNew().alertShowOK(context,
-    //       type: AlertType.warning, title: "ไม่พบข้อมูลสินทรัพย์", onPress: () {
-    //     Navigator.pop(context);
-    //     _barCodeController.clear();
-    //     _barcodeFocusNode.requestFocus();
-    //   });
-    // } else {
-    //   for (var item in itemModel) {
-    //     if (item.ASSET_CODE == _barCodeController.text &&
-    //         item.PLAN_CODE == planCode) {
-    //       if (departmentId != 0 && locationId == 0) {
-    //         if (departmentId == item.BEFORE_DEPARTMENT_ID) {
-    //           printInfo(info: "TestCheck");
-    //         } else {
-    //           AlertSnackBar.show(
-    //               title: 'Warning',
-    //               message: "ตรวจพบ สินทรัพย์แผนกที่ไม่ตรงกับระบบ",
-    //               type: ReturnStatus.WARNING,
-    //               crossPage: true);
-    //           _checkStatus(item);
-    //           await _setValue();
-    //         }
-    //       } else if (departmentId == 0 && locationId != 0) {
-    //         if (locationId == item.BEFORE_LOCATION_ID) {
-    //           _checkStatus(item, onPress: () async {
-    //             await _setValue();
-    //           });
-    //         } else {
-    //           AlertSnackBar.show(
-    //               title: 'Warning',
-    //               message: "ตรวจพบ สินทรัพย์สถานที่ไม่ตรงกับระบบ",
-    //               type: ReturnStatus.WARNING,
-    //               crossPage: true);
-    //           _checkStatus(item);
-    //           await _setValue();
-    //         }
-    //       } else if (departmentId != 0 && locationId != 0) {
-    //         if (locationId == item.BEFORE_LOCATION_ID &&
-    //             departmentId == item.BEFORE_DEPARTMENT_ID) {
-    //           _checkStatus(item, onPress: () async {
-    //             await _setValue();
-    //           });
-    //         } else {
-    //           AlertSnackBar.show(
-    //               title: 'Warning',
-    //               message:
-    //                   "ตรวจพบ สินทรัพย์สถานที่/แผนกสินทรัพย์ไม่ตรงกันไม่ตรงกับระบบ",
-    //               type: ReturnStatus.WARNING,
-    //               crossPage: true);
-    //           _checkStatus(item);
-    //           await _setValue();
-    //         }
-    //       }
-    //     } else if (item.ASSET_CODE == _barCodeController.text &&
-    //         planCode != item.PLAN_CODE) {
-    //       printInfo(info: "${item.STATUS_CHECK}");
-    //       printInfo(info: "${item.ASSET_CODE}");
-    //       printInfo(info: "${item.PLAN_CODE}");
-    //       AlertWarningNew().alertShow(context,
-    //           type: AlertType.warning,
-    //           title:
-    //               "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่",
-    //           onPress: () async {
-    //         // _checkStatus(item, onPress: () async {
-    //         //   await _setValue();
-    //         // });
-    //         Navigator.pop(context);
-    //       }, onBack: () {
-    //         Navigator.pop(context);
-    //       });
-    //     }
-    //   }
-    // }
