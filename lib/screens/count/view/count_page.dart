@@ -1,6 +1,7 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/database/dbsqlite.dart';
 import 'package:ams_count/main.dart';
+import 'package:ams_count/models/report/listCountDetail_report_model.dart';
 
 import 'package:ams_count/widgets/alert.dart';
 
@@ -31,7 +32,7 @@ class _CountPageState extends State<CountPage> {
   List<CountPlanModel> itemModel = [];
   List<CountPlanModel> _tempitemModel = [];
 
-  ResponseModel itemCheckAll = ResponseModel();
+  ResponseModel itemAll = ResponseModel();
   ResponseModel itemCheck = ResponseModel();
   ResponseModel itemUncheck = ResponseModel();
   FocusNode _searchCodeFocus = FocusNode();
@@ -63,14 +64,14 @@ class _CountPageState extends State<CountPage> {
       await ResponseModel().update(
           check: itemCheck.DATA,
           uncheck: itemUncheck.DATA,
-          total: itemCheckAll.DATA);
+          total: itemAll.DATA);
     } else if (await AppData.getMode() == "Offline") {
       var itemSql =
           await ResponseModel().query(await databaseInitialState.database);
       if (itemSql.isNotEmpty) {
         itemCheck.DATA = await itemSql[0]['${CheckAllField.CHECK}'];
         itemUncheck.DATA = await itemSql[0]['${CheckAllField.UNCHECK}'];
-        itemCheckAll.DATA = await itemSql[0]['${CheckAllField.TOTAL}'];
+        itemAll.DATA = await itemSql[0]['${CheckAllField.TOTAL}'];
       }
     }
     setState(() {});
@@ -121,6 +122,8 @@ class _CountPageState extends State<CountPage> {
             await _addDataSqlite();
           } else if (state is GetListCountPlanErrorState) {
             var itemSql = await CountPlanModel().queryAllRows();
+            var itemListCheck = await ListCountDetailReportModel()
+                .queryListCheck(statusCheck: "Checked");
             setState(() {
               itemModel =
                   itemSql.map((item) => CountPlanModel.fromJson(item)).toList();
@@ -133,20 +136,23 @@ class _CountPageState extends State<CountPage> {
           ///CheckAll
           if (state is CheckAllLoadedState) {
             setState(() {
-              itemCheckAll = state.item;
+              itemAll = state.item;
             });
-            loadData();
           } else if (state is CheckAllErrorState) {
-            loadData();
+            var itemListCheck = await ListCountDetailReportModel().query();
+            itemAll.DATA = itemListCheck.length;
+            setState(() {});
           }
           //Check select
           if (state is CheckTotalLoadedState) {
             setState(() {
               itemCheck = state.item;
             });
-            loadData();
           } else if (state is CheckTotalErrorState) {
-            loadData();
+            var itemListCheck = await ListCountDetailReportModel()
+                .queryListCheck(statusCheck: "Checked");
+            itemCheck.DATA = itemListCheck.length;
+            setState(() {});
           }
 
           //Uncheck
@@ -155,9 +161,11 @@ class _CountPageState extends State<CountPage> {
             setState(() {
               itemUncheck = state.item;
             });
-            loadData();
           } else if (state is CheckUncheckErrorState) {
-            loadData();
+            var itemListCheck = await ListCountDetailReportModel()
+                .queryListCheck(statusCheck: "Unchecked");
+            itemUncheck.DATA = itemListCheck.length;
+            setState(() {});
           }
         })
       ],
@@ -198,7 +206,7 @@ class _CountPageState extends State<CountPage> {
                                         child: CustomRangePoint(
                                           color: Colors.red,
                                           valueRangePointer: itemUncheck.DATA,
-                                          allItem: itemCheckAll.DATA,
+                                          allItem: itemAll.DATA,
                                           text: "Uncheck",
                                         ),
                                       )
@@ -212,7 +220,7 @@ class _CountPageState extends State<CountPage> {
                               children: [
                                 Expanded(
                                   child: Label(
-                                    "Total\n${itemCheckAll.DATA}",
+                                    "Total\n${itemAll.DATA}",
                                     color: colorPrimary,
                                     fontSize: 20,
                                   ),
@@ -228,7 +236,7 @@ class _CountPageState extends State<CountPage> {
                                         child: CustomRangePoint(
                                           color: colorActive,
                                           valueRangePointer: itemCheck.DATA,
-                                          allItem: itemCheckAll.DATA,
+                                          allItem: itemAll.DATA,
                                           text: "Check",
                                         ),
                                       )
@@ -301,10 +309,27 @@ class _CountPageState extends State<CountPage> {
 
                               return itemModel.isNotEmpty
                                   ? GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed('/ScanPage', arguments: {
-                                          'planCode': itemModel[index].PLAN_CODE
-                                        });
+                                      onTap: () async {
+                                        var item = await Get.toNamed(
+                                            '/ScanPage',
+                                            arguments: {
+                                              'planCode':
+                                                  itemModel[index].PLAN_CODE
+                                            });
+
+                                        printInfo(
+                                            info: "${item['GetToCount']}");
+                                        if (item['GetToCount'] != null) {
+                                          BlocProvider.of<CountBloc>(context)
+                                              .add(
+                                                  const GetListCountPlanEvent());
+                                          BlocProvider.of<CountBloc>(context)
+                                              .add(const CheckAllTotalEvent());
+                                          BlocProvider.of<CountBloc>(context)
+                                              .add(const CheckTotalEvent());
+                                          BlocProvider.of<CountBloc>(context)
+                                              .add(const CheckUncheckEvent());
+                                        }
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),

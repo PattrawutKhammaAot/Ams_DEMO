@@ -243,7 +243,11 @@ class _ReportPageState extends State<ReportPage> {
                                                   ),
                                                 );
                                               }).toList(),
-                                              onChanged: (value) {
+                                              onChanged: (value) async {
+                                                var itemListChecked =
+                                                    await ListCountDetailReportModel()
+                                                        .queryPlan(plan: value);
+
                                                 int selectedIndex =
                                                     itemCountPlan.indexWhere(
                                                         (item) =>
@@ -252,17 +256,23 @@ class _ReportPageState extends State<ReportPage> {
                                                 if (selectedIndex >= 0 &&
                                                     selectedIndex <
                                                         itemCountPlan.length) {
-                                                  printInfo(
-                                                      info:
-                                                          "${itemCountPlan[selectedIndex].CHECK}");
-                                                  uncheck.text = itemCountPlan[
-                                                          selectedIndex]
-                                                      .UNCHECK
+                                                  uncheck.text = itemListChecked
+                                                      .where((element) =>
+                                                          element[
+                                                              'statusCheck'] ==
+                                                          "Unchecked")
+                                                      .toList()
+                                                      .length
                                                       .toString();
-                                                  checked.text = itemCountPlan[
-                                                          selectedIndex]
-                                                      .CHECK
+                                                  checked.text = itemListChecked
+                                                      .where((element) =>
+                                                          element[
+                                                              'statusCheck'] ==
+                                                          "Checked")
+                                                      .toList()
+                                                      .length
                                                       .toString();
+                                                  setState(() {});
                                                 }
                                                 BlocProvider.of<ReportBloc>(
                                                         context)

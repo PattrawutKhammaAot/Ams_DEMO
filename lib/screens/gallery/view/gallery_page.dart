@@ -8,6 +8,7 @@ import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/widgets/custom_textfield.dart';
 import 'package:ams_count/widgets/label.dart';
 import 'package:ams_count/widgets/widget.dart';
+import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,18 +89,19 @@ class _GalleryPageState extends State<GalleryPage> {
         })
       ],
       child: Scaffold(
-        appBar: EasySearchBar(
-          onSuggestionTap: (data) {
-            printInfo(info: "asdasd");
-          },
+        appBar: AppBar(
           title: Label("Gallery"),
-          onSearch: (value) {
-            if (_debounce?.isActive ?? false) _debounce!.cancel();
-            _debounce = Timer(const Duration(seconds: 1), () {
-              _serachItemModel(value);
-            });
-          },
-          searchHintText: "Please Input Barcode",
+          actions: [
+            AnimSearchBar(
+                width: MediaQuery.of(context).size.width,
+                textController: TextEditingController(),
+                onSuffixTap: () {
+                  printInfo(info: "test");
+                },
+                onSubmitted: (value) {
+                  _serachItemModel(value);
+                })
+          ],
         ),
         body: _imageList.isNotEmpty
             ? GridView.builder(

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../main.dart';
@@ -207,7 +208,7 @@ class ListCountDetailReportModel {
     }
   }
 
-  Future<int> updateForRemark({
+  Future<int> updateForRemarkAndStatusCheck({
     String? assetCode,
     String? planCode,
     String? remark = '',
@@ -220,6 +221,8 @@ class ListCountDetailReportModel {
         {
           'remark': remark,
           'statusName': statusId,
+          'statusCheck': "Checked",
+          'checkDate': DateFormat('yyyy-MM-dd').format(DateTime.now())
         },
         where:
             '${ListCountDetailReportField.ASSET_CODE} = ? AND ${ListCountDetailReportField.PLAN_CODE} = ?',
@@ -298,6 +301,50 @@ class ListCountDetailReportModel {
         ],
         where: '${ListCountDetailReportField.ASSET_CODE} = ?',
         whereArgs: [assetCode], // แทนค่าใน where clause
+      );
+
+      return query;
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> queryListCheck({
+    String? statusCheck,
+  }) async {
+    final db = await databaseInitialState.database;
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      var query = await db.query(
+        ListCountDetailReportField.TABLE_NAME,
+        columns: [
+          ListCountDetailReportField.STATUS_CHECK,
+        ],
+        where: '${ListCountDetailReportField.STATUS_CHECK} = ?',
+        whereArgs: [statusCheck], // แทนค่าใน where clause
+      );
+
+      return query;
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> queryPlan({
+    String? plan,
+  }) async {
+    final db = await databaseInitialState.database;
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      var query = await db.query(
+        ListCountDetailReportField.TABLE_NAME,
+        columns: [
+          ListCountDetailReportField.STATUS_CHECK,
+        ],
+        where: '${ListCountDetailReportField.PLAN_CODE} = ?',
+        whereArgs: [plan], // แทนค่าใน where clause
       );
 
       return query;

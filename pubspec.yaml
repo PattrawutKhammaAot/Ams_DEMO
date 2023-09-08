@@ -85,6 +85,7 @@ dependencies:
   flutter_onboarding_slider: ^1.0.10
   flutter_slidable: ^3.0.0
   iconforest_iconic: ^1.0.0+1
+  anim_search_bar: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

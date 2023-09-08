@@ -132,31 +132,6 @@ class _DestinationPageState extends State<DestinationPage> {
         })
       ],
       child: Scaffold(
-        floatingActionButton: ElevatedButton(
-            style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(colorPrimary)),
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                var localId = await AppData.getLocalId();
-                BlocProvider.of<TransferBloc>(context).add(TF_transferAsset(
-                    TransferAssetOutputModel(
-                        MOVE_NEW_COMPANYID: _companyID,
-                        MOVE_NEW_BRANCHID: _branchID,
-                        MOVE_NEW_BUILDINGID: _buildingID,
-                        MOVE_NEW_ROOMID: _roomID,
-                        MOVE_NEW_LOCATIONID: _locationID,
-                        MOVE_NEW_DEPARTMENTID: _departmentID,
-                        MOVE_NEW_OWNERID: _ownerID == 0 ? null : _ownerID,
-                        MOVE_DATE: null,
-                        CREATE_DATE: null,
-                        MOVE_REMARK: "-",
-                        LIST_ASSET_ID: assetIDs,
-                        MOVE_NEW_COSTCENTERID: null,
-                        MOVE_NEW_FLOORID: null,
-                        CREATE_BY: int.parse(localId))));
-              }
-            },
-            child: Label("Confirm Destination")),
         appBar: AppBar(
           centerTitle: true,
           title: Label(
@@ -191,7 +166,6 @@ class _DestinationPageState extends State<DestinationPage> {
                               .firstWhere((item) => item.NAME == value)
                               .ID ??
                           0;
-                  
                     },
                   ),
                   SizedBox(
@@ -318,8 +292,6 @@ class _DestinationPageState extends State<DestinationPage> {
                                   (item) => item.DEPARTMENT_NAME == value)
                               .DEPARTMENT_ID ??
                           0;
-
-                      
                     },
                   ),
                   SizedBox(
@@ -346,6 +318,33 @@ class _DestinationPageState extends State<DestinationPage> {
                           0;
                     },
                   ),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(colorPrimary)),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          var localId = await AppData.getLocalId();
+                          BlocProvider.of<TransferBloc>(context).add(
+                              TF_transferAsset(TransferAssetOutputModel(
+                                  MOVE_NEW_COMPANYID: _companyID,
+                                  MOVE_NEW_BRANCHID: _branchID,
+                                  MOVE_NEW_BUILDINGID: _buildingID,
+                                  MOVE_NEW_ROOMID: _roomID,
+                                  MOVE_NEW_LOCATIONID: _locationID,
+                                  MOVE_NEW_DEPARTMENTID: _departmentID,
+                                  MOVE_NEW_OWNERID:
+                                      _ownerID == 0 ? null : _ownerID,
+                                  MOVE_DATE: null,
+                                  CREATE_DATE: null,
+                                  MOVE_REMARK: "-",
+                                  LIST_ASSET_ID: assetIDs,
+                                  MOVE_NEW_COSTCENTERID: null,
+                                  MOVE_NEW_FLOORID: null,
+                                  CREATE_BY: int.parse(localId))));
+                        }
+                      },
+                      child: Label("Confirm Destination"))
                 ],
               ),
             ),

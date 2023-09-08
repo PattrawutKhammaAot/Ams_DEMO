@@ -133,11 +133,12 @@ class _ScanPageState extends State<ScanPage> {
                     .firstWhere((element) => element.STATUS_ID == statusId)
                     .STATUS_NAME ??
                 "ปกติ";
-            await ListCountDetailReportModel().updateForRemark(
+            await ListCountDetailReportModel().updateForRemarkAndStatusCheck(
                 assetCode: _barCodeController.text,
                 planCode: planCode,
                 remark: _remarkController.text,
                 statusId: statusName);
+            await _setValue(status: "Checked");
           } else {
             var itemSql = await ListCountDetailReportModel()
                 .querySelectColumn(assetCode: _barCodeController.text);
@@ -411,6 +412,7 @@ class _ScanPageState extends State<ScanPage> {
         setState(() {});
 
         await _setValue(status: "notPlan");
+        _barCodeController.clear();
         Navigator.pop(context);
       }, onBack: () {
         Navigator.pop(context);
@@ -433,6 +435,7 @@ class _ScanPageState extends State<ScanPage> {
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
             await _setValue();
+            _barCodeController.clear();
           });
         }
       } // select Department Only
@@ -440,6 +443,7 @@ class _ScanPageState extends State<ScanPage> {
         if (departmentId == itemId.BEFORE_DEPARTMENT_ID) {
           _checkStatus(itemId, onPress: () async {
             await _setValue();
+            _barCodeController.clear();
           });
         } else {
           AlertSnackBar.show(
@@ -449,6 +453,7 @@ class _ScanPageState extends State<ScanPage> {
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
             await _setValue();
+            _barCodeController.clear();
           });
         }
       }
@@ -458,6 +463,7 @@ class _ScanPageState extends State<ScanPage> {
             locationId == itemId.BEFORE_LOCATION_ID) {
           _checkStatus(itemId, onPress: () async {
             await _setValue();
+            _barCodeController.clear();
           });
         } else {
           AlertSnackBar.show(
@@ -467,6 +473,7 @@ class _ScanPageState extends State<ScanPage> {
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
             await _setValue();
+            _barCodeController.clear();
           });
         }
       }
@@ -534,7 +541,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  _setValue({String? status, String? type}) async {
+  _setValue({String? status}) async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
@@ -597,13 +604,12 @@ class _ScanPageState extends State<ScanPage> {
 
         if (itemModel.STATUS_NAME != null) {
           statusId = _statusAssetCountModel
-                  .firstWhere(
-                      (element) => element.STATUS_NAME == itemModel.STATUS_NAME)
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                   .STATUS_ID ??
               15;
         } else {
           statusId = _statusAssetCountModel
-                  .firstWhere((element) => element.STATUS_NAME == "อื่นๆ")
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                   .STATUS_ID ??
               15;
         }
@@ -625,8 +631,7 @@ class _ScanPageState extends State<ScanPage> {
 
       if (itemModel.STATUS_NAME != null) {
         statusId = _statusAssetCountModel
-                .firstWhere(
-                    (element) => element.STATUS_NAME == itemModel.STATUS_NAME)
+                .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                 .STATUS_ID ??
             15;
       } else {
@@ -637,6 +642,7 @@ class _ScanPageState extends State<ScanPage> {
       statsCheck = "Checked";
       await _setUpdateTableListCountPlanField(itemModel);
       await _setValue();
+
       setState(() {});
     }
   }
@@ -890,7 +896,8 @@ class _ScanPageState extends State<ScanPage> {
           automaticallyImplyLeading: false,
           leading: IconButton(
               onPressed: () {
-                Get.back(result: {"GetBack": "getback"});
+                Get.back(
+                    result: {"GetBack": "getback", "GetToCount": "getCount"});
               },
               icon: Icon(
                 Icons.arrow_back,
@@ -1016,7 +1023,13 @@ class _ScanPageState extends State<ScanPage> {
                                   focusNode: _locationFocusNode,
                                   validator: (value) {
                                     if (locationId == 0 && departmentId == 0) {
-                                      return "Please Selcetion Location";
+                                      AlertWarningNew().alertShowOK(context,
+                                          title: "Warning",
+                                          type: AlertType.warning,
+                                          desc: "กรุณาเลือกข้อมูลก่อนตรวจนับ",
+                                          onPress: () =>
+                                              Navigator.pop(context));
+                                      return null;
                                     } else {
                                       return null;
                                     }
@@ -1209,8 +1222,8 @@ class _ScanPageState extends State<ScanPage> {
                           labelText: "Serial Number",
                           focusNode: _serialNumberFocusNode,
                           controller: _serialNumberController,
-                          validator: (value) =>
-                              _validate(value!, _serialNumberFocusNode),
+                          // validator: (value) =>
+                          //     _validate(value!, _serialNumberFocusNode),
                         ),
                         SizedBox(
                           height: 15,

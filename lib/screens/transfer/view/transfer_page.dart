@@ -126,31 +126,6 @@ class _TransferPageState extends State<TransferPage> {
             fontSize: 22,
           ),
         ),
-        floatingActionButton: Align(
-          alignment: Alignment.bottomCenter,
-          child: ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor: listTransfer.isEmpty
-                      ? MaterialStatePropertyAll(Colors.grey)
-                      : MaterialStatePropertyAll(colorPrimary)),
-              onPressed: () async {
-                if (listTransfer.isNotEmpty) {
-                  var item = await Get.toNamed('/SelectionDestination',
-                      arguments: {'assetsCode': listTransfer});
-                  if (item['ischecked'] == true) {
-                    listTransfer.clear();
-                    setState(() {});
-                  }
-                } else {
-                  AlertSnackBar.show(
-                      title: 'Oops something went wrong',
-                      message: "Please Scan AssetNo",
-                      type: ReturnStatus.WARNING,
-                      crossPage: true);
-                }
-              },
-              child: Label("Select Destination")),
-        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -363,6 +338,28 @@ class _TransferPageState extends State<TransferPage> {
                   },
                 ),
               ),
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: listTransfer.isEmpty
+                          ? MaterialStatePropertyAll(Colors.grey)
+                          : MaterialStatePropertyAll(colorPrimary)),
+                  onPressed: () async {
+                    if (listTransfer.isNotEmpty) {
+                      var item = await Get.toNamed('/SelectionDestination',
+                          arguments: {'assetsCode': listTransfer});
+                      if (item['ischecked'] == true) {
+                        listTransfer.clear();
+                        setState(() {});
+                      }
+                    } else {
+                      AlertSnackBar.show(
+                          title: 'Oops something went wrong',
+                          message: "Please Scan AssetNo",
+                          type: ReturnStatus.WARNING,
+                          crossPage: true);
+                    }
+                  },
+                  child: Label("Select Destination"))
             ],
           ),
         ),

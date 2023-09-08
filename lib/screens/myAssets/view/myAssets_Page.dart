@@ -24,6 +24,7 @@ class MyAssetsPage extends StatefulWidget {
 
 class _MyAssetsPageState extends State<MyAssetsPage> {
   String textTitle = 'Asset Detail';
+  TextEditingController _barCode = TextEditingController();
   TextEditingController _assetNo = TextEditingController();
   TextEditingController _assetName = TextEditingController();
   TextEditingController _usedDate = TextEditingController();
@@ -36,7 +37,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
   TextEditingController _location = TextEditingController();
   TextEditingController _department = TextEditingController();
   TextEditingController _owner = TextEditingController();
-  FocusNode focusAsset = FocusNode();
+  FocusNode _focusBarCode = FocusNode();
 
   GetDetailAssetModel _detailAssetModel = GetDetailAssetModel();
 
@@ -44,6 +45,8 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
     String? _convertDate = DateFormat('yyyy-MM-dd').format(
         DateTime.tryParse(itemModel.ASSET_DATE_OF_USE ?? "-") ??
             DateTime.now());
+
+    _assetNo.text = itemModel.ASSET_CODE ?? "-";
     _assetName.text = itemModel.ASSET_NAME ?? "-";
     _usedDate.text = itemModel.ASSET_DATE_OF_USE != null ? _convertDate : "-";
     _lifeYear.text =
@@ -66,10 +69,10 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
         ));
     setState(() {
       if (res is String) {
-        _assetNo.text = res;
-        if (_assetNo.text != "-1" && _assetNo.text.isNotEmpty) {
+        _barCode.text = res;
+        if (_barCode.text != "-1" && _barCode.text.isNotEmpty) {
           BlocProvider.of<AssetsBloc>(context)
-              .add(GetDetailAssetEvent(_assetNo.text));
+              .add(GetDetailAssetEvent(_barCode.text));
         } else {
           AlertSnackBar.show(
               title: 'Barcode Invalid',
@@ -83,7 +86,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
 
   @override
   void initState() {
-    focusAsset.requestFocus();
+    _focusBarCode.requestFocus();
     super.initState();
   }
 
@@ -115,8 +118,8 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                   message: 'Please try Again',
                   type: ReturnStatus.WARNING,
                   crossPage: true);
-              focusAsset.requestFocus();
-              _assetNo.clear();
+              _barCode.clear();
+              _focusBarCode.requestFocus();
             }
           }
         })
@@ -231,11 +234,11 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                         child: Column(
                                           children: [
                                             CustomTextInputField(
-                                                labelText: "Asset No",
+                                                labelText: "Barcode",
                                                 isHideLable: true,
                                                 readOnly: false,
-                                                focusNode: focusAsset,
-                                                controller: _assetNo,
+                                                focusNode: _focusBarCode,
+                                                controller: _barCode,
                                                 onFieldSubmitted: (value) {
                                                   if (value.isNotEmpty) {
                                                     BlocProvider.of<AssetsBloc>(
@@ -243,6 +246,9 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                                         .add(
                                                             GetDetailAssetEvent(
                                                                 value));
+                                                    _barCode.clear();
+                                                    _focusBarCode
+                                                        .requestFocus();
                                                   }
                                                 },
                                                 suffixIcon: IconButton(
@@ -256,6 +262,14 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                             _detailAssetModel.ASSET_NAME != null
                                                 ? Column(
                                                     children: [
+                                                      CustomTextInputField(
+                                                          isHideLable: true,
+                                                          readOnly: true,
+                                                          labelText: "Asset No",
+                                                          controller: _assetNo),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
                                                       CustomTextInputField(
                                                           isHideLable: true,
                                                           readOnly: true,

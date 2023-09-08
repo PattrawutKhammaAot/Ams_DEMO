@@ -554,7 +554,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.photo, color: Colors.green),
           ),
           ListTile(
-            onTap: () => Get.toNamed("/MyassetsPage"),
+            onTap: () => Get.toNamed("/ReportPage"),
             title: Text("Report"),
             leading: Icon(Icons.report, color: Colors.lightBlue),
           ),
