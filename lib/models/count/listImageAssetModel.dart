@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../blocs/count/count_bloc.dart';
 
 class ListImageAssetModel {
@@ -47,7 +48,7 @@ class ListImageAssetModel {
   Future<int> insert(ListImageAssetModel data) async {
     try {
       var itemSql = queryAllRows();
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       return await db.insert(ListImageAssetField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
@@ -68,7 +69,7 @@ class ListImageAssetModel {
 
   Future<List<ListImageAssetModel>> getDataById(keyValue) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       var result = await db.query(ListImageAssetField.TABLE_NAME,
           where: '${ListImageAssetField.ID} = ?', whereArgs: [keyValue]);
@@ -82,7 +83,7 @@ class ListImageAssetModel {
   Future<int> update(data, keyValue) async {
     try {
       ListImageAssetModel values = data;
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update(ListImageAssetField.TABLE_NAME, values.toJson(),
           where: '${ListImageAssetField.ID} = ?', whereArgs: [keyValue]);
     } on Exception catch (ex) {
@@ -91,21 +92,21 @@ class ListImageAssetModel {
   }
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     return await db.query(ListImageAssetField.TABLE_NAME);
   }
 
   Future<void> deleteDataAllFromSQLite() async {
     try {
-      Database db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       int count = await db.delete(ListImageAssetField.TABLE_NAME);
     } catch (e) {}
   }
 
   Future<void> deleteDataByID(int id) async {
     try {
-      Database db = await DbSqlite().database;
-  
+      final db = await databaseInitialState.database;
+
       int count = await db.delete(
         ListImageAssetField.TABLE_NAME,
         where: "${ListImageAssetField.ID} = ?",

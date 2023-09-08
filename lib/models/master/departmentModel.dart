@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
 
@@ -49,7 +50,7 @@ class DepartmentModel {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.insert(DepartmentField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
@@ -59,7 +60,7 @@ class DepartmentModel {
 
   Future<int> update(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update(DepartmentField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
@@ -68,7 +69,7 @@ class DepartmentModel {
   }
 
   Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
 
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 

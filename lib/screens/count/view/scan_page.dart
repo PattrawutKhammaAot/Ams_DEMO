@@ -75,7 +75,7 @@ class _ScanPageState extends State<ScanPage> {
   TextEditingController _statusController = TextEditingController();
   final List<GlobalObjectKey<FormState>> formKeyList =
       List.generate(10, (index) => GlobalObjectKey<FormState>(index));
-  int statusId = 0;
+  int statusId = 15;
   int departmentId = 0;
   int locationId = 0;
   String _scanDate = "";
@@ -128,6 +128,35 @@ class _ScanPageState extends State<ScanPage> {
       if (_departmentController.text.isNotEmpty ||
           _locationController.text.isNotEmpty) {
         if (await AppData.getMode() == "Offline") {
+          if (typePage == "reportPage") {
+            String statusName = _statusAssetCountModel
+                    .firstWhere((element) => element.STATUS_ID == statusId)
+                    .STATUS_NAME ??
+                "ปกติ";
+            await ListCountDetailReportModel().updateForRemark(
+                assetCode: _barCodeController.text,
+                planCode: planCode,
+                remark: _remarkController.text,
+                statusId: statusName);
+          } else {
+            var itemSql = await ListCountDetailReportModel()
+                .querySelectColumn(assetCode: _barCodeController.text);
+            List<ListCountDetailReportModel> itemModel = [];
+
+            if (itemSql.isNotEmpty) {
+              itemModel = itemSql
+                  .map((e) => ListCountDetailReportModel.fromJson(e))
+                  .toList();
+
+              setState(() {});
+            }
+            var itemId = itemModel
+                .where((element) => element.PLAN_CODE == planCode)
+                .first;
+
+            _setUpdateTableListCountPlanField(itemId);
+          }
+
           await CountScan_OutputModel()
               .updateForAssetAndPlan(
             assetCode: _barCodeController.text,
@@ -138,17 +167,18 @@ class _ScanPageState extends State<ScanPage> {
             statusId: statusId,
           )
               .then((value) {
-            _assetNoController.clear();
-            _nameController.clear();
-            _serialNumberController.clear();
-            _classController.clear();
-            _useDateController.clear();
-            _barCodeController.clear();
-            _remarkController.clear();
-            _barcodeFocusNode.requestFocus();
-            departmentId = 0;
-            locationId = 0;
-            statusId = 0;
+            if (typePage != "reportPage") {
+              _assetNoController.clear();
+              _nameController.clear();
+              _serialNumberController.clear();
+              _classController.clear();
+              _useDateController.clear();
+              _barCodeController.clear();
+              _remarkController.clear();
+              _barcodeFocusNode.requestFocus();
+
+              statusId = 15;
+            }
           });
 
           AlertWarningNew().alertShowOK(context,
@@ -177,9 +207,8 @@ class _ScanPageState extends State<ScanPage> {
           _barCodeController.clear();
           _remarkController.clear();
           _barcodeFocusNode.requestFocus();
-          departmentId = 0;
-          locationId = 0;
-          statusId = 0;
+
+          statusId = 15;
           setState(() {});
         }
       }
@@ -191,8 +220,11 @@ class _ScanPageState extends State<ScanPage> {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
     BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
-    _barcodeFocusNode.requestFocus();
-
+    if (typePage == "reportPage") {
+      _statusFocusNode.requestFocus();
+    } else {
+      _departmenFocusNode.requestFocus();
+    }
     super.initState();
   }
 
@@ -254,6 +286,11 @@ class _ScanPageState extends State<ScanPage> {
           arguments?['assetsCode'] ?? _assetNoController.text;
       _nameController.text = arguments?['name'] ?? _nameController.text;
       _remarkController.text = arguments?['remark'] ?? _remarkController.text;
+      _serialNumberController.text =
+          arguments?['snNo'] ?? _serialNumberController.text;
+      _classController.text = arguments?['class'] ?? _classController.text;
+      _useDateController.text =
+          arguments?['use.date'] ?? _useDateController.text;
 
       if (arguments?['statusName'] != "-") {
         statusId = _statusAssetCountModel
@@ -262,7 +299,7 @@ class _ScanPageState extends State<ScanPage> {
                 .STATUS_ID ??
             15;
       } else {
-        statusId = 0;
+        statusId = 15;
       }
     } else {
       scanDate.text = DateFormat("yyyy-MM-dd").format(DateTime.now());
@@ -301,7 +338,6 @@ class _ScanPageState extends State<ScanPage> {
   // }
 
   _setvalueCountScan() async {
-    planCode;
     var itemSql = await ListCountDetailReportModel()
         .querySelectColumn(assetCode: _barCodeController.text);
     List<ListCountDetailReportModel> itemModel = [];
@@ -329,10 +365,14 @@ class _ScanPageState extends State<ScanPage> {
         var item = itemModel
             .where((element) => element.ASSET_CODE == _barCodeController.text)
             .first;
+
         _remarkController.text = item.REMARK ?? "-";
         _assetNoController.text = item.ASSET_CODE ?? "-";
         _nameController.text = item.ASSET_NAME ?? "-";
         scanDate.text = item.CHECK_DATE ?? "-";
+        _classController.text = item.CLASS_NAME ?? "-";
+        _serialNumberController.text = item.ASSET_SERIAL_NO ?? "-";
+        _useDateController.text = item.ASSET_DATE_OF_USE ?? "-";
         if (item.STATUS_NAME != null) {
           statusId = _statusAssetCountModel
                   .firstWhere(
@@ -340,9 +380,36 @@ class _ScanPageState extends State<ScanPage> {
                   .STATUS_ID ??
               15;
         } else {
-          statusId = 0;
+          statusId = 15;
           setState(() {});
         }
+        String locationName = _locationModel
+                .firstWhere((element) => element.LOCATION_ID == locationId)
+                .LOCATION_NAME ??
+            "-";
+        String departmentName = _departmentModel
+                .firstWhere((element) => element.DEPARTMENT_ID == departmentId)
+                .DEPARTMENT_NAME ??
+            "-";
+        await ListCountDetailReportModel().insertNot({
+          'planCode': planCode,
+          'assetCode': item.ASSET_CODE,
+          'assetName': item.ASSET_NAME,
+          'beforeLocationId': locationId,
+          'beforeLocationName': locationName,
+          'beforeDepartmentId': departmentId,
+          'beforeDepartmentName': departmentName,
+          'checkDate': item.CHECK_DATE,
+          'statusCheck': item.STATUS_CHECK,
+          'statusName': item.STATUS_NAME,
+          'remark': item.REMARK,
+          ListCountDetailReportField.ASSET_SERIAL_NO: item.ASSET_SERIAL_NO,
+          ListCountDetailReportField.CLASS_NAME: item.CLASS_NAME,
+          ListCountDetailReportField.ASSET_DATE_OF_USE: item.ASSET_DATE_OF_USE,
+          'qty': item.QTY ?? 1,
+        });
+        setState(() {});
+
         await _setValue(status: "notPlan");
         Navigator.pop(context);
       }, onBack: () {
@@ -405,10 +472,69 @@ class _ScanPageState extends State<ScanPage> {
       }
     }
 
+    _barcodeFocusNode.requestFocus();
+
     setState(() {});
   }
 
-  _setValue({String? status}) async {
+  _setUpdateTableListCountPlanField(ListCountDetailReportModel item) async {
+    String statusName = _statusAssetCountModel
+            .firstWhere((element) => element.STATUS_ID == statusId)
+            .STATUS_NAME ??
+        "ปกติ";
+    printInfo(info: "${_departmentController.text}");
+    printInfo(info: "${_locationController.text}");
+    printInfo(info: "${statusName}");
+    if (item.STATUS_CHECK == "Unchecked") {
+      await ListCountDetailReportModel().updateForAssetAndPlan(
+          assetCode: _barCodeController.text,
+          planCode: planCode,
+          remark: _remarkController.text.isEmpty
+              ? item.REMARK
+              : _remarkController.text,
+          departmentid: _departmentController.text.isEmpty
+              ? item.BEFORE_DEPARTMENT_ID
+              : departmentId,
+          locationid: _locationController.text.isEmpty
+              ? item.BEFORE_DEPARTMENT_ID
+              : locationId,
+          statusId: statusName,
+          statusCheck: "Checked",
+          locationName: _locationController.text.isEmpty
+              ? item.BEFORE_LOCATION_NAME
+              : _locationController.text,
+          departmentName: _departmentController.text.isEmpty
+              ? item.BEFORE_DEPARTMENT_NAME
+              : _departmentController.text,
+          serialNo: _serialNumberController.text,
+          classname: _classController.text,
+          useDate: _useDateController.text,
+          checkDate: DateFormat("yyyy-MM-dd").format(DateTime.now()));
+    } else {
+      await ListCountDetailReportModel().updateForAssetAndPlan(
+          assetCode: _barCodeController.text,
+          planCode: planCode,
+          remark: _remarkController.text,
+          locationid: locationId,
+          statusId: statusName,
+          departmentid: _departmentController.text.isEmpty
+              ? item.BEFORE_DEPARTMENT_ID
+              : departmentId,
+          locationName: _locationController.text.isEmpty
+              ? item.BEFORE_LOCATION_NAME
+              : _locationController.text,
+          departmentName: _departmentController.text.isEmpty
+              ? item.BEFORE_DEPARTMENT_NAME
+              : _departmentController.text,
+          statusCheck: "Checked",
+          serialNo: _serialNumberController.text,
+          classname: _classController.text,
+          useDate: _useDateController.text,
+          checkDate: item.CHECK_DATE);
+    }
+  }
+
+  _setValue({String? status, String? type}) async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
@@ -434,6 +560,7 @@ class _ScanPageState extends State<ScanPage> {
         STATUS_REQUEST: status ?? statsCheck,
       ));
     } else {
+      printInfo(info: "${locationId}");
       await CountScan_OutputModel().update({
         'assetCode': _barCodeController.text,
         'planCode': planCode,
@@ -451,8 +578,11 @@ class _ScanPageState extends State<ScanPage> {
 
   String statsCheck = "";
 
+  _insertListCountPlanDetail() async {}
+
   _checkStatus(ListCountDetailReportModel itemModel,
       {dynamic Function()? onPress}) async {
+    printInfo(info: "${itemModel.ASSET_SERIAL_NO}");
     if (itemModel.STATUS_CHECK == "Checked") {
       AlertWarningNew().alertShow(context,
           type: AlertType.warning,
@@ -461,7 +591,10 @@ class _ScanPageState extends State<ScanPage> {
         _remarkController.text = itemModel.REMARK ?? "-";
         _assetNoController.text = itemModel.ASSET_CODE ?? "-";
         _nameController.text = itemModel.ASSET_NAME ?? "-";
-        scanDate.text = itemModel.CHECK_DATE ?? "-";
+        _classController.text = itemModel.CLASS_NAME ?? "-";
+        _serialNumberController.text = itemModel.ASSET_SERIAL_NO ?? "-";
+        _useDateController.text = itemModel.ASSET_DATE_OF_USE ?? "-";
+
         if (itemModel.STATUS_NAME != null) {
           statusId = _statusAssetCountModel
                   .firstWhere(
@@ -474,6 +607,7 @@ class _ScanPageState extends State<ScanPage> {
                   .STATUS_ID ??
               15;
         }
+        await _setUpdateTableListCountPlanField(itemModel);
         statsCheck = "AlreadyChecked";
         setState(() {});
         onPress?.call();
@@ -481,11 +615,14 @@ class _ScanPageState extends State<ScanPage> {
       }, onBack: () {
         Navigator.pop(context);
       });
-    } else if (itemModel.STATUS_CHECK == 'Unchecked') {
+    } else {
       _remarkController.text = itemModel.REMARK ?? "-";
       _assetNoController.text = itemModel.ASSET_CODE ?? "-";
       _nameController.text = itemModel.ASSET_NAME ?? "-";
-      scanDate.text = itemModel.CHECK_DATE ?? "-";
+      _classController.text = itemModel.CLASS_NAME ?? "-";
+      _serialNumberController.text = itemModel.ASSET_SERIAL_NO ?? "-";
+      _useDateController.text = itemModel.ASSET_DATE_OF_USE ?? "-";
+
       if (itemModel.STATUS_NAME != null) {
         statusId = _statusAssetCountModel
                 .firstWhere(
@@ -493,11 +630,12 @@ class _ScanPageState extends State<ScanPage> {
                 .STATUS_ID ??
             15;
       } else {
-        statusId = 0;
+        statusId = 15;
 
         setState(() {});
       }
       statsCheck = "Checked";
+      await _setUpdateTableListCountPlanField(itemModel);
       await _setValue();
       setState(() {});
     }
@@ -749,6 +887,14 @@ class _ScanPageState extends State<ScanPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+              onPressed: () {
+                Get.back(result: {"GetBack": "getback"});
+              },
+              icon: Icon(
+                Icons.arrow_back,
+              )),
           actions: [
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -783,20 +929,22 @@ class _ScanPageState extends State<ScanPage> {
                 right: 30,
               ),
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Form(
-                    key: formKeyList[1],
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(child: Label("Department :")),
-                            Expanded(
-                              flex: 2,
+                child: Form(
+                  key: formKeyList[1],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: Label("Department :")),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
                               child: SizedBox(
                                 child: CustomDropdownButton2(
+                                  readOnly:
+                                      typePage == "reportPage" ? true : false,
                                   value: departmentId != 0 &&
                                           _departmentModel.any((item) =>
                                               item.DEPARTMENT_ID ==
@@ -811,7 +959,7 @@ class _ScanPageState extends State<ScanPage> {
                                   validator: (value) {
                                     if (locationId == 0 && departmentId == 0) {
                                       _departmenFocusNode.requestFocus();
-                                      return "Please Select Department";
+                                      return null;
                                     } else {
                                       return null;
                                     }
@@ -828,26 +976,33 @@ class _ScanPageState extends State<ScanPage> {
                                       ),
                                     );
                                   }).toList(),
-                                  onChanged: (value) {
-                                    _departmentController.text = value ?? "-";
-                                    departmentId = _departmentModel
-                                            .firstWhere((item) =>
-                                                item.DEPARTMENT_NAME == value)
-                                            .DEPARTMENT_ID ??
-                                        0;
+                                  onChanged: typePage == "reportPage"
+                                      ? null
+                                      : (value) {
+                                          _departmentController.text =
+                                              value ?? "-";
+                                          departmentId = _departmentModel
+                                                  .firstWhere((item) =>
+                                                      item.DEPARTMENT_NAME ==
+                                                      value)
+                                                  .DEPARTMENT_ID ??
+                                              0;
 
-                                    _barcodeFocusNode.requestFocus();
-                                  },
+                                          _barcodeFocusNode.requestFocus();
+                                        },
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(child: Label("Location :")),
-                            Expanded(
-                              flex: 2,
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(child: Label("Location :")),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
                               child: SizedBox(
                                 child: CustomDropdownButton2(
                                   value: locationId != 0 &&
@@ -878,23 +1033,27 @@ class _ScanPageState extends State<ScanPage> {
                                             ),
                                           ))
                                       .toList(),
-                                  onChanged: (value) {
-                                    _locationController.text = value ?? "-";
-                                    locationId = _locationModel
-                                            .firstWhere((item) =>
-                                                item.LOCATION_NAME == value)
-                                            .LOCATION_ID ??
-                                        0;
+                                  onChanged: typePage == "reportPage"
+                                      ? null
+                                      : (value) {
+                                          _locationController.text =
+                                              value ?? "-";
+                                          locationId = _locationModel
+                                                  .firstWhere((item) =>
+                                                      item.LOCATION_NAME ==
+                                                      value)
+                                                  .LOCATION_ID ??
+                                              0;
 
-                                    _barcodeFocusNode.requestFocus();
-                                  },
+                                          _barcodeFocusNode.requestFocus();
+                                        },
                                 ),
                               ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ),
@@ -909,6 +1068,7 @@ class _ScanPageState extends State<ScanPage> {
                     child: Column(
                       children: [
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage" ? true : false,
                           labelText: "BarCode",
                           onChanged: (value) {},
                           focusNode: _barcodeFocusNode,
@@ -968,6 +1128,11 @@ class _ScanPageState extends State<ScanPage> {
                           height: 15,
                         ),
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage"
+                              ? true
+                              : false || _assetNoController.text.isNotEmpty
+                                  ? true
+                                  : false,
                           onFieldSubmitted: (value) =>
                               _validate(value, _statusFocusNode),
                           isHideLable: true,
@@ -1015,6 +1180,11 @@ class _ScanPageState extends State<ScanPage> {
                           height: 15,
                         ),
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage"
+                              ? true
+                              : false || _assetNoController.text.isNotEmpty
+                                  ? true
+                                  : false,
                           isHideLable: true,
                           labelText: "Name",
                           onFieldSubmitted: (value) =>
@@ -1028,6 +1198,11 @@ class _ScanPageState extends State<ScanPage> {
                           height: 15,
                         ),
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage"
+                              ? true
+                              : false || _assetNoController.text.isNotEmpty
+                                  ? true
+                                  : false,
                           isHideLable: true,
                           onFieldSubmitted: (value) =>
                               _validate(value, _classFocusNode),
@@ -1041,6 +1216,11 @@ class _ScanPageState extends State<ScanPage> {
                           height: 15,
                         ),
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage"
+                              ? true
+                              : false || _assetNoController.text.isNotEmpty
+                                  ? true
+                                  : false,
                           isHideLable: true,
                           onFieldSubmitted: (value) =>
                               _validate(value, _usedateFocusNode),
@@ -1054,6 +1234,11 @@ class _ScanPageState extends State<ScanPage> {
                           height: 15,
                         ),
                         CustomTextInputField(
+                          readOnly: typePage == "reportPage"
+                              ? true
+                              : false || _assetNoController.text.isNotEmpty
+                                  ? true
+                                  : false,
                           isHideLable: true,
                           labelText: "Use.Date",
                           onFieldSubmitted: (value) =>

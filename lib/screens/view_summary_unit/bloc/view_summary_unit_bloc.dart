@@ -4,7 +4,7 @@
 // import 'package:equatable/equatable.dart';
 // import 'package:get/get.dart';
 
-// import '../../../app.dart';
+// import '../../../main.dart';
 // import '../../../data/models/serial_view_test/serial_view_test_response.dart';
 // import '../../../data/models/test_unit/serial_data_response.dart';
 // import '../../../data/repositories/view_summary_unit/view_summary_unit_repository.dart';

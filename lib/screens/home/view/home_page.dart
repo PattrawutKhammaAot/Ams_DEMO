@@ -165,10 +165,10 @@ class _HomePageState extends State<HomePage> {
               dashBoardCountPlan = state.dashboardCountPlan.data!;
               setState(() {});
             } else {
-              var itemSql = await Data().query();
-              if (itemSql.isNotEmpty) {
-                dashBoardCountPlan = Data.fromJson(itemSql.first);
-              }
+              // var itemSql = await Data().query();
+              // if (itemSql.isNotEmpty) {
+              //   dashBoardCountPlan = Data.fromJson(itemSql.first);
+              // }
 
               // dashBoardCountPlan = itemSql.map((e) => Data.fromJson(e));
             }

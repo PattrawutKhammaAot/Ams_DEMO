@@ -37,6 +37,8 @@ class _ReportPageState extends State<ReportPage> {
         .add(GetListCountDetailForReportEvent(""));
     BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
     super.initState();
+
+    printInfo(info: "Test");
   }
 
   void _viewItem(String value) {
@@ -69,6 +71,7 @@ class _ReportPageState extends State<ReportPage> {
             var itemSql = await CountPlanModel().queryAllRows();
             itemCountPlan =
                 itemSql.map((item) => CountPlanModel.fromJson(item)).toList();
+            printInfo(info: "${itemCountPlan.length}");
             setState(() {});
           }
         }),
@@ -138,8 +141,9 @@ class _ReportPageState extends State<ReportPage> {
                                     itemCount: itemCountDetail.length,
                                     itemBuilder: ((context, index) {
                                       return CustomCardReport(
-                                        onTap: () {
-                                          Get.toNamed('/ScanPage', arguments: {
+                                        onTap: () async {
+                                          var item = await Get
+                                              .toNamed('/ScanPage', arguments: {
                                             'planCode': itemCountDetail[index]
                                                 .PLAN_CODE,
                                             'assetsCode': itemCountDetail[index]
@@ -162,15 +166,36 @@ class _ReportPageState extends State<ReportPage> {
                                                         itemCountDetail[index]
                                                             .CHECK_DATE
                                                             .toString()))
-                                                : "",
+                                                : "-",
                                             'name': itemCountDetail[index]
                                                     .ASSET_NAME ??
                                                 "-",
                                             'remark':
                                                 itemCountDetail[index].REMARK ??
                                                     "-",
+                                            'snNo': itemCountDetail[index]
+                                                    .ASSET_SERIAL_NO ??
+                                                "-",
+                                            'class': itemCountDetail[index]
+                                                    .CLASS_NAME ??
+                                                "-",
+                                            'use.date': itemCountDetail[index]
+                                                    .ASSET_DATE_OF_USE ??
+                                                "-",
                                             'typePage': "reportPage"
                                           });
+
+                                          if (item['GetBack'] != null) {
+                                            printInfo(info: "IsNot");
+                                            BlocProvider.of<ReportBloc>(context)
+                                                .add(
+                                                    GetListCountDetailForReportEvent(
+                                                        ""));
+                                            BlocProvider.of<CountBloc>(context)
+                                                .add(
+                                                    const GetListCountPlanEvent());
+                                            setState(() {});
+                                          }
                                         },
                                         item: itemCountDetail[index],
                                       );
@@ -227,6 +252,9 @@ class _ReportPageState extends State<ReportPage> {
                                                 if (selectedIndex >= 0 &&
                                                     selectedIndex <
                                                         itemCountPlan.length) {
+                                                  printInfo(
+                                                      info:
+                                                          "${itemCountPlan[selectedIndex].CHECK}");
                                                   uncheck.text = itemCountPlan[
                                                           selectedIndex]
                                                       .UNCHECK

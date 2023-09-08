@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:sqflite/sqflite.dart';
 
+import '../../../main.dart';
 import '../../database/dbsqlite.dart';
 import '../../database/quickTypes/quickTypes.dart';
 
@@ -78,7 +79,7 @@ class Data {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.insert("t_dashboardPlanCount", data);
     } on Exception catch (ex) {
       print(ex);
@@ -87,20 +88,13 @@ class Data {
   }
 
   Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
-
-    bool databaseExists = await databaseFactory.databaseExists(db.path);
-
-    if (databaseExists == true) {
-      return await db.query('t_dashboardPlanCount');
-    } else {
-      return [];
-    }
+    final db = await databaseInitialState.database;
+    return await db.query('t_dashboardPlanCount');
   }
 
   Future<int> update(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update('t_dashboardPlanCount', data);
     } on Exception catch (ex) {
       print(ex);

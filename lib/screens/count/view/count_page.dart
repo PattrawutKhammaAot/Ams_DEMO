@@ -1,5 +1,6 @@
 import 'package:ams_count/config/app_constants.dart';
 import 'package:ams_count/data/database/dbsqlite.dart';
+import 'package:ams_count/main.dart';
 
 import 'package:ams_count/widgets/alert.dart';
 
@@ -64,7 +65,8 @@ class _CountPageState extends State<CountPage> {
           uncheck: itemUncheck.DATA,
           total: itemCheckAll.DATA);
     } else if (await AppData.getMode() == "Offline") {
-      var itemSql = await ResponseModel().query();
+      var itemSql =
+          await ResponseModel().query(await databaseInitialState.database);
       if (itemSql.isNotEmpty) {
         itemCheck.DATA = await itemSql[0]['${CheckAllField.CHECK}'];
         itemUncheck.DATA = await itemSql[0]['${CheckAllField.UNCHECK}'];

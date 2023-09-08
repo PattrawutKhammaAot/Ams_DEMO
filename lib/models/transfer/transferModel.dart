@@ -9,7 +9,8 @@ class TransferModel {
       this.OWNER,
       this.ASSET_NAME,
       this.DEPARTMENT,
-      this.ID});
+      this.ID,
+      this.BRANCH});
   final int? ID;
   final String? ASSET_NO;
   final String? ASSET_NAME;
@@ -20,8 +21,10 @@ class TransferModel {
   final String? LOCATION;
   final String? DEPARTMENT;
   final String? OWNER;
+  final String? BRANCH;
 
   List<Object> get props => [
+        BRANCH!,
         ID!,
         DEPARTMENT!,
         ASSET_NAME!,

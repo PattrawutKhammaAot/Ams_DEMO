@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
 
@@ -27,6 +28,9 @@ class ListCountDetailReportModel {
     this.STATUS_NAME,
     this.REMARK,
     this.QTY,
+    this.ASSET_SERIAL_NO,
+    this.ASSET_DATE_OF_USE,
+    this.CLASS_NAME,
   });
   final int? ID;
   final String? PLAN_CODE;
@@ -49,6 +53,9 @@ class ListCountDetailReportModel {
   final String? STATUS_NAME;
   final String? REMARK;
   final int? QTY;
+  final String? ASSET_SERIAL_NO;
+  final String? ASSET_DATE_OF_USE;
+  final String? CLASS_NAME;
   List<Object> get props => [
         ID!,
         PLAN_CODE!,
@@ -71,6 +78,9 @@ class ListCountDetailReportModel {
         STATUS_NAME!,
         REMARK!,
         QTY!,
+        ASSET_SERIAL_NO!,
+        ASSET_DATE_OF_USE!,
+        CLASS_NAME!,
       ];
 
   static ListCountDetailReportModel fromJson(dynamic json) {
@@ -101,6 +111,9 @@ class ListCountDetailReportModel {
       STATUS_NAME: json[ListCountDetailReportField.STATUS_NAME],
       REMARK: json[ListCountDetailReportField.REMARK],
       QTY: json[ListCountDetailReportField.QTY],
+      ASSET_SERIAL_NO: json[ListCountDetailReportField.ASSET_SERIAL_NO],
+      ASSET_DATE_OF_USE: json[ListCountDetailReportField.ASSET_DATE_OF_USE],
+      CLASS_NAME: json[ListCountDetailReportField.CLASS_NAME],
     );
   }
 
@@ -128,6 +141,9 @@ class ListCountDetailReportModel {
         ListCountDetailReportField.STATUS_NAME: STATUS_NAME,
         ListCountDetailReportField.REMARK: REMARK,
         ListCountDetailReportField.QTY: QTY,
+        ListCountDetailReportField.ASSET_SERIAL_NO: ASSET_SERIAL_NO,
+        ListCountDetailReportField.ASSET_DATE_OF_USE: ASSET_DATE_OF_USE,
+        ListCountDetailReportField.CLASS_NAME: CLASS_NAME,
       };
   createTable(Database db, int newVersion) async {
     await db.execute('CREATE TABLE ${ListCountDetailReportField.TABLE_NAME} ('
@@ -151,13 +167,28 @@ class ListCountDetailReportModel {
         '${ListCountDetailReportField.STATUS_CHECK} ${QuickTypes.TEXT},'
         '${ListCountDetailReportField.STATUS_NAME} ${QuickTypes.TEXT},'
         '${ListCountDetailReportField.REMARK} ${QuickTypes.TEXT},'
+        '${ListCountDetailReportField.ASSET_SERIAL_NO} ${QuickTypes.TEXT},'
+        '${ListCountDetailReportField.ASSET_DATE_OF_USE} ${QuickTypes.TEXT},'
+        '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
         '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
         ')');
   }
 
   Future<int> insert(Map<String, dynamic> data) async {
+    printInfo(info: "$data");
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
+      return await db.insert(ListCountDetailReportField.TABLE_NAME, data);
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+
+  Future<int> insertNot(Map<String, dynamic> data) async {
+    printInfo(info: "$data");
+    try {
+      final db = await databaseInitialState.database;
       return await db.insert(ListCountDetailReportField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
@@ -166,7 +197,7 @@ class ListCountDetailReportModel {
   }
 
   Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 
     if (databaseExists == true) {
@@ -176,10 +207,76 @@ class ListCountDetailReportModel {
     }
   }
 
+  Future<int> updateForRemark({
+    String? assetCode,
+    String? planCode,
+    String? remark = '',
+    String? statusId = '',
+  }) async {
+    try {
+      final db = await databaseInitialState.database;
+      return await db.update(
+        ListCountDetailReportField.TABLE_NAME,
+        {
+          'remark': remark,
+          'statusName': statusId,
+        },
+        where:
+            '${ListCountDetailReportField.ASSET_CODE} = ? AND ${ListCountDetailReportField.PLAN_CODE} = ?',
+        whereArgs: [assetCode, planCode],
+      );
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+
+  Future<int> updateForAssetAndPlan({
+    String? assetCode,
+    String? planCode,
+    String? remark = '',
+    int? locationid = 0,
+    int? departmentid = 0,
+    String? statusId = '',
+    String? statusCheck = '',
+    String? checkDate = '',
+    String? locationName = '',
+    String? departmentName = '',
+    String? serialNo = '',
+    String? classname = '',
+    String? useDate = '',
+  }) async {
+    try {
+      final db = await databaseInitialState.database;
+      return await db.update(
+        ListCountDetailReportField.TABLE_NAME,
+        {
+          'remark': remark,
+          'statusName': statusId,
+          'beforeLocationId': locationid,
+          'beforeDepartmentId': departmentid,
+          'statusCheck': statusCheck,
+          'checkDate': checkDate,
+          'beforeLocationName': locationName,
+          'beforeDepartmentName': departmentName,
+          ListCountDetailReportField.ASSET_SERIAL_NO: serialNo,
+          ListCountDetailReportField.ASSET_DATE_OF_USE: useDate,
+          ListCountDetailReportField.CLASS_NAME: classname,
+        },
+        where:
+            '${ListCountDetailReportField.ASSET_CODE} = ? AND ${ListCountDetailReportField.PLAN_CODE} = ?',
+        whereArgs: [assetCode, planCode],
+      );
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> querySelectColumn({
     String? assetCode,
   }) async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 
     if (databaseExists == true) {
@@ -195,6 +292,9 @@ class ListCountDetailReportModel {
           ListCountDetailReportField.CHECK_DATE,
           ListCountDetailReportField.REMARK,
           ListCountDetailReportField.STATUS_CHECK,
+          ListCountDetailReportField.ASSET_SERIAL_NO,
+          ListCountDetailReportField.ASSET_DATE_OF_USE,
+          ListCountDetailReportField.CLASS_NAME,
         ],
         where: '${ListCountDetailReportField.ASSET_CODE} = ?',
         whereArgs: [assetCode], // แทนค่าใน where clause
@@ -229,5 +329,8 @@ class ListCountDetailReportField {
   static const String STATUS_CHECK = 'statusCheck';
   static const String STATUS_NAME = 'statusName';
   static const String REMARK = 'remark';
+  static const String ASSET_SERIAL_NO = 'assetSerialNo';
+  static const String ASSET_DATE_OF_USE = 'assetDateOfUse';
+  static const String CLASS_NAME = 'className';
   static const String QTY = 'qty';
 }

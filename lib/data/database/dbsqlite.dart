@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../models/count/countPlanModel.dart';
 
 class DbSqlite {
@@ -39,48 +40,36 @@ class DbSqlite {
     String databasesPath = await getDatabasesPath();
     String dbPath = join(databasesPath, 'my_ams.db');
 
-    bool isDatabaseExists = await databaseExists(dbPath);
-    if (isDatabaseExists) {
-      return await openDatabase(
-        dbPath,
-      );
-    } else {
-      var database = await openDatabase(
-        dbPath,
-        version: 1,
-        onCreate: _createDb,
-        // onUpgrade: (db, oldVersion, newVersion) =>
-        //     _onUpgrade(db, oldVersion, newVersion),
-      );
-      print("Create a Tables Data");
-      return database;
-    }
+    // bool isDatabaseExists = await databaseExists(dbPath);
+
+    var database = await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: _createDb,
+    );
+
+    return database;
   }
 
   void _createDb(Database db, int newVersion) async {
-    ListImageAssetModel().createTable(db, newVersion);
-    CountPlanModel().createTable(db, newVersion);
-    ResponseModel().createTable(db, newVersion);
-    DepartmentModel().createTable(db, newVersion);
-    LocationModel().createTable(db, newVersion);
-    StatusAssetCountModel().createTable(db, newVersion);
-    CountScan_OutputModel().createTable(db, newVersion);
-    DashBoardAssetStatusModel().createTable(db, newVersion);
-    ListCountDetailReportModel().createTable(db, newVersion);
-    Data().createTable(db, newVersion);
+    ListImageAssetModel().createTable(db, 1);
+    CountPlanModel().createTable(db, 1);
+    ResponseModel().createTable(db, 1);
+    DepartmentModel().createTable(db, 1);
+    LocationModel().createTable(db, 1);
+    StatusAssetCountModel().createTable(db, 1);
+    CountScan_OutputModel().createTable(db, 1);
+    DashBoardAssetStatusModel().createTable(db, 1);
+    ListCountDetailReportModel().createTable(db, 1);
+    Data().createTable(db, 1);
   }
 
   Future<void> deleteAll({
     String? tableName,
   }) async {
     try {
-      Database db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       await db.delete('${tableName!}');
-
-      // AlertWarningNew().alertShowOK(context, title: "Table ${tableName}",
-      //     onPress: () {
-      //   Navigator.pop(context);
-      // });
     } catch (e) {
       print('Error deleting from SQLite: $e');
     }

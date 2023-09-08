@@ -11,6 +11,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app.dart';
+import '../../../main.dart';
 import '../../../data/models/default_response.dart';
 import '../../../data/network/providers/api_controller.dart';
 import '../../../data/repositories/login/login_repository.dart';

@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
 
@@ -37,7 +38,7 @@ class StatusAssetCountModel {
   }
 
   Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
     if (databaseExists == true) {
       return await db.query(StatusAssetField.TABLE_NAME);
@@ -48,7 +49,7 @@ class StatusAssetCountModel {
 
   Future<int> insert(StatusAssetCountModel data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.insert(StatusAssetField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
       print(ex);
@@ -57,7 +58,7 @@ class StatusAssetCountModel {
   }
 
   Future<void> insertOrUpdate(StatusAssetCountModel data) async {
-    final db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
 
     List<Map<String, dynamic>> existingRows = await db.query(
       StatusAssetField.TABLE_NAME,

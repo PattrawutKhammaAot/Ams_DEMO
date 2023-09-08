@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../data/database/dbsqlite.dart';
+import '../../main.dart';
+
 import '../../data/database/quickTypes/quickTypes.dart';
 
 class ResponseModel {
@@ -31,25 +32,30 @@ class ResponseModel {
       };
 
   createTable(Database db, int newVersion) async {
-    await db.execute('CREATE TABLE ${CheckAllField.TABLE_NAME} ('
-        '${QuickTypes.ID_PRIMARYKEY},'
-        '${CheckAllField.UNCHECK} ${QuickTypes.INTEGER},'
-        '${CheckAllField.CHECK} ${QuickTypes.INTEGER},'
-        '${CheckAllField.TOTAL} ${QuickTypes.INTEGER}'
-        ')');
-    var itemRespone = await ResponseModel().query();
-    if (itemRespone.isEmpty) {
-      insert({
-        '${CheckAllField.UNCHECK}': 0,
-        '${CheckAllField.CHECK}': 0,
-        '${CheckAllField.TOTAL}': 0,
-      });
+    try {
+      await db.execute('CREATE TABLE ${CheckAllField.TABLE_NAME} ('
+          '${QuickTypes.ID_PRIMARYKEY},'
+          '${CheckAllField.UNCHECK} ${QuickTypes.INTEGER},'
+          '${CheckAllField.CHECK} ${QuickTypes.INTEGER},'
+          '${CheckAllField.TOTAL} ${QuickTypes.INTEGER}'
+          ')');
+      var itemRespone = await query(db);
+
+      if (itemRespone.isEmpty) {
+        insert({
+          '${CheckAllField.UNCHECK}': 0,
+          '${CheckAllField.CHECK}': 0,
+          '${CheckAllField.TOTAL}': 0,
+        }, db);
+      }
+    } catch (e, s) {
+      printInfo(info: "$e");
+      printInfo(info: "$s");
     }
   }
 
-  Future<int> insert(Map<String, dynamic> data) async {
+  Future<int> insert(Map<String, dynamic> data, Database db) async {
     try {
-      final db = await DbSqlite().database;
       return await db.insert(CheckAllField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
@@ -58,7 +64,7 @@ class ResponseModel {
   }
 
   Future<int> update({int? uncheck, int? check, int? total}) async {
-    final Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
 
     try {
       String sql =
@@ -72,15 +78,13 @@ class ResponseModel {
     }
   }
 
-  Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
-
-    bool databaseExists = await databaseFactory.databaseExists(db.path);
-
-    if (databaseExists == true) {
+  Future<List<Map<String, dynamic>>> query(Database db) async {
+    try {
       return await db.query(CheckAllField.TABLE_NAME);
-    } else {
-      return [];
+    } catch (e, s) {
+      print(e);
+      print(s);
+      throw Exception();
     }
   }
 }

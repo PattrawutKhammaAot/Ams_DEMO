@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'blocs/count/count_bloc.dart';
 import 'blocs/home/home.dart';
@@ -56,12 +57,11 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+
     //action bar color
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-
-
   }
 
   @override

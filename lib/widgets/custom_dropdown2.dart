@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class CustomDropdownButton2 extends StatelessWidget {
   const CustomDropdownButton2(
       {super.key,
+      this.readOnly,
       this.items,
       this.selectedValue,
       this.onChanged,
@@ -22,17 +23,30 @@ class CustomDropdownButton2 extends StatelessWidget {
   final FocusNode? focusNode;
   final dynamic value;
   final String? Function(dynamic)? validator;
+  final bool? readOnly;
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField2<dynamic>(
-      // isExpanded: true,
+      isExpanded: true,
       focusNode: focusNode,
       value: value,
+      autofocus: true,
       decoration: InputDecoration(
+        enabled: false,
         hintStyle: TextStyle(),
         hintText: hintText,
         filled: true,
+        focusColor: colorDanger,
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: colorDanger),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: Colors.black45), // หรือสีของกรอบเมื่อไม่มีการโฟกัส
+          borderRadius: BorderRadius.circular(6),
+        ),
         fillColor: Colors.white,
         labelStyle: TextStyle(color: colorPrimary),
         labelText: labelText,

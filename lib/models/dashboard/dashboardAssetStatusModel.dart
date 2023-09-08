@@ -1,7 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../app.dart';
 import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
+import '../../main.dart';
 
 class DashBoardAssetStatusModel {
   DashBoardAssetStatusModel({
@@ -54,15 +56,21 @@ class DashBoardAssetStatusModel {
       };
 
   createTable(Database db, int newVersion) async {
-    await db.execute('CREATE TABLE ${DashboardField.TABLE_NAME} ('
-        '${QuickTypes.ID_PRIMARYKEY},'
-        '${DashboardField.RESULT_ALL} ${QuickTypes.INTEGER},'
-        '${DashboardField.RESULT_NORMAL} ${QuickTypes.INTEGER},'
-        '${DashboardField.RESULT_REPAIR} ${QuickTypes.INTEGER},'
-        '${DashboardField.RESULT_BORROW} ${QuickTypes.INTEGER},'
-        '${DashboardField.RESULT_SALE} ${QuickTypes.INTEGER},'
-        '${DashboardField.RESULT_WRITEOFF} ${QuickTypes.INTEGER}'
-        ')');
+    try {
+      await db.execute('CREATE TABLE ${DashboardField.TABLE_NAME} ('
+          '${QuickTypes.ID_PRIMARYKEY},'
+          '${DashboardField.RESULT_ALL} ${QuickTypes.INTEGER},'
+          '${DashboardField.RESULT_NORMAL} ${QuickTypes.INTEGER},'
+          '${DashboardField.RESULT_REPAIR} ${QuickTypes.INTEGER},'
+          '${DashboardField.RESULT_BORROW} ${QuickTypes.INTEGER},'
+          '${DashboardField.RESULT_SALE} ${QuickTypes.INTEGER},'
+          '${DashboardField.RESULT_WRITEOFF} ${QuickTypes.INTEGER}'
+          ')');
+    } catch (e, s) {
+      print(e);
+      print(s);
+    }
+
     // var itemRespone = await query();
     // if (itemRespone.isEmpty) {
     //   insert({
@@ -78,7 +86,7 @@ class DashBoardAssetStatusModel {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.insert(DashboardField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
@@ -87,7 +95,7 @@ class DashBoardAssetStatusModel {
   }
 
   Future<List<Map<String, dynamic>>> query() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 
     if (databaseExists == true) {
@@ -100,7 +108,7 @@ class DashBoardAssetStatusModel {
   Future<int> update({
     required Map<String, Object?> values,
   }) async {
-    final Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
 
     try {
       return await db.update(DashboardField.TABLE_NAME, values);

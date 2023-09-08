@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app.dart';
+import '../../../main.dart';
 //import '../../../blocs/home/home.dart';
 import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';

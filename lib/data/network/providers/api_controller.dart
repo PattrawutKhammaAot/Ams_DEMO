@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../../app.dart';
+import '../../../main.dart';
 import '../../../blocs/network/network.dart';
 import '../../models/api_response.dart';
 import '../../../widgets/widget.dart';

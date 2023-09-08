@@ -30,7 +30,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
   TextEditingController _lifeYear = TextEditingController();
   TextEditingController _assetStatus = TextEditingController();
   TextEditingController _company = TextEditingController();
-  TextEditingController _brandName = TextEditingController();
+  TextEditingController _branchName = TextEditingController();
   TextEditingController _building = TextEditingController();
   TextEditingController _room = TextEditingController();
   TextEditingController _location = TextEditingController();
@@ -50,7 +50,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
         itemModel.LIFE_YEAR != null ? itemModel.LIFE_YEAR.toString() : "-";
     _assetStatus.text = itemModel.STATUS_NAME ?? "-";
     _company.text = itemModel.COMPANY_NAME ?? "-";
-    _brandName.text = itemModel.BRAND_NAME ?? "-";
+    _branchName.text = itemModel.BRANCH_NAME ?? "-";
     _building.text = itemModel.BUILDING_NAME ?? "-";
     _room.text = itemModel.ROOM_NAME ?? "-";
     _location.text = itemModel.LOCATION_NAME ?? "-";
@@ -78,7 +78,6 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
               crossPage: true);
         }
       }
-   
     });
   }
 
@@ -154,9 +153,9 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 30),
-                              child: _detailAssetModel.IMG1 != null
+                              child: _detailAssetModel.IMG2 != null
                                   ? Image.network(
-                                      "${_detailAssetModel.IMG1}",
+                                      "${_detailAssetModel.IMG2}",
                                       fit: BoxFit.fill,
                                     )
                                   : Image.asset(
@@ -319,8 +318,8 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                             CustomTextInputField(
                                                 isHideLable: true,
                                                 readOnly: true,
-                                                labelText: "Brand",
-                                                controller: _brandName),
+                                                labelText: "Branch",
+                                                controller: _branchName),
                                             SizedBox(
                                               height: 10,
                                             ),
@@ -381,26 +380,6 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _textInput(String label,
-      {Widget? suffixIcon,
-      dynamic Function(String)? onFieldSubmitted,
-      bool enabled = true,
-      TextEditingController? controller,
-      FocusNode? focusNode}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: CustomTextInputField(
-        focusNode: focusNode,
-        controller: controller,
-        isHideLable: true,
-        labelText: label,
-        readOnly: enabled,
-        suffixIcon: suffixIcon,
-        onFieldSubmitted: onFieldSubmitted,
       ),
     );
   }

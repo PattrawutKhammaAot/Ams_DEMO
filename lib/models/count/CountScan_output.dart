@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../blocs/count/count_bloc.dart';
 import '../../data/database/dbsqlite.dart';
 
@@ -83,7 +84,7 @@ class CountScan_OutputModel {
 
   Future<int> insert(CountScan_OutputModel data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       return await db.insert(CountScanOutputField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
@@ -94,7 +95,7 @@ class CountScan_OutputModel {
 
   Future<int> update(Map<String, dynamic> data, List<dynamic> keyValue) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update(
         CountScanOutputField.TABLE_NAME,
         data,
@@ -117,14 +118,14 @@ class CountScan_OutputModel {
     int? statusId,
   }) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update(
         CountScanOutputField.TABLE_NAME,
         {
           'remark': remark,
           'statusId': statusId,
-          'locationId': statusId,
-          'departmentId': statusId,
+          'locationId': locationid,
+          'departmentId': departmentid,
         },
         where:
             '${CountScanOutputField.ASSETS_CODE} = ? AND ${CountScanOutputField.PLAN_CODE} = ?',
@@ -137,7 +138,7 @@ class CountScan_OutputModel {
   }
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 
     if (databaseExists == true) {
@@ -149,7 +150,7 @@ class CountScan_OutputModel {
 
   Future<void> deleteDataByID(int id) async {
     try {
-      Database db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       int count = await db.delete(
         CountScanOutputField.TABLE_NAME,

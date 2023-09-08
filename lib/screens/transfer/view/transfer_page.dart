@@ -73,7 +73,7 @@ class _TransferPageState extends State<TransferPage> {
                 ASSET_NO: _assetNo.text,
                 ASSET_NAME: state.item.ASSET_NAME,
                 COMPANY: state.item.COMPANY_NAME,
-                BRAND: state.item.BRAND_NAME,
+                BRANCH: state.item.BRANCH_NAME,
                 BUILDING: state.item.BUILDING_NAME,
                 ROOM: state.item.ROOM_NAME,
                 LOCATION: state.item.LOCATION_NAME,
@@ -327,7 +327,7 @@ class _TransferPageState extends State<TransferPage> {
                                               color: colorPrimary,
                                             ),
                                             Label(
-                                              "Brand : ${listTransfer[index].BRAND ?? "-"}",
+                                              "Branch :  ${listTransfer[index].BRAND ?? "-"}",
                                               color: colorPrimary,
                                             ),
                                             Label(

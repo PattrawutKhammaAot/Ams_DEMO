@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../main.dart';
 import '../../data/database/dbsqlite.dart';
 import '../../data/database/quickTypes/quickTypes.dart';
 
 class CountPlanModel {
-  const CountPlanModel(
+  CountPlanModel(
       {this.PLAN_ID,
       this.PLAN_CODE,
       this.PLAN_DETAILS,
@@ -80,7 +81,7 @@ class CountPlanModel {
 
   Future<int> insert(Map<String, dynamic> data) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       return await db.insert(CountPlanField.TABLE_NAME, data);
     } on Exception catch (ex) {
@@ -101,7 +102,7 @@ class CountPlanModel {
 
   Future<List<CountPlanModel>> getDataById(keyValue) async {
     try {
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
 
       var result = await db.query(CountPlanField.TABLE_NAME,
           where: '${CountPlanField.ID} = ?', whereArgs: [keyValue]);
@@ -115,7 +116,7 @@ class CountPlanModel {
   Future<int> update(data, keyValue) async {
     try {
       CountPlanModel values = data;
-      final db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       return await db.update(CountPlanField.TABLE_NAME, values.toJson(),
           where: '${CountPlanField.ID} = ?', whereArgs: [keyValue]);
     } on Exception catch (ex) {
@@ -124,7 +125,7 @@ class CountPlanModel {
   }
 
   Future<List<Map<String, dynamic>>> queryAllRows() async {
-    Database db = await DbSqlite().database;
+    final db = await databaseInitialState.database;
     bool databaseExists = await databaseFactory.databaseExists(db.path);
 
     if (databaseExists == true) {
@@ -136,7 +137,7 @@ class CountPlanModel {
 
   Future<void> deleteDataAllFromSQLite() async {
     try {
-      Database db = await DbSqlite().database;
+      final db = await databaseInitialState.database;
       int count = await db.delete(CountPlanField.TABLE_NAME);
     } catch (e) {}
   }
