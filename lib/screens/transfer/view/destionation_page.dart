@@ -147,7 +147,15 @@ class _DestinationPageState extends State<DestinationPage> {
               child: Column(
                 children: [
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_companyID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        printInfo(info: "if");
+                        return "Please Select Company";
+                      } else {
+                        printInfo(info: "else");
+                        return null;
+                      }
+                    },
                     labelText: "Company",
                     hintText: "Select Company",
                     items: companyModel
@@ -172,7 +180,15 @@ class _DestinationPageState extends State<DestinationPage> {
                     height: 10,
                   ),
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_branchID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        printInfo(info: "if");
+                        return "Please Select Branch";
+                      } else {
+                        printInfo(info: "else");
+                        return null;
+                      }
+                    },
                     hintText: "Select Branch",
                     labelText: "Branch",
                     items: branchModel
@@ -197,7 +213,13 @@ class _DestinationPageState extends State<DestinationPage> {
                     height: 10,
                   ),
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_buildingID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        return "Please Select Building";
+                      } else {
+                        return null;
+                      }
+                    },
                     hintText: "Select Building",
                     labelText: "Building",
                     items: buildingModel
@@ -222,7 +244,13 @@ class _DestinationPageState extends State<DestinationPage> {
                     height: 10,
                   ),
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_roomID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        return "Please Select Room";
+                      } else {
+                        return null;
+                      }
+                    },
                     hintText: "Select Room",
                     labelText: "Room",
                     items: roomModel
@@ -247,7 +275,13 @@ class _DestinationPageState extends State<DestinationPage> {
                     height: 10,
                   ),
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_locationID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        return "Please Select Location";
+                      } else {
+                        return null;
+                      }
+                    },
                     hintText: "Select Location",
                     labelText: "Location",
                     items: locationModel
@@ -272,7 +306,13 @@ class _DestinationPageState extends State<DestinationPage> {
                     height: 10,
                   ),
                   CustomDropdownButton2(
-                    validator: (p0) => _validatedropown(_departmentID),
+                    validator: (p0) {
+                      if (p0 == 0 || p0 == null) {
+                        return "Please Select Department";
+                      } else {
+                        return null;
+                      }
+                    },
                     hintText: "Select Department",
                     labelText: "Department",
                     items: departemntModel
@@ -324,6 +364,7 @@ class _DestinationPageState extends State<DestinationPage> {
                               MaterialStatePropertyAll(colorPrimary)),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
+                          printInfo(info: "Test");
                           var localId = await AppData.getLocalId();
                           BlocProvider.of<TransferBloc>(context).add(
                               TF_transferAsset(TransferAssetOutputModel(
@@ -342,6 +383,8 @@ class _DestinationPageState extends State<DestinationPage> {
                                   MOVE_NEW_COSTCENTERID: null,
                                   MOVE_NEW_FLOORID: null,
                                   CREATE_BY: int.parse(localId))));
+                        } else {
+                          printInfo(info: "Null");
                         }
                       },
                       child: Label("Confirm Destination"))

@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initial() async {
-    String _username = await AppData.getUserName();
+    String _username = await AppData.getUserName() ?? "-";
     setState(() {
       name = _username;
     });
@@ -563,6 +563,7 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Transfer"),
             leading: Icon(Iconic.transfer, color: Colors.amber),
           ),
+
           const Spacer(),
           // _buildSettingButton(),
           _buildLogoutButton(),

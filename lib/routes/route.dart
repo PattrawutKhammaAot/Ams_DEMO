@@ -5,6 +5,7 @@ import 'package:ams_count/screens/login/login.dart';
 import 'package:ams_count/screens/myAssets/view/myAssets_Page.dart';
 import 'package:ams_count/screens/reportPage/reportPage.dart';
 import 'package:ams_count/screens/transfer/transfer.dart';
+import 'package:ams_count/screens/viewDatabase/index.dart';
 import 'package:get/get.dart';
 import 'package:ams_count/screens/connection_setting/connection_setting.dart';
 import 'package:ams_count/screens/test_unit/test_unit.dart';
@@ -37,4 +38,5 @@ final List<GetPage<dynamic>> routes = [
   GetPage(name: '/ReportPage', page: () => const ReportPage()),
   GetPage(name: '/TransferPage', page: () => const TransferPage()),
   GetPage(name: '/SelectionDestination', page: () => DestinationPage()),
+  GetPage(name: '/ViewDatabase', page: () => ViewDatabase()),
 ];

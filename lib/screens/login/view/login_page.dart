@@ -94,29 +94,29 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            FloatingActionButton.extended(
-              onPressed: () {
-                Get.toNamed('/connectionSetting');
-              },
-              backgroundColor: colorPrimaryDark,
-              icon: const Icon(Icons.settings),
-              label: const Text('Setting Web'),
-            ),
-            SizedBox(
-              height: 30,
-              child: Column(
-                children: [
-                  Text(
-                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  const Text(
-                    'Modified On: 8 Jun 2023',
-                    style: TextStyle(fontSize: 8),
-                  ),
-                ],
-              ),
-            )
+            // FloatingActionButton.extended(
+            //   onPressed: () {
+            //     Get.toNamed('/connectionSetting');
+            //   },
+            //   backgroundColor: colorPrimaryDark,
+            //   icon: const Icon(Icons.settings),
+            //   label: const Text('Setting Web'),
+            // ),
+            // SizedBox(
+            //   height: 30,
+            //   child: Column(
+            //     children: [
+            //       Text(
+            //         'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
+            //         style: const TextStyle(fontSize: 12),
+            //       ),
+            //       const Text(
+            //         'Modified On: 9 Sep 2023 ',
+            //         style: TextStyle(fontSize: 8),
+            //       ),
+            //     ],
+            //   ),
+            // )
           ],
         ),
       ),
@@ -190,6 +190,31 @@ class _LoginPageState extends State<LoginPage> {
                   ),
             ),
             const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              onPressed: () {
+                Get.toNamed('/connectionSetting');
+              },
+              backgroundColor: colorPrimaryDark,
+              icon: const Icon(Icons.settings),
+              label: const Text('Setting Web'),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 30,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const Text(
+                    'Modified On: 9 Sep 2023 ',
+                    style: TextStyle(fontSize: 8),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),

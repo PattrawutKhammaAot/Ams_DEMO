@@ -77,7 +77,7 @@ class CustomCardReport extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Label(
-                                "Department : ${item.BEFORE_DEPARTMENT_NAME ?? "-"}",
+                                "Department : ${item.BEFORE_DEPARTMENT_NAME == 0.toString() ? "-" : item.BEFORE_DEPARTMENT_NAME}",
                                 color: colorPrimary,
                                 fontSize: 14,
                               ),
@@ -97,7 +97,7 @@ class CustomCardReport extends StatelessWidget {
                           children: [
                             Expanded(
                                 child: Label(
-                                    "Location : ${item.BEFORE_LOCATION_NAME ?? "-"} ",
+                                    "Location : ${item.BEFORE_LOCATION_NAME == 0.toString() ? "-" : item.BEFORE_LOCATION_NAME} ",
                                     color: colorPrimary,
                                     fontSize: 14)),
                             item.STATUS_CHECK != "Unchecked"

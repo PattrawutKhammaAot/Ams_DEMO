@@ -118,8 +118,11 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) async {
             if (state is AuthInitial) {
               String _test = await AppData.getToken();
+              printInfo(info: "$_test");
               if (_test != "") {
                 Get.toNamed('/');
+
+                printInfo(info: "Going To Home");
               } else {
                 Get.toNamed('/Login');
               }
@@ -141,6 +144,7 @@ class _AppViewState extends State<AppView> {
                       message: 'You\'re Online Now',
                       type: ReturnStatus.SUCCESS,
                       duration: const Duration(seconds: 5));
+
                   await ListImageAssetModel().uploadImageAndDelete(context);
                   await CountScan_OutputModel().sendDataToserver(context);
 

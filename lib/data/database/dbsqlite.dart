@@ -40,15 +40,49 @@ class DbSqlite {
     String databasesPath = await getDatabasesPath();
     String dbPath = join(databasesPath, 'my_ams.db');
 
-    // bool isDatabaseExists = await databaseExists(dbPath);
-
     var database = await openDatabase(
       dbPath,
       version: 1,
       onCreate: _createDb,
     );
 
+    final isAssetSerialNoExists = await isAssetSerialNoColumnExists(database);
+
+    if (!isAssetSerialNoExists) {
+      // ลบฐานข้อมูลเก่า
+      await database.close();
+      await deleteDatabase(dbPath);
+
+      // สร้างฐานข้อมูลใหม่
+      database = await openDatabase(
+        dbPath,
+        version: 1,
+        onCreate: _createDb,
+      );
+    }
+
     return database;
+  }
+
+  Future<bool> isAssetSerialNoColumnExists(Database db) async {
+    try {
+      // ทำคำสั่ง SQL สำหรับเลือกข้อมูลจากตาราง "t_listCountDetailReport"
+      final result =
+          await db.rawQuery("PRAGMA table_info(t_listCountDetailReport)");
+
+      // วนลูปผ่านผลลัพธ์เพื่อตรวจสอบว่ามีคอลัมน์ "assetSerialNo" หรือไม่
+      for (final column in result) {
+        final columnName = column['name'] as String;
+        if (columnName == 'assetSerialNo') {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      // หากเกิดข้อผิดพลาดในการอ่านข้อมูลหรือสอบถามฐานข้อมูล
+      print("Error: $e");
+      return false;
+    }
   }
 
   void _createDb(Database db, int newVersion) async {

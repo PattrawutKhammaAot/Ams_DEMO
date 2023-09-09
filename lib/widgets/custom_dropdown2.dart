@@ -35,6 +35,8 @@ class CustomDropdownButton2 extends StatelessWidget {
       decoration: InputDecoration(
         enabled: false,
         hintStyle: TextStyle(),
+
+        errorStyle: TextStyle(color: colorDanger),
         hintText: hintText,
         filled: true,
         focusColor: colorDanger,

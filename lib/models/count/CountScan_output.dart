@@ -18,7 +18,8 @@ class CountScan_OutputModel {
       this.IS_SCAN_NOW,
       this.REMARK,
       this.STATUS_ID,
-      this.STATUS_REQUEST});
+      this.STATUS_REQUEST,
+      this.CHECK_DATE});
   final int? ID;
   final String? ASSETS_CODE;
   final String? PLAN_CODE;
@@ -28,6 +29,7 @@ class CountScan_OutputModel {
   final String? REMARK;
   final int? STATUS_ID;
   final String? STATUS_REQUEST;
+  final String? CHECK_DATE;
 
   List<Object> get props => [
         ASSETS_CODE!,
@@ -39,20 +41,21 @@ class CountScan_OutputModel {
         REMARK!,
         STATUS_ID!,
         STATUS_REQUEST!,
+        CHECK_DATE!
       ];
 
   static CountScan_OutputModel fromJson(dynamic json) {
     return CountScan_OutputModel(
-      ID: json[CountScanOutputField.ID],
-      ASSETS_CODE: json[CountScanOutputField.ASSETS_CODE],
-      PLAN_CODE: json[CountScanOutputField.PLAN_CODE],
-      LOCATION_ID: json[CountScanOutputField.LOCATION_ID],
-      DEPARTMENT_ID: json[CountScanOutputField.DEPARTMENT_ID],
-      IS_SCAN_NOW: json[CountScanOutputField.IS_SCAN_NOW],
-      REMARK: json[CountScanOutputField.REMARK],
-      STATUS_ID: json[CountScanOutputField.STATUS_ID],
-      STATUS_REQUEST: json[CountScanOutputField.STATUS_REQ],
-    );
+        ID: json[CountScanOutputField.ID],
+        ASSETS_CODE: json[CountScanOutputField.ASSETS_CODE],
+        PLAN_CODE: json[CountScanOutputField.PLAN_CODE],
+        LOCATION_ID: json[CountScanOutputField.LOCATION_ID],
+        DEPARTMENT_ID: json[CountScanOutputField.DEPARTMENT_ID],
+        IS_SCAN_NOW: json[CountScanOutputField.IS_SCAN_NOW],
+        REMARK: json[CountScanOutputField.REMARK],
+        STATUS_ID: json[CountScanOutputField.STATUS_ID],
+        STATUS_REQUEST: json[CountScanOutputField.STATUS_REQ],
+        CHECK_DATE: json[CountScanOutputField.CHECK_DATE]);
   }
 
   Map<String, dynamic> toJson() {
@@ -65,6 +68,7 @@ class CountScan_OutputModel {
       CountScanOutputField.REMARK: REMARK,
       CountScanOutputField.STATUS_ID: STATUS_ID,
       CountScanOutputField.STATUS_REQ: STATUS_REQUEST,
+      CountScanOutputField.CHECK_DATE: CHECK_DATE,
     };
   }
 
@@ -78,6 +82,7 @@ class CountScan_OutputModel {
         '${CountScanOutputField.IS_SCAN_NOW} ${QuickTypes.TEXT},'
         '${CountScanOutputField.REMARK} ${QuickTypes.TEXT},'
         '${CountScanOutputField.STATUS_ID} ${QuickTypes.INTEGER},'
+        '${CountScanOutputField.CHECK_DATE} ${QuickTypes.TEXT},'
         '${CountScanOutputField.STATUS_REQ} ${QuickTypes.TEXT}'
         ')');
   }
@@ -95,6 +100,7 @@ class CountScan_OutputModel {
 
   Future<int> update(Map<String, dynamic> data, List<dynamic> keyValue) async {
     try {
+      printInfo(info: "${data}");
       final db = await databaseInitialState.database;
       return await db.update(
         CountScanOutputField.TABLE_NAME,
@@ -176,7 +182,8 @@ class CountScan_OutputModel {
                 IS_SCAN_NOW:
                     item[CountScanOutputField.IS_SCAN_NOW] == 1 ? true : false,
                 REMARK: item[CountScanOutputField.REMARK],
-                STATUS_ID: item[CountScanOutputField.STATUS_ID])
+                STATUS_ID: item[CountScanOutputField.STATUS_ID],
+                CHECK_DATE: item[CountScanOutputField.CHECK_DATE].toString())
           ]));
         } else if (item['statusRequest'] == "AlreadyChecked") {
           BlocProvider.of<CountBloc>(context).add(
@@ -189,7 +196,9 @@ class CountScan_OutputModel {
                       ? true
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
-                  STATUS_ID: item[CountScanOutputField.STATUS_ID])));
+                  STATUS_ID: item[CountScanOutputField.STATUS_ID],
+                  CHECK_DATE:
+                      item[CountScanOutputField.CHECK_DATE].toString())));
           BlocProvider.of<CountBloc>(context).add(PostCountScanSaveAssetEvent(
               CountScan_OutputModel(
                   ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
@@ -200,7 +209,9 @@ class CountScan_OutputModel {
                       ? true
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
-                  STATUS_ID: item[CountScanOutputField.STATUS_ID])));
+                  STATUS_ID: item[CountScanOutputField.STATUS_ID],
+                  CHECK_DATE:
+                      item[CountScanOutputField.CHECK_DATE].toString())));
         } else if (item['statusRequest'] == "notPlan") {
           BlocProvider.of<CountBloc>(context).add(
               PostCountSaveNewAssetNewPlanEvent(CountScan_OutputModel(
@@ -212,7 +223,9 @@ class CountScan_OutputModel {
                       ? true
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
-                  STATUS_ID: item[CountScanOutputField.STATUS_ID])));
+                  STATUS_ID: item[CountScanOutputField.STATUS_ID],
+                  CHECK_DATE:
+                      item[CountScanOutputField.CHECK_DATE].toString())));
         }
 
         await deleteDataByID(item[CountScanOutputField.ID]);
@@ -232,4 +245,5 @@ class CountScanOutputField {
   static const String REMARK = 'remark';
   static const String STATUS_ID = 'statusId';
   static const String STATUS_REQ = 'statusRequest';
+  static const String CHECK_DATE = 'checkDate';
 }

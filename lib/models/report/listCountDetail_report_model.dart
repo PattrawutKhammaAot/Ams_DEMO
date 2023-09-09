@@ -1,3 +1,4 @@
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
@@ -147,32 +148,64 @@ class ListCountDetailReportModel {
         ListCountDetailReportField.CLASS_NAME: CLASS_NAME,
       };
   createTable(Database db, int newVersion) async {
-    await db.execute('CREATE TABLE ${ListCountDetailReportField.TABLE_NAME} ('
-        '${QuickTypes.ID_PRIMARYKEY},'
-        '${ListCountDetailReportField.PLAN_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.ASSET_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.ASSET_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.BEFORE_LOCATION_ID} ${QuickTypes.INTEGER},'
-        '${ListCountDetailReportField.BEFORE_LOCATION_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.BEFORE_LOCATION_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.NEW_LOCATION_ID} ${QuickTypes.INTEGER},'
-        '${ListCountDetailReportField.NEW_LOCATION_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.NEW_LOCATION_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.BEFORE_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
-        '${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.NEW_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
-        '${ListCountDetailReportField.NEW_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.NEW_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.CHECK_DATE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.STATUS_CHECK} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.STATUS_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.REMARK} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.ASSET_SERIAL_NO} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.ASSET_DATE_OF_USE} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
-        '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
-        ')');
+    try {
+      await db.execute('CREATE TABLE ${ListCountDetailReportField.TABLE_NAME} ('
+          '${QuickTypes.ID_PRIMARYKEY},'
+          '${ListCountDetailReportField.PLAN_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.ASSET_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.ASSET_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.BEFORE_LOCATION_ID} ${QuickTypes.INTEGER},'
+          '${ListCountDetailReportField.BEFORE_LOCATION_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.BEFORE_LOCATION_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.NEW_LOCATION_ID} ${QuickTypes.INTEGER},'
+          '${ListCountDetailReportField.NEW_LOCATION_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.NEW_LOCATION_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.BEFORE_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
+          '${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.NEW_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
+          '${ListCountDetailReportField.NEW_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.NEW_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.CHECK_DATE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.STATUS_CHECK} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.STATUS_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.REMARK} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.ASSET_SERIAL_NO} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.ASSET_DATE_OF_USE} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
+          '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
+          ')');
+      printInfo(
+          info: 'CREATE TABLE ${ListCountDetailReportField.TABLE_NAME} ('
+              '${QuickTypes.ID_PRIMARYKEY},'
+              '${ListCountDetailReportField.PLAN_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.ASSET_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.ASSET_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.BEFORE_LOCATION_ID} ${QuickTypes.INTEGER},'
+              '${ListCountDetailReportField.BEFORE_LOCATION_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.BEFORE_LOCATION_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.NEW_LOCATION_ID} ${QuickTypes.INTEGER},'
+              '${ListCountDetailReportField.NEW_LOCATION_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.NEW_LOCATION_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.BEFORE_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
+              '${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.NEW_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
+              '${ListCountDetailReportField.NEW_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.NEW_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.CHECK_DATE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.STATUS_CHECK} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.STATUS_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.REMARK} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.ASSET_SERIAL_NO} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.ASSET_DATE_OF_USE} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
+              '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
+              ')');
+    } catch (e, s) {
+      printInfo(info: e.toString());
+      printInfo(info: s.toString());
+    }
   }
 
   Future<int> insert(Map<String, dynamic> data) async {
@@ -182,6 +215,8 @@ class ListCountDetailReportModel {
       return await db.insert(ListCountDetailReportField.TABLE_NAME, data);
     } on Exception catch (ex) {
       print(ex);
+
+      EasyLoading.showError(ex.toString());
       rethrow;
     }
   }

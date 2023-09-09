@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:ams_count/config/app_data.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 // import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../../app.dart';
@@ -22,7 +24,7 @@ class APIController {
             message: 'Your session has timed out. Please login again',
             type: ReturnStatus.WARNING,
             crossPage: true);
-
+        await AppData.setToken('');
         navigateToLogin();
       } else if (exception.toString().contains('Connection refused')) {
         // BuildContext? context = Get.context;
@@ -46,8 +48,8 @@ class APIController {
   }
 
   void navigateToLogin() {
-    // Navigator.pushNamed(
-    //     GlobalContextService.navigatorKey.currentContext!, '/login');
+    Navigator.pushNamed(
+        GlobalContextService.navigatorKey.currentContext!, '/Login');
   }
 
   Future<dynamic> getData(String function, String param,

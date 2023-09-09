@@ -44,16 +44,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           final response =
               await LoginRepository().LoginUser(username, password);
+
+          printInfo(info: "+++++++++++${response.data}");
+          printInfo(info: "+++++++++++${response.message}");
+          printInfo(info: "+++++++++++${response.result}");
           if (response.result == "SUCCESS") {
             emit(state.copyWith(status: FetchStatus.success));
             EasyLoading.showSuccess("Success !");
             Get.toNamed('/');
           } else {
+            printInfo(info: "++++++++++++++++++++${response.message}");
             emit(state.copyWith(status: FetchStatus.failed));
             EasyLoading.showError(response.message!);
           }
         }
       } catch (e) {
+        printInfo(info: "++++++++++++++++++++${e}");
         emit(state.copyWith(status: FetchStatus.failed));
         EasyLoading.showError(e.toString());
       }
