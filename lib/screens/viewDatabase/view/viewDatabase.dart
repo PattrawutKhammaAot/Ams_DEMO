@@ -32,7 +32,7 @@ class _ViewDatabaseState extends State<ViewDatabase> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Label("PageTest"),
+        title: Label("ViewDataBase"),
       ),
       body: ListView.builder(
           itemCount: listItem.length,

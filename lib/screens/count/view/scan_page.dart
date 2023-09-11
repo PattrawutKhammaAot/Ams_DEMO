@@ -37,6 +37,7 @@ import '../../../models/count/CountScan_output.dart';
 import '../../../models/count/listImageAssetModel.dart';
 import 'package:ams_count/widgets/alert.dart' as AlertDialog1;
 
+import '../../../models/count/tempCountScanAsset/tempcountScanAssetOuput.dart';
 import '../../../models/report/listCountDetail_report_model.dart';
 import '../../../widgets/alert_new.dart';
 
@@ -128,6 +129,7 @@ class _ScanPageState extends State<ScanPage> {
       if (_departmentController.text.isNotEmpty ||
           _locationController.text.isNotEmpty) {
         if (await AppData.getMode() == "Offline") {
+          printInfo(info: "offline");
           if (typePage == "reportPage") {
             String statusName = _statusAssetCountModel
                     .firstWhere((element) => element.STATUS_ID == statusId)
@@ -138,7 +140,7 @@ class _ScanPageState extends State<ScanPage> {
                 planCode: planCode,
                 remark: _remarkController.text,
                 statusId: statusName);
-            await _setValue(status: "Checked");
+            await _setValueUpdatetableCountScanOutputModel();
           } else {
             var itemSql = await ListCountDetailReportModel()
                 .querySelectColumn(assetCode: _barCodeController.text);
@@ -189,26 +191,25 @@ class _ScanPageState extends State<ScanPage> {
             Navigator.pop(context);
           });
         } else {
+          printInfo(info: "online");
           BlocProvider.of<CountBloc>(context).add(PostCountScanSaveAssetEvent(
-              CountScan_OutputModel(
+              TempCountScan_OutputModel(
                   ASSETS_CODE: _barCodeController.text.trim(),
                   PLAN_CODE: planCode,
                   LOCATION_ID: locationId,
                   DEPARTMENT_ID: departmentId,
                   IS_SCAN_NOW: true,
-                  REMARK: _remarkController.text.isEmpty
-                      ? "-"
-                      : _remarkController.text.trim(),
+                  REMARK: _remarkController.text,
                   STATUS_ID: statusId,
-                  CHECK_DATE: DateTime.now().toString())));
-          _assetNoController.clear();
-          _nameController.clear();
-          _serialNumberController.clear();
-          _classController.clear();
-          _useDateController.clear();
-          _barCodeController.clear();
-          _remarkController.clear();
-          _barcodeFocusNode.requestFocus();
+                  CHECK_DATE: DateTime.now().toIso8601String())));
+          // _assetNoController.clear();
+          // _nameController.clear();
+          // _serialNumberController.clear();
+          // _classController.clear();
+          // _useDateController.clear();
+          // _barCodeController.clear();
+          // _remarkController.clear();
+          // _barcodeFocusNode.requestFocus();
 
           statusId = 15;
           setState(() {});
@@ -289,7 +290,8 @@ class _ScanPageState extends State<ScanPage> {
       _nameController.text = arguments?['name'] ?? _nameController.text;
       _remarkController.text = arguments?['remark'] ?? _remarkController.text;
       _serialNumberController.text =
-          arguments?['snNo'] ?? _serialNumberController.text;
+          arguments?['snNo'] == "" ? "-" : arguments?['snNo'];
+
       _classController.text = arguments?['class'] ?? _classController.text;
       _useDateController.text =
           arguments?['use.date'] ?? _useDateController.text;
@@ -385,14 +387,18 @@ class _ScanPageState extends State<ScanPage> {
           statusId = 15;
           setState(() {});
         }
-        String locationName = _locationModel
-                .firstWhere((element) => element.LOCATION_ID == locationId)
-                .LOCATION_NAME ??
-            "-";
-        String departmentName = _departmentModel
-                .firstWhere((element) => element.DEPARTMENT_ID == departmentId)
-                .DEPARTMENT_NAME ??
-            "-";
+        String? locationName = _locationModel
+            .firstWhere((element) => element.LOCATION_ID == locationId,
+                orElse: () => LocationModel(
+                    LOCATION_NAME: "-")) // ใส่ค่าเริ่มต้น "0" เมื่อไม่พบข้อมูล
+            .LOCATION_NAME;
+
+        String? departmentName = _departmentModel
+            .firstWhere((element) => element.DEPARTMENT_ID == departmentId,
+                orElse: () => DepartmentModel(
+                    DEPARTMENT_NAME:
+                        "-")) // ใส่ค่าเริ่มต้น "-" เมื่อไม่พบข้อมูล
+            .DEPARTMENT_NAME;
         await ListCountDetailReportModel().insertNot({
           'planCode': planCode,
           'assetCode': item.ASSET_CODE,
@@ -401,8 +407,8 @@ class _ScanPageState extends State<ScanPage> {
           'beforeLocationName': locationName,
           'beforeDepartmentId': departmentId,
           'beforeDepartmentName': departmentName,
-          'checkDate': item.CHECK_DATE,
-          'statusCheck': item.STATUS_CHECK,
+          'checkDate': DateTime.now().toIso8601String(),
+          'statusCheck': "Checked",
           'statusName': item.STATUS_NAME,
           'remark': item.REMARK,
           ListCountDetailReportField.ASSET_SERIAL_NO: item.ASSET_SERIAL_NO,
@@ -436,10 +442,6 @@ class _ScanPageState extends State<ScanPage> {
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
             await _setValue();
-          }).then((e) {
-            setState(() {
-              _barCodeController.clear();
-            });
           });
         }
       } // select Department Only
@@ -456,10 +458,6 @@ class _ScanPageState extends State<ScanPage> {
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
             await _setValue();
-          }).then((e) {
-            setState(() {
-              _barCodeController.clear();
-            });
           });
         }
       }
@@ -545,6 +543,44 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
+  _setValueUpdatetableCountScanOutputModel() async {
+    var item = await CountScan_OutputModel().queryAllRows();
+    bool foundMatch =
+        false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
+    printInfo(info: "${item}");
+    for (var items in item) {
+      if (items[CountScanOutputField.ASSETS_CODE] == _barCodeController.text &&
+          items[CountScanOutputField.PLAN_CODE] == planCode) {
+        foundMatch = true; // ตั้งค่าเป็น true เมื่อพบข้อมูลที่ตรงกับเงื่อนไข
+        break; // หยุดลูปเมื่อพบข้อมูลที่ตรงกับเงื่อนไข
+      }
+    }
+    if (!foundMatch) {
+      // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
+      await CountScan_OutputModel()
+          .insert(CountScan_OutputModel(
+        ASSETS_CODE: _barCodeController.text,
+        PLAN_CODE: planCode,
+        LOCATION_ID: locationId,
+        DEPARTMENT_ID: departmentId,
+        STATUS_ID: statusId,
+        IS_SCAN_NOW: true,
+        REMARK: _remarkController.text,
+        STATUS_REQUEST: "Checked",
+        CHECK_DATE: DateTime.now().toIso8601String(),
+      ))
+          .then((value) {
+        setState(() {
+          _barCodeController.clear();
+        });
+      });
+    } else {
+      await CountScan_OutputModel().update(
+          {"remark": _remarkController.text, "statusId": statusId},
+          [_barCodeController.text, planCode]);
+    }
+  }
+
   _setValue({String? status}) async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
@@ -559,7 +595,6 @@ class _ScanPageState extends State<ScanPage> {
     }
 
     if (!foundMatch) {
-      printInfo(info: "notFount");
       // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
       await CountScan_OutputModel()
           .insert(CountScan_OutputModel(
@@ -571,7 +606,7 @@ class _ScanPageState extends State<ScanPage> {
         IS_SCAN_NOW: true,
         REMARK: _remarkController.text,
         STATUS_REQUEST: status ?? statsCheck,
-        CHECK_DATE: DateTime.now().toString(),
+        CHECK_DATE: DateTime.now().toIso8601String(),
       ))
           .then((value) {
         setState(() {
@@ -634,7 +669,11 @@ class _ScanPageState extends State<ScanPage> {
         await _setUpdateTableListCountPlanField(itemModel);
         statsCheck = "AlreadyChecked";
         setState(() {});
-        onPress?.call();
+        onPress?.call().then((element) {
+          setState(() {
+            _barCodeController.clear();
+          });
+        });
 
         _barcodeFocusNode.requestFocus();
         Navigator.pop(context);
@@ -662,7 +701,9 @@ class _ScanPageState extends State<ScanPage> {
       statsCheck = "Checked";
       await _setUpdateTableListCountPlanField(itemModel);
       await _setValue();
-
+      setState(() {
+        _barCodeController.clear();
+      });
       setState(() {});
     }
   }
@@ -802,7 +843,7 @@ class _ScanPageState extends State<ScanPage> {
                   title: "Warning",
                   desc: "${state.item.MESSAGE}", onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
-                    PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
+                    PostCountScanAlreadyCheckEvent(TempCountScan_OutputModel(
                         ASSETS_CODE: _barCodeController.text,
                         PLAN_CODE: planCode,
                         LOCATION_ID: locationId,
@@ -810,7 +851,7 @@ class _ScanPageState extends State<ScanPage> {
                         IS_SCAN_NOW: true,
                         STATUS_ID: statusId,
                         REMARK: _remarkController.text,
-                        CHECK_DATE: DateTime.now().toString())));
+                        CHECK_DATE: DateTime.now().toIso8601String())));
                 _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
@@ -825,7 +866,7 @@ class _ScanPageState extends State<ScanPage> {
                   title: "Warning",
                   desc: "${error}", onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
-                    PostCountSaveNewAssetNewPlanEvent(CountScan_OutputModel(
+                    PostCountSaveNewAssetNewPlanEvent(TempCountScan_OutputModel(
                         ASSETS_CODE: _assetNoController.text,
                         PLAN_CODE: planCode,
                         LOCATION_ID: locationId,
@@ -833,7 +874,7 @@ class _ScanPageState extends State<ScanPage> {
                         IS_SCAN_NOW: true,
                         STATUS_ID: statusId,
                         REMARK: _remarkController.text,
-                        CHECK_DATE: DateTime.now().toString())));
+                        CHECK_DATE: DateTime.now().toIso8601String())));
                 _assetNoFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
@@ -849,12 +890,12 @@ class _ScanPageState extends State<ScanPage> {
                   type: AlertType.success,
                   title: "${state.item.STATUS}",
                   desc: "${state.item.MESSAGE}", onPress: () {
-                _assetNoController.clear();
-                _nameController.clear();
-                _serialNumberController.clear();
-                _classController.clear();
-                _useDateController.clear();
-                _barCodeController.clear();
+                // _assetNoController.clear();
+                // _nameController.clear();
+                // _serialNumberController.clear();
+                // _classController.clear();
+                // _useDateController.clear();
+                // _barCodeController.clear();
                 _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               });
@@ -1108,7 +1149,7 @@ class _ScanPageState extends State<ScanPage> {
                               if (departmentId != 0 || locationId != 0) {
                                 BlocProvider.of<CountBloc>(context)
                                     .add(PostCountScanAssetListEvent([
-                                  CountScan_OutputModel(
+                                  TempCountScan_OutputModel(
                                       ASSETS_CODE:
                                           _barCodeController.text.trim(),
                                       PLAN_CODE: planCode,
@@ -1119,7 +1160,8 @@ class _ScanPageState extends State<ScanPage> {
                                           ? "-"
                                           : _remarkController.text.trim(),
                                       STATUS_ID: statusId,
-                                      CHECK_DATE: DateTime.now().toString())
+                                      CHECK_DATE:
+                                          DateTime.now().toIso8601String())
                                 ]));
                               } else {
                                 AlertWarningNew().alertShowOK(context,
@@ -1153,7 +1195,7 @@ class _ScanPageState extends State<ScanPage> {
                                     _barCodeController.text = res;
                                     BlocProvider.of<CountBloc>(context)
                                         .add(PostCountScanAssetListEvent([
-                                      CountScan_OutputModel(
+                                      TempCountScan_OutputModel(
                                           ASSETS_CODE:
                                               _barCodeController.text.trim(),
                                           PLAN_CODE: planCode,
@@ -1164,7 +1206,8 @@ class _ScanPageState extends State<ScanPage> {
                                               ? "-"
                                               : _remarkController.text.trim(),
                                           STATUS_ID: statusId,
-                                          CHECK_DATE: DateTime.now().toString())
+                                          CHECK_DATE:
+                                              DateTime.now().toIso8601String())
                                     ]));
                                     _barcodeFocusNode.requestFocus();
                                   }

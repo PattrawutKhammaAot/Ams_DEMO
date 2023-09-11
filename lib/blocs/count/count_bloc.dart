@@ -6,6 +6,7 @@ import 'package:ams_count/models/count/CountScan_output.dart';
 import 'package:ams_count/models/count/countScanAssetsModel.dart';
 import 'package:ams_count/models/count/listImageAssetModel.dart';
 import 'package:ams_count/models/count/main/countScanAssetMain.dart';
+import 'package:ams_count/models/count/tempCountScanAsset/tempcountScanAssetOuput.dart';
 import 'package:ams_count/models/count/uploadImage_output_Model.dart';
 import 'package:ams_count/widgets/alert_new.dart';
 import 'package:bloc/bloc.dart';
@@ -190,20 +191,29 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           .map<CountPlanModel>((json) => CountPlanModel.fromJson(json))
           .toList();
 
+      printInfo(info: "testttt${post.length}");
+
       if (response['status'] == "SUCCESS") {
         var itemSql = await CountPlanModel().queryAllRows();
         if (itemSql.isEmpty) {
           for (var item in post) {
             await CountPlanModel().insert(item.toJson());
           }
+
+          printInfo(info: "success");
         } else {
-          DbSqlite().deleteAll(tableName: CountPlanField.TABLE_NAME);
+          printInfo(info: "NotEmptysuccess");
+          await DbSqlite().deleteAll(tableName: CountPlanField.TABLE_NAME);
           for (var item in post) {
             await CountPlanModel().insert(item.toJson());
+            printInfo(info: "CheckedPost ${item.toJson()}");
           }
         }
+      } else {
+        printInfo(info: "Unsuccess");
       }
-      printInfo(info: "${response['data']}");
+      // printInfo(info: "${response['data']}");
+      // printInfo(info: "${response['data']}");
 
       return post;
     } catch (e, s) {
@@ -319,10 +329,12 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   }
 
   Future<CountScanMain> fetchCountScanASsetsModelList(
-      List<CountScan_OutputModel> output) async {
+      List<TempCountScan_OutputModel> output) async {
     var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
+
+    printInfo(info: "${output[0].toJson()}");
 
     try {
       Response responese = await dio.post(
@@ -350,7 +362,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   }
 
   Future<CountScanAssetsModel> fetchCountScanAlreadyChecked(
-      CountScan_OutputModel output) async {
+      TempCountScan_OutputModel output) async {
+    printInfo(info: "TestSend Bloc ${output.toJson()}");
     var configHost = await AppData.getApiUrl();
     late String token = "";
     token = await AppData.getToken();
@@ -382,7 +395,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   }
 
   Future<CountScanMain> fetchCountScanSaveAssetsModel(
-      CountScan_OutputModel output) async {
+      TempCountScan_OutputModel output) async {
+    printInfo(info: "TestSend Bloc ${output.toJson()}");
     late String token = "";
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();
@@ -409,7 +423,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   }
 
   Future<CountScanMain> fetchCountNewAssetNewPlan(
-      CountScan_OutputModel output) async {
+      TempCountScan_OutputModel output) async {
+    printInfo(info: "TestSend Bloc ${output.toJson()}");
     late String token = "";
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();

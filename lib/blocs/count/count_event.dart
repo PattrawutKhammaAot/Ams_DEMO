@@ -69,14 +69,14 @@ class GetStatusAssetsCountEvent extends CountEvent {
 
 class PostCountScanAssetListEvent extends CountEvent {
   PostCountScanAssetListEvent(this.items);
-  List<CountScan_OutputModel> items;
+  List<TempCountScan_OutputModel> items;
   @override
   List<Object> get prop => [items];
 }
 
 class PostCountScanSaveAssetEvent extends CountEvent {
   PostCountScanSaveAssetEvent(this.items);
-  CountScan_OutputModel items;
+  TempCountScan_OutputModel items;
   @override
   List<Object> get prop => [items];
 }
@@ -97,14 +97,14 @@ class UploadImageEvent extends CountEvent {
 
 class PostCountScanAlreadyCheckEvent extends CountEvent {
   PostCountScanAlreadyCheckEvent(this.items);
-  CountScan_OutputModel items;
+  TempCountScan_OutputModel items;
   @override
   List<Object> get prop => [items];
 }
 
 class PostCountSaveNewAssetNewPlanEvent extends CountEvent {
   PostCountSaveNewAssetNewPlanEvent(this.items);
-  CountScan_OutputModel items;
+  TempCountScan_OutputModel items;
   @override
   List<Object> get prop => [items];
 }

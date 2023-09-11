@@ -51,6 +51,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
             await ListCountDetailReportModel().insert(item.toJson());
           }
         } else if (querySql.isNotEmpty && param == "") {
+          printInfo(info: "GetListIsNotEmpty");
           await DbSqlite()
               .deleteAll(tableName: ListCountDetailReportField.TABLE_NAME);
           for (var item in post) {

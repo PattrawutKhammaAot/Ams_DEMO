@@ -1,6 +1,8 @@
 import 'package:ams_count/data/database/quickTypes/quickTypes.dart';
+import 'package:ams_count/models/count/tempCountScanAsset/tempcountScanAssetOuput.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -72,6 +74,19 @@ class CountScan_OutputModel {
     };
   }
 
+  Map<String, dynamic> mapModel() {
+    return {
+      CountScanOutputField.ASSETS_CODE: ASSETS_CODE,
+      CountScanOutputField.PLAN_CODE: PLAN_CODE,
+      CountScanOutputField.LOCATION_ID: LOCATION_ID,
+      CountScanOutputField.DEPARTMENT_ID: DEPARTMENT_ID,
+      CountScanOutputField.IS_SCAN_NOW: IS_SCAN_NOW,
+      CountScanOutputField.REMARK: REMARK,
+      CountScanOutputField.STATUS_ID: STATUS_ID,
+      CountScanOutputField.CHECK_DATE: CHECK_DATE,
+    };
+  }
+
   createTable(Database db, int newVersion) async {
     await db.execute('CREATE TABLE ${CountScanOutputField.TABLE_NAME} ('
         '${QuickTypes.ID_PRIMARYKEY},'
@@ -93,7 +108,7 @@ class CountScan_OutputModel {
 
       return await db.insert(CountScanOutputField.TABLE_NAME, data.toJson());
     } on Exception catch (ex) {
-      print(ex);
+      EasyLoading.showError("$ex");
       rethrow;
     }
   }
@@ -174,7 +189,7 @@ class CountScan_OutputModel {
       for (var item in itemSql) {
         if (item['statusRequest'] == "Checked") {
           BlocProvider.of<CountBloc>(context).add(PostCountScanAssetListEvent([
-            CountScan_OutputModel(
+            TempCountScan_OutputModel(
                 ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
                 PLAN_CODE: item[CountScanOutputField.PLAN_CODE],
                 LOCATION_ID: item[CountScanOutputField.LOCATION_ID],
@@ -183,11 +198,12 @@ class CountScan_OutputModel {
                     item[CountScanOutputField.IS_SCAN_NOW] == 1 ? true : false,
                 REMARK: item[CountScanOutputField.REMARK],
                 STATUS_ID: item[CountScanOutputField.STATUS_ID],
-                CHECK_DATE: item[CountScanOutputField.CHECK_DATE].toString())
+                CHECK_DATE: DateTime.now().toIso8601String())
           ]));
+          await deleteDataByID(item[CountScanOutputField.ID]);
         } else if (item['statusRequest'] == "AlreadyChecked") {
           BlocProvider.of<CountBloc>(context).add(
-              PostCountScanAlreadyCheckEvent(CountScan_OutputModel(
+              PostCountScanAlreadyCheckEvent(TempCountScan_OutputModel(
                   ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
                   PLAN_CODE: item[CountScanOutputField.PLAN_CODE],
                   LOCATION_ID: item[CountScanOutputField.LOCATION_ID],
@@ -197,10 +213,9 @@ class CountScan_OutputModel {
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
                   STATUS_ID: item[CountScanOutputField.STATUS_ID],
-                  CHECK_DATE:
-                      item[CountScanOutputField.CHECK_DATE].toString())));
+                  CHECK_DATE: DateTime.now().toIso8601String())));
           BlocProvider.of<CountBloc>(context).add(PostCountScanSaveAssetEvent(
-              CountScan_OutputModel(
+              TempCountScan_OutputModel(
                   ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
                   PLAN_CODE: item[CountScanOutputField.PLAN_CODE],
                   LOCATION_ID: item[CountScanOutputField.LOCATION_ID],
@@ -210,11 +225,11 @@ class CountScan_OutputModel {
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
                   STATUS_ID: item[CountScanOutputField.STATUS_ID],
-                  CHECK_DATE:
-                      item[CountScanOutputField.CHECK_DATE].toString())));
+                  CHECK_DATE: DateTime.now().toIso8601String())));
+          await deleteDataByID(item[CountScanOutputField.ID]);
         } else if (item['statusRequest'] == "notPlan") {
           BlocProvider.of<CountBloc>(context).add(
-              PostCountSaveNewAssetNewPlanEvent(CountScan_OutputModel(
+              PostCountSaveNewAssetNewPlanEvent(TempCountScan_OutputModel(
                   ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],
                   PLAN_CODE: item[CountScanOutputField.PLAN_CODE],
                   LOCATION_ID: item[CountScanOutputField.LOCATION_ID],
@@ -224,11 +239,9 @@ class CountScan_OutputModel {
                       : false,
                   REMARK: item[CountScanOutputField.REMARK],
                   STATUS_ID: item[CountScanOutputField.STATUS_ID],
-                  CHECK_DATE:
-                      item[CountScanOutputField.CHECK_DATE].toString())));
+                  CHECK_DATE: DateTime.now().toIso8601String())));
+          await deleteDataByID(item[CountScanOutputField.ID]);
         }
-
-        await deleteDataByID(item[CountScanOutputField.ID]);
       }
     }
   }

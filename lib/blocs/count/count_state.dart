@@ -58,6 +58,7 @@ class CheckAllErrorState extends CountState {
 // UnCheck
 class CheckUncheckLoadingState extends CountState {
   const CheckUncheckLoadingState();
+  
   @override
   List<Object> get props => [];
 }

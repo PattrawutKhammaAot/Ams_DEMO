@@ -142,6 +142,9 @@ class _ReportPageState extends State<ReportPage> {
                                     itemBuilder: ((context, index) {
                                       return CustomCardReport(
                                         onTap: () async {
+                                          printInfo(
+                                              info:
+                                                  "Test ${itemCountDetail[index].ASSET_SERIAL_NO}");
                                           var item = await Get
                                               .toNamed('/ScanPage', arguments: {
                                             'planCode': itemCountDetail[index]

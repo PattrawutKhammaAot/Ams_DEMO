@@ -135,6 +135,7 @@ class _CountPageState extends State<CountPage> {
 
           ///CheckAll
           if (state is CheckAllLoadedState) {
+            printInfo(info: "GetList${state.item.DATA}");
             setState(() {
               itemAll = state.item;
             });
@@ -145,6 +146,7 @@ class _CountPageState extends State<CountPage> {
           }
           //Check select
           if (state is CheckTotalLoadedState) {
+            printInfo(info: "GetList${state.item.DATA}");
             setState(() {
               itemCheck = state.item;
             });
