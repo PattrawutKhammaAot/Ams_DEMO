@@ -91,7 +91,7 @@ class _ScanPageState extends State<ScanPage> {
   File? imageFile;
   bool isCheckdropdown = false;
   String? selectedValue;
-
+  String statsCheck = "";
   String? typePage;
 
   dynamic _validate(String values, FocusNode focus) {
@@ -123,7 +123,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  Future _buttonSave({String? type}) async {
+  Future _buttonSaveFunc({String? type}) async {
     if (formKeyList[0].currentState!.validate() &&
         formKeyList[1].currentState!.validate()) {
       if (_departmentController.text.isNotEmpty ||
@@ -140,7 +140,7 @@ class _ScanPageState extends State<ScanPage> {
                 planCode: planCode,
                 remark: _remarkController.text,
                 statusId: statusName);
-            await _setValueUpdatetableCountScanOutputModel();
+            await _setValueUpdateTableCountScanOutputModelForButtonSaved();
           } else {
             var itemSql = await ListCountDetailReportModel()
                 .querySelectColumn(assetCode: _barCodeController.text);
@@ -274,7 +274,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  _loadDataFormReportPage() async {
+  _initialFromReportScreen() async {
     planCode = arguments?['planCode'] ?? "Please Select Plan";
     typePage = arguments?['typePage'] ?? "-";
     if (arguments?['typePage'] == "reportPage") {
@@ -315,33 +315,7 @@ class _ScanPageState extends State<ScanPage> {
     setState(() {});
   }
 
-  // _requestApiFirstTime() {
-  //   if (_barCodeController.text.isNotEmpty) {
-  //     BlocProvider.of<CountBloc>(context).add(PostCountScanAssetListEvent([
-  //       CountScan_OutputModel(
-  //           ASSETS_CODE: _barCodeController.text.trim(),
-  //           PLAN_CODE: planCode,
-  //           LOCATION_ID: locationId,
-  //           DEPARTMENT_ID: departmentId,
-  //           IS_SCAN_NOW: true,
-  //           REMARK: _remarkController.text.isEmpty
-  //               ? "-"
-  //               : _remarkController.text.trim(),
-  //           STATUS_ID: statusId)
-  //     ]));
-  //     // BlocProvider.of<CountBloc>(context).add(PostCountScanAlreadyCheckEvent(
-  //     //     CountScan_OutputModel(
-  //     //         ASSETS_CODE: _assetNoController.text,
-  //     //         PLAN_CODE: planCode,
-  //     //         LOCATION_ID: locationId,
-  //     //         DEPARTMENT_ID: departmentId,
-  //     //         IS_SCAN_NOW: true,
-  //     //         STATUS_ID: statusId,
-  //     //         REMARK: _remarkController.text)));
-  //   }
-  // }
-
-  _setvalueCountScan() async {
+  _setvalueCountScanWhenCallApiError() async {
     var itemSql = await ListCountDetailReportModel()
         .querySelectColumn(assetCode: _barCodeController.text);
     List<ListCountDetailReportModel> itemModel = [];
@@ -418,7 +392,7 @@ class _ScanPageState extends State<ScanPage> {
         });
         setState(() {});
 
-        await _setValue(status: "notPlan");
+        await _setValueTableCountScanOutputForScanBarcode(status: "notPlan");
         _barCodeController.clear();
         Navigator.pop(context);
       }, onBack: () {
@@ -432,7 +406,7 @@ class _ScanPageState extends State<ScanPage> {
       if (departmentId == 0 && locationId != 0) {
         if (locationId == itemId.BEFORE_LOCATION_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         } else {
           AlertSnackBar.show(
@@ -441,14 +415,14 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         }
       } // select Department Only
       else if (departmentId != 0 && locationId == 0) {
         if (departmentId == itemId.BEFORE_DEPARTMENT_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         } else {
           AlertSnackBar.show(
@@ -457,7 +431,7 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         }
       }
@@ -466,7 +440,7 @@ class _ScanPageState extends State<ScanPage> {
         if (departmentId == itemId.BEFORE_DEPARTMENT_ID &&
             locationId == itemId.BEFORE_LOCATION_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         } else {
           AlertSnackBar.show(
@@ -475,7 +449,7 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValue();
+            await _setValueTableCountScanOutputForScanBarcode();
           });
         }
       }
@@ -543,7 +517,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  _setValueUpdatetableCountScanOutputModel() async {
+  _setValueUpdateTableCountScanOutputModelForButtonSaved() async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
@@ -581,7 +555,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  _setValue({String? status}) async {
+  _setValueTableCountScanOutputForScanBarcode({String? status}) async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
@@ -637,8 +611,6 @@ class _ScanPageState extends State<ScanPage> {
 
     printInfo(info: "${item}");
   }
-
-  String statsCheck = "";
 
   _checkStatus(ListCountDetailReportModel itemModel,
       {dynamic Function()? onPress}) async {
@@ -700,7 +672,7 @@ class _ScanPageState extends State<ScanPage> {
       }
       statsCheck = "Checked";
       await _setUpdateTableListCountPlanField(itemModel);
-      await _setValue();
+      await _setValueTableCountScanOutputForScanBarcode();
       setState(() {
         _barCodeController.clear();
       });
@@ -746,7 +718,7 @@ class _ScanPageState extends State<ScanPage> {
             }
             _statusAssetCountModel = state.item;
 
-            _loadDataFormReportPage();
+            _initialFromReportScreen();
           } else if (state is GetStatusAssetErrorState) {
             var itemSql = await StatusAssetCountModel().query();
             _statusAssetCountModel = itemSql
@@ -754,7 +726,7 @@ class _ScanPageState extends State<ScanPage> {
                 .toList();
 
             setState(() {});
-            _loadDataFormReportPage();
+            _initialFromReportScreen();
           }
 
           if (state is CountScanAssetsListLoadedState) {
@@ -882,7 +854,7 @@ class _ScanPageState extends State<ScanPage> {
               });
             }
           } else if (state is CountScanAssetsListErrorState) {
-            await _setvalueCountScan();
+            await _setvalueCountScanWhenCallApiError();
           }
           if (state is CountScanSaveAssetsLoadedState) {
             if (state.item.STATUS == "SUCCESS") {
@@ -1184,34 +1156,44 @@ class _ScanPageState extends State<ScanPage> {
                               _validate(value!, _barcodeFocusNode),
                           suffixIcon: IconButton(
                               onPressed: () async {
-                                var res = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SimpleBarcodeScannerPage(),
-                                    ));
-                                setState(() {
-                                  if (res is String) {
-                                    _barCodeController.text = res;
-                                    BlocProvider.of<CountBloc>(context)
-                                        .add(PostCountScanAssetListEvent([
-                                      TempCountScan_OutputModel(
-                                          ASSETS_CODE:
-                                              _barCodeController.text.trim(),
-                                          PLAN_CODE: planCode,
-                                          LOCATION_ID: locationId,
-                                          DEPARTMENT_ID: departmentId,
-                                          IS_SCAN_NOW: true,
-                                          REMARK: _remarkController.text.isEmpty
-                                              ? "-"
-                                              : _remarkController.text.trim(),
-                                          STATUS_ID: statusId,
-                                          CHECK_DATE:
-                                              DateTime.now().toIso8601String())
-                                    ]));
-                                    _barcodeFocusNode.requestFocus();
-                                  }
-                                });
+                                if (departmentId != 0 || locationId != 0) {
+                                  var res = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SimpleBarcodeScannerPage(),
+                                      ));
+                                  setState(() {
+                                    if (res is String) {
+                                      _barCodeController.text = res;
+                                      BlocProvider.of<CountBloc>(context)
+                                          .add(PostCountScanAssetListEvent([
+                                        TempCountScan_OutputModel(
+                                            ASSETS_CODE:
+                                                _barCodeController.text.trim(),
+                                            PLAN_CODE: planCode,
+                                            LOCATION_ID: locationId,
+                                            DEPARTMENT_ID: departmentId,
+                                            IS_SCAN_NOW: true,
+                                            REMARK: _remarkController
+                                                    .text.isEmpty
+                                                ? "-"
+                                                : _remarkController.text.trim(),
+                                            STATUS_ID: statusId,
+                                            CHECK_DATE: DateTime.now()
+                                                .toIso8601String())
+                                      ]));
+                                      _barcodeFocusNode.requestFocus();
+                                    }
+                                  });
+                                } else {
+                                  AlertSnackBar.show(
+                                      title: 'Warning',
+                                      message:
+                                          "กรุณา เลือกสถานที่ หรือ แผนก ของสินทรัพย์ก่อนแสกน",
+                                      type: ReturnStatus.WARNING,
+                                      crossPage: true);
+                                }
                               },
                               icon: Icon(Icons.qr_code)),
                         ),
@@ -1373,7 +1355,7 @@ class _ScanPageState extends State<ScanPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        _button()
+                        _buttonWidget()
                       ],
                     ),
                   ),
@@ -1386,7 +1368,7 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  Widget _button() {
+  Widget _buttonWidget() {
     return Row(
       children: [
         SizedBox(
@@ -1402,9 +1384,7 @@ class _ScanPageState extends State<ScanPage> {
               leading: LineIcons.save,
               iconColor: Colors.white,
               color: colorActive,
-              onPress: () async {
-                await _buttonSave();
-              },
+              onPress: () async => await _buttonSaveFunc(),
             ),
           ),
         ),

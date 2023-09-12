@@ -37,7 +37,9 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
           'Count/GetListCountDetailForReport', "planCode=${param}",
           useAuth: true);
 
-      if (response['status'] == "SUCCESS") {
+      printInfo(info: "${response['data']}");
+
+      if (response['message'] == "SUCCESS") {
         var itemData = response['data'];
 
         List<ListCountDetailReportModel> post = itemData

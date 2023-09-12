@@ -208,8 +208,8 @@ class _LoginPageState extends State<LoginPage> {
                     'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
                     style: const TextStyle(fontSize: 12),
                   ),
-                  const Text(
-                    'Modified On: 9 Sep 2023 ',
+                  Text(
+                    'Modified On: 12 Sep 2023 FIX VERSION ${_packageInfo.buildNumber}',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

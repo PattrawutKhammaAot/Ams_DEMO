@@ -39,12 +39,7 @@ class _CountPageState extends State<CountPage> {
   String? mode;
 
   TextEditingController _searchController = TextEditingController();
-  final List<String> items = [
-    'Item1',
-    'Item2',
-    'Item3',
-    'Item4',
-  ];
+
   String? selectedValue;
   @override
   void initState() {
@@ -57,24 +52,6 @@ class _CountPageState extends State<CountPage> {
     });
 
     super.initState();
-  }
-
-  Future<void> loadData() async {
-    if (await AppData.getMode() == "Online") {
-      await ResponseModel().update(
-          check: itemCheck.DATA,
-          uncheck: itemUncheck.DATA,
-          total: itemAll.DATA);
-    } else if (await AppData.getMode() == "Offline") {
-      var itemSql =
-          await ResponseModel().query(await databaseInitialState.database);
-      if (itemSql.isNotEmpty) {
-        itemCheck.DATA = await itemSql[0]['${CheckAllField.CHECK}'];
-        itemUncheck.DATA = await itemSql[0]['${CheckAllField.UNCHECK}'];
-        itemAll.DATA = await itemSql[0]['${CheckAllField.TOTAL}'];
-      }
-    }
-    setState(() {});
   }
 
   void _serachItemModel() {
@@ -97,11 +74,8 @@ class _CountPageState extends State<CountPage> {
       await DbSqlite().deleteAll(tableName: '${CountPlanField.TABLE_NAME}');
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
-
-        printInfo(info: "Test Init");
       }
     } else {
-      printInfo(info: "Test InitEmpty");
       for (var item in itemModel) {
         await CountPlanModel().insert(item.toJson());
       }
@@ -122,8 +96,7 @@ class _CountPageState extends State<CountPage> {
             await _addDataSqlite();
           } else if (state is GetListCountPlanErrorState) {
             var itemSql = await CountPlanModel().queryAllRows();
-            var itemListCheck = await ListCountDetailReportModel()
-                .queryListCheck(statusCheck: "Checked");
+
             setState(() {
               itemModel =
                   itemSql.map((item) => CountPlanModel.fromJson(item)).toList();
