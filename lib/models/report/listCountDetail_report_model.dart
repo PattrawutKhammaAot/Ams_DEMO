@@ -387,6 +387,30 @@ class ListCountDetailReportModel {
       return [];
     }
   }
+
+  Future<List<Map<String, dynamic>>> queryPlanAndAsset({
+    String? plan,
+    String? asset,
+  }) async {
+    final db = await databaseInitialState.database;
+    bool databaseExists = await databaseFactory.databaseExists(db.path);
+
+    if (databaseExists == true) {
+      var query = await db.query(
+        ListCountDetailReportField.TABLE_NAME,
+        columns: [
+          ListCountDetailReportField.STATUS_CHECK,
+        ],
+        where:
+            '${ListCountDetailReportField.PLAN_CODE} = ? AND ${ListCountDetailReportField.ASSET_CODE} = ?',
+        whereArgs: [plan, asset], // แทนค่าใน where clause
+      );
+
+      return query;
+    } else {
+      return [];
+    }
+  }
 }
 
 class ListCountDetailReportField {

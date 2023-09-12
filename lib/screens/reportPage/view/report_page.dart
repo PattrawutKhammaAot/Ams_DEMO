@@ -1,5 +1,6 @@
 import 'package:ams_count/blocs/report/report_bloc.dart';
 import 'package:ams_count/config/app_constants.dart';
+import 'package:ams_count/config/app_data.dart';
 import 'package:ams_count/models/count/countPlanModel.dart';
 import 'package:ams_count/models/report/listCountDetail_report_model.dart';
 import 'package:ams_count/widgets/alert.dart';
@@ -77,10 +78,8 @@ class _ReportPageState extends State<ReportPage> {
         }),
         BlocListener<ReportBloc, ReportState>(listener: (context, state) async {
           if (state is GetListCountDetailLoadedState) {
-            if (itemCountDetail.isEmpty) {
-              itemCountDetail = state.item;
-              tempitemCountDetail = state.item;
-            }
+            itemCountDetail = state.item;
+            tempitemCountDetail = state.item;
 
             setState(() {});
           } else if (state is GetListCountDetailErrorState) {
@@ -188,15 +187,20 @@ class _ReportPageState extends State<ReportPage> {
                                             'typePage': "reportPage"
                                           });
 
-                                          if (item['GetBack'] != null) {
-                                            printInfo(info: "IsNot");
+                                          if (await item['GetBack'] != null) {
                                             BlocProvider.of<ReportBloc>(context)
                                                 .add(
                                                     GetListCountDetailForReportEvent(
-                                                        ""));
+                                                        itemCountDetail[index]
+                                                            .PLAN_CODE
+                                                            .toString()));
                                             BlocProvider.of<CountBloc>(context)
                                                 .add(
                                                     const GetListCountPlanEvent());
+
+                                            printInfo(
+                                                info:
+                                                    "Test Get Back ${itemCountDetail[index].PLAN_CODE.toString()}");
                                             setState(() {});
                                           }
                                         },

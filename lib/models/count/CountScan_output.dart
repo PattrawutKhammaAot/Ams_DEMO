@@ -202,6 +202,8 @@ class CountScan_OutputModel {
           ]));
           await deleteDataByID(item[CountScanOutputField.ID]);
         } else if (item['statusRequest'] == "AlreadyChecked") {
+          printInfo(
+              info: "++++++++++++++++++++AlreadyChecked++++++++++++++++++");
           BlocProvider.of<CountBloc>(context).add(
               PostCountScanAlreadyCheckEvent(TempCountScan_OutputModel(
                   ASSETS_CODE: item[CountScanOutputField.ASSETS_CODE],

@@ -521,7 +521,8 @@ class _ScanPageState extends State<ScanPage> {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
-    printInfo(info: "${item}");
+    var itemList = await ListCountDetailReportModel()
+        .queryPlanAndAsset(plan: planCode, asset: _barCodeController.text);
     for (var items in item) {
       if (items[CountScanOutputField.ASSETS_CODE] == _barCodeController.text &&
           items[CountScanOutputField.PLAN_CODE] == planCode) {
@@ -529,6 +530,20 @@ class _ScanPageState extends State<ScanPage> {
         break; // หยุดลูปเมื่อพบข้อมูลที่ตรงกับเงื่อนไข
       }
     }
+    String? _statusChecked;
+
+    for (var items in itemList) {
+      if (items[ListCountDetailReportField.STATUS_CHECK] == "Checked") {
+        _statusChecked = "AlreadyChecked";
+        printInfo(info: "_statusChecked");
+      } else {
+        _statusChecked = "Checked";
+        printInfo(info: "Checked");
+      }
+    }
+    setState(() {});
+
+    printInfo(info: "${_statusChecked}");
     if (!foundMatch) {
       // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
       await CountScan_OutputModel()
@@ -540,7 +555,7 @@ class _ScanPageState extends State<ScanPage> {
         STATUS_ID: statusId,
         IS_SCAN_NOW: true,
         REMARK: _remarkController.text,
-        STATUS_REQUEST: "Checked",
+        STATUS_REQUEST: _statusChecked,
         CHECK_DATE: DateTime.now().toIso8601String(),
       ))
           .then((value) {
