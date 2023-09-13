@@ -73,6 +73,14 @@ class _LoginPageState extends State<LoginPage> {
             //Get.toNamed('/');
             //Navigator.pushNamed(context, AppRoute.home);
           }
+          // else {
+          //   AlertSnackBar.show(
+          //       title: "WARNING",
+          //       message:
+          //           "User Is Already Logged Another In From Another Device or Computer !");
+          //   EasyLoading.showError(
+          //       "User Is Already Logged Another In From Another Device or Computer !");
+          // }
         },
         child: SizedBox(
           width: double.infinity,
@@ -209,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Modified On: 12 Sep 2023 FIX VERSION ${_packageInfo.buildNumber}',
+                    'Modified On: 13 Sep 2023',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

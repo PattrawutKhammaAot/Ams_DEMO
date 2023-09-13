@@ -380,11 +380,8 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           "Locale-Id": await AppData.getLocalId(),
         }),
       );
-      printInfo(info: "${responese.data}");
-
-      CountScanAssetsModel post =
-          CountScanAssetsModel.fromJson(responese.data['data']);
-      printInfo(info: "Sned ${post.PLAN_DETAIL_ID}");
+      CountScanAssetsModel post = CountScanAssetsModel();
+      post = CountScanAssetsModel.fromJson(responese.data['data']);
 
       return post;
     } catch (e, s) {
@@ -426,7 +423,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
   Future<CountScanMain> fetchCountNewAssetNewPlan(
       TempCountScan_OutputModel output) async {
-    printInfo(info: "TestSend Bloc ${output.toJson()}");
+    printInfo(info: "TestSendNotPlan Bloc ${output.toJson()}");
     late String token = "";
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();

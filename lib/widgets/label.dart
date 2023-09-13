@@ -23,12 +23,13 @@ class Label extends StatelessWidget {
     return Text(
       text ?? "",
       textAlign: textAlign,
+      softWrap: true,
       maxLines: maxLine,
       style: TextStyle(
         color: color,
         fontSize: fontSize,
         fontWeight: fontWeight,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
       ),
     );
   }

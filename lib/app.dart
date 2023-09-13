@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
+import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
 import 'package:ams_count/blocs/report/report_bloc.dart';
 import 'package:ams_count/blocs/transfer/transfer_bloc.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
@@ -80,6 +81,8 @@ class _AppState extends State<App> {
         BlocProvider(create: (_) => AssetsBloc()..add(AssetsObserve())),
         BlocProvider(create: (_) => ReportBloc()..add(ReportObserve())),
         BlocProvider(create: (_) => TransferBloc()..add(TransferObserve())),
+        BlocProvider(
+            create: (_) => AuthenticateBloc()..add(AuthenticateObserve())),
       ],
       child: const AppView(),
     );

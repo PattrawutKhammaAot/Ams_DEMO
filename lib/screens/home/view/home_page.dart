@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
+import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
 import 'package:ams_count/models/count/countPlanModel.dart';
 import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
+import 'package:ams_count/widgets/alert.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +21,7 @@ import '../../../config/app_constants.dart';
 import '../../../config/app_data.dart';
 import '../../../data/database/dbsqlite.dart';
 import '../../../data/models/dashboard/DashboardCountPlan.dart';
+import '../../../models/authenticate/logoutModel.dart';
 import '../../../models/count/responeModel.dart';
 import '../../../models/master/statusAssetCountModel.dart';
 import '../../../widgets/custom_card_menu.dart';
@@ -171,6 +174,17 @@ class _HomePageState extends State<HomePage> {
               // }
 
               // dashBoardCountPlan = itemSql.map((e) => Data.fromJson(e));
+            }
+          }),
+          BlocListener<AuthenticateBloc, AuthenticateState>(
+              listener: (context, state) async {
+            if (state is LogoutLoadedState) {
+              await AppData.setToken("");
+              Get.toNamed('/Login');
+            } else {
+              AlertSnackBar.show(
+                  title: "Internet Exception",
+                  message: "Please Connection For Logout");
             }
           })
         ],
@@ -602,9 +616,11 @@ class CustomDrawer extends StatelessWidget {
         builder: (context) => ListTile(
           leading: const Icon(Icons.exit_to_app),
           title: const Text('Log out'),
-          onTap: () => {
-            AppData.setToken(""),
-            Get.toNamed('/Login'),
+          onTap: () async {
+            String username = await AppData.getUserName();
+
+            BlocProvider.of<AuthenticateBloc>(context).add(
+                LogoutEvent(LogoutModel(USERNAME: username, PASSWORD: "-")));
           },
         ),
       );

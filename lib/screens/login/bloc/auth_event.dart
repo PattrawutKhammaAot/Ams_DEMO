@@ -10,18 +10,16 @@ abstract class AuthEvent extends Equatable {
 
 class AuthObserve extends AuthEvent {}
 
-class AuthEvent_Login extends AuthEvent{
- final String username;
- final String password;
+class AuthEvent_Login extends AuthEvent {
+  final String username;
+  final String password;
 
-  AuthEvent_Login(this.username,this.password);
+  AuthEvent_Login(this.username, this.password);
 }
 
-class AuthEvent_Logout extends AuthEvent{
-
+class AuthEvent_Logout extends AuthEvent {
+  final String username;
+  AuthEvent_Logout(this.username);
 }
 
-class AutnEvent_TestConncetion extends AuthEvent{
-
-}
-
+class AutnEvent_TestConncetion extends AuthEvent {}

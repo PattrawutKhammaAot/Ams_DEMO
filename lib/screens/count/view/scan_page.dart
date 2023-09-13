@@ -239,11 +239,11 @@ class _ScanPageState extends State<ScanPage> {
     );
     if (pickedFile != null) {
       imageFile = await File(pickedFile.path);
-
       BlocProvider.of<CountBloc>(context).add(UploadImageEvent(
           UploadImageModelOutput(
               ASSETS_CODE: _barCodeController.text.toUpperCase(),
               FILES: imageFile!)));
+
       setState(() {});
     }
   }
@@ -750,14 +750,6 @@ class _ScanPageState extends State<ScanPage> {
             if (data != null) {
               itemCountListModel = CountScanAssetsModel.fromJson(data);
 
-              if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!") {
-                AlertSnackBar.show(
-                    title: '${error}',
-                    message: "กรุณาใส่ Barcode ใหม่",
-                    type: ReturnStatus.WARNING,
-                    crossPage: true);
-              }
-
               if (state.item.STATUS == "WARNING") {
                 AlertSnackBar.show(
                     title: 'Warning',
@@ -792,8 +784,7 @@ class _ScanPageState extends State<ScanPage> {
                 _useDateController.text = formattedDate;
 
                 setState(() {});
-              }
-              if (state.item.MESSAGE == "อัพเดทข้อมูลสำเร็จ") {
+              } else if (state.item.MESSAGE == "อัพเดทข้อมูลสำเร็จ") {
                 error = state.item.MESSAGE;
                 _serialNumberController.text =
                     itemCountListModel.ASSET_SERIALNO ?? "-";
@@ -822,16 +813,18 @@ class _ScanPageState extends State<ScanPage> {
 
                 setState(() {});
               }
-            }
-            if (state.item.MESSAGE ==
-                'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
+              _barCodeController.clear();
+              _barcodeFocusNode.requestFocus();
+            } else if (data == null &&
+                state.item.MESSAGE ==
+                    'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
                   desc: "${state.item.MESSAGE}", onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
                     PostCountScanAlreadyCheckEvent(TempCountScan_OutputModel(
-                        ASSETS_CODE: _barCodeController.text,
+                        ASSETS_CODE: _barCodeController.text.trim(),
                         PLAN_CODE: planCode,
                         LOCATION_ID: locationId,
                         DEPARTMENT_ID: departmentId,
@@ -839,22 +832,25 @@ class _ScanPageState extends State<ScanPage> {
                         STATUS_ID: statusId,
                         REMARK: _remarkController.text,
                         CHECK_DATE: DateTime.now().toIso8601String())));
-                _assetNoFocusNode.requestFocus();
+                _barCodeController.clear();
+                _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
                 Navigator.pop(context);
               });
-            }
-            if (state.item.MESSAGE ==
-                "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่") {
+            } else if (state.item.MESSAGE ==
+                    "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่" &&
+                data == null) {
               setState(() {});
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
-                  desc: "${error}", onPress: () {
+                  desc:
+                      "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่",
+                  onPress: () {
                 BlocProvider.of<CountBloc>(context).add(
                     PostCountSaveNewAssetNewPlanEvent(TempCountScan_OutputModel(
-                        ASSETS_CODE: _assetNoController.text,
+                        ASSETS_CODE: _barCodeController.text.trim(),
                         PLAN_CODE: planCode,
                         LOCATION_ID: locationId,
                         DEPARTMENT_ID: departmentId,
@@ -862,12 +858,24 @@ class _ScanPageState extends State<ScanPage> {
                         STATUS_ID: statusId,
                         REMARK: _remarkController.text,
                         CHECK_DATE: DateTime.now().toIso8601String())));
-                _assetNoFocusNode.requestFocus();
+                _barCodeController.clear();
+                _barcodeFocusNode.requestFocus();
                 Navigator.pop(context);
               }, onBack: () {
                 Navigator.pop(context);
               });
+            } else if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!" &&
+                data == null) {
+              AlertSnackBar.show(
+                  title: 'Warning',
+                  message: "${state.item.MESSAGE}",
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+              _barCodeController.clear();
+              _barcodeFocusNode.requestFocus();
             }
+            // _barCodeController.clear();
+            // _barcodeFocusNode.requestFocus();
           } else if (state is CountScanAssetsListErrorState) {
             await _setvalueCountScanWhenCallApiError();
           }
@@ -922,22 +930,30 @@ class _ScanPageState extends State<ScanPage> {
           }
 
           if (state is PostCountScanAlreadyCheckLoadedState) {
-            _serialNumberController.text = state.item.ASSET_SERIALNO ?? "-";
-            _nameController.text = state.item.ASSETNAME ?? "-";
-            _classController.text = state.item.CLASSNAME ?? "-";
-            _remarkController.text = state.item.REMARK ?? "";
-            _assetNoController.text = state.item.ASSET_CODE ?? "";
+            if (state.item.ASSET_CODE != null) {
+              printInfo(info: "NullChecked");
 
-            _serialNumberController.text = state.item.ASSET_SERIALNO ?? "";
-            _useDateController.text = state.item.ASSET_DATEOFUSE ?? "-";
-            statusId = _statusAssetCountModel
-                    .firstWhere((element) =>
-                        element.STATUS_NAME == state.item.STATUS_NAME)
-                    .STATUS_ID ??
-                15;
+              _serialNumberController.text = state.item.ASSET_SERIALNO ?? "-";
+              _nameController.text = state.item.ASSETNAME ?? "-";
+              _classController.text = state.item.CLASSNAME ?? "-";
+              _remarkController.text = state.item.REMARK ?? "-";
+              _assetNoController.text = state.item.ASSET_CODE ?? "-";
+
+              _serialNumberController.text = state.item.ASSET_SERIALNO ?? "";
+              _useDateController.text = state.item.ASSET_DATEOFUSE ?? "-";
+              if (state.item.STATUS_NAME != null) {
+                statusId = _statusAssetCountModel
+                        .firstWhere((element) =>
+                            element.STATUS_NAME == state.item.STATUS_NAME)
+                        .STATUS_ID ??
+                    15;
+              } else {
+                statusId = 15;
+              }
+            }
+
             setState(() {});
           }
-          setState(() {});
         })
       ],
       child: Scaffold(
@@ -964,7 +980,9 @@ class _ScanPageState extends State<ScanPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
-                      onDoubleTap: () => Get.toNamed('/ViewDatabase'),
+                      onDoubleTap: () async {
+                        Get.toNamed('/ViewDatabase');
+                      },
                       child: Label("Plan : ${planCode}")),
                 ),
               )),

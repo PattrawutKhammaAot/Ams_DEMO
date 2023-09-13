@@ -56,7 +56,8 @@ class _CountPageState extends State<CountPage> {
 
   void _serachItemModel() {
     List<CountPlanModel> searchResults = _tempitemModel
-        .where((element) => element.PLAN_CODE == _searchController.text)
+        .where((element) =>
+            element.PLAN_CODE == _searchController.text.toUpperCase())
         .toList();
     if (searchResults.isNotEmpty) {
       itemModel = searchResults;
@@ -193,12 +194,15 @@ class _CountPageState extends State<CountPage> {
                             padding: const EdgeInsets.only(top: 15),
                             child: Column(
                               children: [
-                                Expanded(
-                                  child: Label(
-                                    "Total\n${itemAll.DATA}",
-                                    color: colorPrimary,
-                                    fontSize: 20,
-                                  ),
+                                Label(
+                                  "Total",
+                                  color: colorPrimary,
+                                  fontSize: 20,
+                                ),
+                                Label(
+                                  "${itemAll.DATA}",
+                                  color: colorPrimary,
+                                  fontSize: 20,
                                 ),
                               ],
                             ),

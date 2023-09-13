@@ -15,6 +15,7 @@ import '../../../main.dart';
 import '../../../data/models/default_response.dart';
 import '../../../data/network/providers/api_controller.dart';
 import '../../../data/repositories/login/login_repository.dart';
+import '../../../widgets/alert.dart';
 
 part 'auth_event.dart';
 
@@ -45,21 +46,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final response =
               await LoginRepository().LoginUser(username, password);
 
-          printInfo(info: "+++++++++++${response.data}");
-          printInfo(info: "+++++++++++${response.message}");
-          printInfo(info: "+++++++++++${response.result}");
           if (response.result == "SUCCESS") {
             emit(state.copyWith(status: FetchStatus.success));
             EasyLoading.showSuccess("Success !");
             Get.toNamed('/');
           } else {
-            printInfo(info: "++++++++++++++++++++${response.message}");
             emit(state.copyWith(status: FetchStatus.failed));
             EasyLoading.showError(response.message!);
           }
         }
       } catch (e) {
-        printInfo(info: "++++++++++++++++++++${e}");
         emit(state.copyWith(status: FetchStatus.failed));
         EasyLoading.showError(e.toString());
       }
@@ -83,6 +79,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             .getData('Authenticate/TestConnection', "", useAuth: false);
 
         var ResultResponse = DefaultResponse.fromJson(response);
+        printInfo(info: "Respone${ResultResponse.message}");
         if (kDebugMode) {
           // print(response);
         }
@@ -91,6 +88,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             status: FetchStatus.success,
           ));
         } else {
+          AlertSnackBar.show(
+              title: "WARNING",
+              message:
+                  "User Is Already Logged Another In From Another Device or Computer !");
           emit(state.copyWith(
             status: FetchStatus.connectionFailed,
           ));

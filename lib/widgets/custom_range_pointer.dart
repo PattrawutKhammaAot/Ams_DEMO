@@ -54,7 +54,7 @@ class CustomRangePoint extends StatelessWidget {
                               style: DefaultTextStyle.of(context).style,
                               children: <TextSpan>[
                                 TextSpan(
-                                  text: '${valueRangePointer?.toInt() ?? "-"}/',
+                                  text: '${valueRangePointer?.toInt() ?? "-"}',
                                   style: TextStyle(
                                     fontFamily: 'Times',
                                     fontSize: 16,
@@ -63,14 +63,14 @@ class CustomRangePoint extends StatelessWidget {
                                     overflow: TextOverflow.clip,
                                   ),
                                 ),
-                                TextSpan(
-                                    text: '${allItem?.toInt() ?? "-"}',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: colorText,
-                                      fontWeight: FontWeight.w400,
-                                      overflow: TextOverflow.ellipsis,
-                                    )),
+                                // TextSpan(
+                                //     text: '${allItem?.toInt() ?? "-"}',
+                                //     style: TextStyle(
+                                //       fontSize: 16,
+                                //       color: colorText,
+                                //       fontWeight: FontWeight.w400,
+                                //       overflow: TextOverflow.ellipsis,
+                                //     )),
                               ],
                             ),
                           ),

@@ -22,9 +22,7 @@ class AppData {
     // await storage.write(key: "ApiUrl", value: value);
     await prefs.setString("ApiUrl", value);
 
-    print("++++++++++++++++++++++++");
     print(value);
-    print("++++++++++++++++++++++++");
   }
 
   static dynamic getApiUrl() async {
