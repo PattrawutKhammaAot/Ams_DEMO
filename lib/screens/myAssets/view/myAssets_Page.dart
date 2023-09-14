@@ -283,8 +283,7 @@ class _MyAssetsPageState extends State<MyAssetsPage> {
                                                       CustomTextInputField(
                                                           isHideLable: true,
                                                           readOnly: true,
-                                                          labelText:
-                                                              "Used Date",
+                                                          labelText: "Use.Date",
                                                           controller:
                                                               _usedDate),
                                                       SizedBox(

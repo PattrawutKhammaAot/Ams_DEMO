@@ -236,6 +236,17 @@ class AppData {
     return value;
   }
 
+  static setPlanReport(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("Plan", value);
+  }
+
+  static dynamic getPlan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? value = prefs.getString("Plan");
+    return value;
+  }
+
   ///Dispose
   static dispose() async {
     // await storage.delete(key: "darkMode");

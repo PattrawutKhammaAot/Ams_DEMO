@@ -269,6 +269,33 @@ class ListCountDetailReportModel {
     }
   }
 
+  Future<int> updateAll({
+    String? assetCode,
+    String? planCode,
+    String? remark = '',
+    String? statusCheck = '',
+    String? statusId,
+  }) async {
+    try {
+      final db = await databaseInitialState.database;
+      return await db.update(
+        ListCountDetailReportField.TABLE_NAME,
+        {
+          'remark': remark,
+          'checkDate': DateTime.now().toIso8601String(),
+          'statusName': statusId,
+          'statusCheck': statusCheck,
+        },
+        where:
+            '${ListCountDetailReportField.ASSET_CODE} = ? AND ${ListCountDetailReportField.PLAN_CODE} = ?',
+        whereArgs: [assetCode, planCode],
+      );
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+
   Future<int> updateForAssetAndPlan({
     String? assetCode,
     String? planCode,

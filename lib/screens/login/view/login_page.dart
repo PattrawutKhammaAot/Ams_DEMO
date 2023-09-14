@@ -213,11 +213,11 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
+                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber} FIX',
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Modified On: 13 Sep 2023',
+                    'Modified On: 14 Sep 2023',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

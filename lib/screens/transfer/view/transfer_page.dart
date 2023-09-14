@@ -68,6 +68,7 @@ class _TransferPageState extends State<TransferPage> {
       listeners: [
         BlocListener<AssetsBloc, AssetsState>(listener: (context, state) async {
           if (state is GetDetailAssetLoadedState) {
+            printInfo(info: "${state.item.BRANCH_NAME}");
             var value = TransferModel(
                 ID: state.item.ASSET_ID,
                 ASSET_NO: _assetNo.text,
@@ -297,33 +298,69 @@ class _TransferPageState extends State<TransferPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Label(
-                                              "Company : ${listTransfer[index].COMPANY ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Company :",
+                                                  color: colorPrimary,
+                                                ),
+                                                Label(
+                                                  "  ${listTransfer[index].COMPANY ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Branch :  ${listTransfer[index].BRAND ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Branch :",
+                                                  color: colorPrimary,
+                                                ),
+                                                Label(
+                                                  "  ${listTransfer[index].BRANCH ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Building :${listTransfer[index].BUILDING ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Building :  ${listTransfer[index].BUILDING ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Room :${listTransfer[index].ROOM ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Room :  ${listTransfer[index].ROOM ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Location :${listTransfer[index].LOCATION ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Location :  ${listTransfer[index].LOCATION ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Department :${listTransfer[index].DEPARTMENT ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Department :  ${listTransfer[index].DEPARTMENT ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             ),
-                                            Label(
-                                              "Owner : ${listTransfer[index].OWNER ?? "-"}",
-                                              color: colorPrimary,
+                                            Row(
+                                              children: [
+                                                Label(
+                                                  "Owner :  ${listTransfer[index].OWNER ?? "-"}",
+                                                  color: colorPrimary,
+                                                ),
+                                              ],
                                             )
                                           ],
                                         ),

@@ -199,21 +199,16 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           for (var item in post) {
             await CountPlanModel().insert(item.toJson());
           }
-
-          printInfo(info: "success");
         } else {
-          printInfo(info: "NotEmptysuccess");
           await DbSqlite().deleteAll(tableName: CountPlanField.TABLE_NAME);
           for (var item in post) {
             await CountPlanModel().insert(item.toJson());
-            printInfo(info: "CheckedPost ${item.toJson()}");
           }
         }
       } else {
-        printInfo(info: "Unsuccess");
+        printInfo(info: "${response['data']}");
+        printInfo(info: "${response['data']}");
       }
-      // printInfo(info: "${response['data']}");
-      // printInfo(info: "${response['data']}");
 
       return post;
     } catch (e, s) {

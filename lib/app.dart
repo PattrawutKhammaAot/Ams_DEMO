@@ -147,8 +147,7 @@ class _AppViewState extends State<AppView> {
                       message: 'You\'re Online Now',
                       type: ReturnStatus.SUCCESS,
                       duration: const Duration(seconds: 5));
-                  BlocProvider.of<ReportBloc>(context)
-                      .add(GetListCountDetailForReportEvent(''));
+
                   await ListImageAssetModel().uploadImageAndDelete(context);
                   await CountScan_OutputModel().sendDataToserver(context);
 

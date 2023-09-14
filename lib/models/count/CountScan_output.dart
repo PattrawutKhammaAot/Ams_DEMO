@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../blocs/report/report_bloc.dart';
 import '../../main.dart';
 import '../../blocs/count/count_bloc.dart';
 import '../../data/database/dbsqlite.dart';
@@ -201,6 +202,7 @@ class CountScan_OutputModel {
                 CHECK_DATE: DateTime.now().toIso8601String())
           ]));
           await deleteDataByID(item[CountScanOutputField.ID]);
+          printInfo(info: "${item[CountScanOutputField.ID]}");
         } else if (item['statusRequest'] == "AlreadyChecked") {
           printInfo(
               info: "++++++++++++++++++++AlreadyChecked++++++++++++++++++");
@@ -229,6 +231,7 @@ class CountScan_OutputModel {
                   STATUS_ID: item[CountScanOutputField.STATUS_ID],
                   CHECK_DATE: DateTime.now().toIso8601String())));
           await deleteDataByID(item[CountScanOutputField.ID]);
+          printInfo(info: "${item[CountScanOutputField.ID]}");
         } else if (item['statusRequest'] == "notPlan") {
           BlocProvider.of<CountBloc>(context).add(
               PostCountSaveNewAssetNewPlanEvent(TempCountScan_OutputModel(
@@ -243,9 +246,15 @@ class CountScan_OutputModel {
                   STATUS_ID: item[CountScanOutputField.STATUS_ID],
                   CHECK_DATE: DateTime.now().toIso8601String())));
           await deleteDataByID(item[CountScanOutputField.ID]);
+          printInfo(info: "${item[CountScanOutputField.ID]}");
         }
       }
     }
+
+    BlocProvider.of<ReportBloc>(context)
+        .add(GetListCountDetailForReportEvent(""));
+
+    BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
   }
 }
 

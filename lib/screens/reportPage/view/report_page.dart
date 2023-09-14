@@ -34,8 +34,8 @@ class _ReportPageState extends State<ReportPage> {
   String valueselected = '';
   @override
   void initState() {
-    // BlocProvider.of<ReportBloc>(context)
-    //     .add(GetListCountDetailForReportEvent(""));
+    BlocProvider.of<ReportBloc>(context)
+        .add(GetListCountDetailForReportEvent(""));
     BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
     super.initState();
 
@@ -80,7 +80,20 @@ class _ReportPageState extends State<ReportPage> {
           if (state is GetListCountDetailLoadedState) {
             itemCountDetail = state.item;
             tempitemCountDetail = state.item;
-
+            uncheck.text = itemCountDetail
+                .where((element) =>
+                    element.PLAN_CODE == valueselected &&
+                    element.STATUS_CHECK == "Unchecked")
+                .toList()
+                .length
+                .toString();
+            checked.text = itemCountDetail
+                .where((element) =>
+                    element.PLAN_CODE == valueselected &&
+                    element.STATUS_CHECK == "Checked")
+                .toList()
+                .length
+                .toString();
             setState(() {});
           } else if (state is GetListCountDetailErrorState) {
             var itemSql = await ListCountDetailReportModel().query();
@@ -93,7 +106,18 @@ class _ReportPageState extends State<ReportPage> {
                 .map((item) => ListCountDetailReportModel.fromJson(item))
                 .where((element) => element.PLAN_CODE == valueselected)
                 .toList();
-
+            uncheck.text = itemCountDetail
+                .where((element) => element.STATUS_CHECK == "Unchecked")
+                .toList()
+                .length
+                .toString();
+            checked.text = itemCountDetail
+                .where((element) => element.STATUS_CHECK == "Checked")
+                .toList()
+                .length
+                .toString();
+            setState(() {});
+            printInfo(info: "UNcheck");
             setState(() {});
           }
         })
@@ -103,9 +127,12 @@ class _ReportPageState extends State<ReportPage> {
           elevation: 10,
           title: Align(
             alignment: Alignment.centerLeft,
-            child: Label(
-              "Report",
-              fontSize: 18,
+            child: GestureDetector(
+              onTap: () => printInfo(info: "${valueselected}"),
+              child: Label(
+                "Report",
+                fontSize: 18,
+              ),
             ),
           ),
         ),
@@ -139,90 +166,116 @@ class _ReportPageState extends State<ReportPage> {
                                         physics: BouncingScrollPhysics(),
                                         itemCount: itemCountDetail.length,
                                         itemBuilder: ((context, index) {
-                                          return CustomCardReport(
-                                            onTap: () async {
-                                              printInfo(
-                                                  info:
-                                                      "Test ${itemCountDetail[index].ASSET_SERIAL_NO}");
-                                              var item = await Get.toNamed(
-                                                  '/ScanPage',
-                                                  arguments: {
-                                                    'planCode':
-                                                        itemCountDetail[index]
-                                                            .PLAN_CODE,
-                                                    'assetsCode':
-                                                        itemCountDetail[index]
-                                                            .ASSET_CODE,
-                                                    'locationID': itemCountDetail[
-                                                                index]
-                                                            .BEFORE_LOCATION_ID ??
-                                                        0,
-                                                    'departmentID':
-                                                        itemCountDetail[index]
-                                                                .BEFORE_DEPARTMENT_ID ??
-                                                            0,
-                                                    'statusName':
-                                                        itemCountDetail[index]
-                                                                .STATUS_NAME ??
-                                                            "-",
-                                                    'scanDate': itemCountDetail[
-                                                                    index]
-                                                                .STATUS_CHECK !=
-                                                            "Unchecked"
-                                                        ? DateFormat(
-                                                                "yyyy-MM-dd")
-                                                            .format(DateTime.parse(
-                                                                itemCountDetail[
-                                                                        index]
-                                                                    .CHECK_DATE
-                                                                    .toString()))
-                                                        : "-",
-                                                    'name':
-                                                        itemCountDetail[index]
-                                                                .ASSET_NAME ??
-                                                            "-",
-                                                    'remark':
-                                                        itemCountDetail[index]
-                                                                .REMARK ??
-                                                            "-",
-                                                    'snNo': itemCountDetail[
-                                                                index]
-                                                            .ASSET_SERIAL_NO ??
-                                                        "-",
-                                                    'class':
-                                                        itemCountDetail[index]
-                                                                .CLASS_NAME ??
-                                                            "-",
-                                                    'use.date': itemCountDetail[
-                                                                index]
-                                                            .ASSET_DATE_OF_USE ??
-                                                        "-",
-                                                    'typePage': "reportPage"
-                                                  });
+                                          return itemCountDetail[index]
+                                                      .PLAN_CODE ==
+                                                  valueselected
+                                              ? CustomCardReport(
+                                                  onTap: () async {
+                                                    printInfo(
+                                                        info:
+                                                            "Test ${itemCountDetail[index].BEFORE_LOCATION_ID}");
+                                                    var item =
+                                                        await Get.toNamed(
+                                                            '/ScanPage',
+                                                            arguments: {
+                                                          'planCode':
+                                                              itemCountDetail[
+                                                                      index]
+                                                                  .PLAN_CODE,
+                                                          'assetsCode':
+                                                              itemCountDetail[
+                                                                      index]
+                                                                  .ASSET_CODE,
+                                                          'locationID': itemCountDetail[
+                                                                          index]
+                                                                      .STATUS_CHECK !=
+                                                                  "Checked"
+                                                              ? itemCountDetail[
+                                                                          index]
+                                                                      .BEFORE_LOCATION_ID ??
+                                                                  0
+                                                              : null,
+                                                          'departmentID': itemCountDetail[
+                                                                          index]
+                                                                      .STATUS_CHECK !=
+                                                                  "Checked"
+                                                              ? itemCountDetail[
+                                                                          index]
+                                                                      .BEFORE_DEPARTMENT_ID ??
+                                                                  0
+                                                              : null,
+                                                          'statusName':
+                                                              itemCountDetail[
+                                                                          index]
+                                                                      .STATUS_NAME ??
+                                                                  "-",
+                                                          'scanDate': itemCountDetail[
+                                                                          index]
+                                                                      .STATUS_CHECK !=
+                                                                  "Unchecked"
+                                                              ? DateFormat(
+                                                                      "yyyy-MM-dd")
+                                                                  .format(DateTime.parse(itemCountDetail[
+                                                                          index]
+                                                                      .CHECK_DATE
+                                                                      .toString()))
+                                                              : "-",
+                                                          'name': itemCountDetail[
+                                                                      index]
+                                                                  .ASSET_NAME ??
+                                                              "-",
+                                                          'remark':
+                                                              itemCountDetail[
+                                                                          index]
+                                                                      .REMARK ??
+                                                                  "-",
+                                                          'snNo': itemCountDetail[
+                                                                      index]
+                                                                  .ASSET_SERIAL_NO ??
+                                                              "-",
+                                                          'class': itemCountDetail[
+                                                                      index]
+                                                                  .CLASS_NAME ??
+                                                              "-",
+                                                          'use.date':
+                                                              itemCountDetail[
+                                                                          index]
+                                                                      .ASSET_DATE_OF_USE ??
+                                                                  "-",
+                                                          'typePage':
+                                                              "reportPage",
+                                                          'statusCheck':
+                                                              itemCountDetail[
+                                                                          index]
+                                                                      .STATUS_CHECK ??
+                                                                  "-"
+                                                        });
 
-                                              if (await item['GetBack'] !=
-                                                  null) {
-                                                BlocProvider.of<ReportBloc>(
-                                                        context)
-                                                    .add(
-                                                        GetListCountDetailForReportEvent(
-                                                            itemCountDetail[
-                                                                    index]
-                                                                .PLAN_CODE
-                                                                .toString()));
-                                                BlocProvider.of<CountBloc>(
-                                                        context)
-                                                    .add(
-                                                        const GetListCountPlanEvent());
+                                                    if (await item['GetBack'] !=
+                                                        null) {
+                                                      BlocProvider.of<
+                                                                  ReportBloc>(
+                                                              context)
+                                                          .add(GetListCountDetailForReportEvent(
+                                                              itemCountDetail[
+                                                                      index]
+                                                                  .PLAN_CODE
+                                                                  .toString()));
+                                                      BlocProvider.of<
+                                                                  CountBloc>(
+                                                              context)
+                                                          .add(
+                                                              const GetListCountPlanEvent());
 
-                                                printInfo(
-                                                    info:
-                                                        "Test Get Back ${itemCountDetail[index].PLAN_CODE.toString()}");
-                                                setState(() {});
-                                              }
-                                            },
-                                            item: itemCountDetail[index],
-                                          );
+                                                      printInfo(
+                                                          info:
+                                                              "Test Get Back ${itemCountDetail[index].PLAN_CODE.toString()}");
+                                                      setState(() {});
+                                                    }
+                                                  },
+                                                  item: itemCountDetail[index],
+                                                )
+                                              : SizedBox.shrink();
                                         })))
                                 : const Expanded(
                                     child: Align(
@@ -314,6 +367,11 @@ class _ReportPageState extends State<ReportPage> {
                                                         .toString();
                                                     setState(() {});
                                                   }
+                                                  // BlocProvider.of<ReportBloc>(
+                                                  //         context)
+                                                  //     .add(
+                                                  //         GetListCountDetailForReportEvent(
+                                                  //             ""));
                                                   BlocProvider.of<ReportBloc>(
                                                           context)
                                                       .add(
