@@ -182,7 +182,7 @@ class _ScanPageState extends State<ScanPage> {
             // _remarkController.clear();
             // _barcodeFocusNode.requestFocus();
 
-            statusId = 15;
+            // statusId = 15;
           }
         });
 
@@ -224,7 +224,7 @@ class _ScanPageState extends State<ScanPage> {
         // _remarkController.clear();
         // _barcodeFocusNode.requestFocus();
 
-        statusId = 15;
+        // statusId = 15;
         setState(() {});
       }
     }
@@ -749,78 +749,43 @@ class _ScanPageState extends State<ScanPage> {
           }
 
           if (state is CountScanAssetsListLoadedState) {
-            var data = state.item.DATA;
+            if (state.item.DATA != null) {
+              itemCountListModel =
+                  CountScanAssetsModel.fromJson(state.item.DATA);
+            }
 
-            if (data != null) {
-              itemCountListModel = CountScanAssetsModel.fromJson(data);
+            if (state.item.STATUS == "WARNING") {
+              AlertSnackBar.show(
+                  title: 'Warning',
+                  message: "${state.item.MESSAGE}",
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+            }
+            if (state.item.DATA != null) {
+              _serialNumberController.text =
+                  itemCountListModel.ASSET_SERIALNO ?? "-";
+              _nameController.text = itemCountListModel.ASSETNAME ?? "-";
+              _classController.text = itemCountListModel.CLASSNAME ?? "-";
+              _remarkController.text = itemCountListModel.REMARK ?? "";
+              _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
+              _serialNumberController.text =
+                  itemCountListModel.ASSET_SERIALNO ?? "";
+              _useDateController.text =
+                  itemCountListModel.ASSET_DATEOFUSE ?? "-";
+              statusId = 15;
 
-              if (state.item.STATUS == "WARNING") {
-                AlertSnackBar.show(
-                    title: 'Warning',
-                    message: "${state.item.MESSAGE}",
-                    type: ReturnStatus.WARNING,
-                    crossPage: true);
-
-                error = state.item.MESSAGE;
-                _serialNumberController.text =
-                    itemCountListModel.ASSET_SERIALNO ?? "-";
-                _nameController.text = itemCountListModel.ASSETNAME ?? "-";
-                _classController.text = itemCountListModel.CLASSNAME ?? "-";
-                _remarkController.text = itemCountListModel.REMARK ?? "";
-                _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
-
-                _serialNumberController.text =
-                    itemCountListModel.ASSET_SERIALNO ?? "";
-                _useDateController.text =
-                    itemCountListModel.ASSET_DATEOFUSE ?? "-";
-
-                statusId = _statusAssetCountModel
-                        .firstWhere((element) =>
-                            element.STATUS_NAME ==
-                            itemCountListModel.STATUS_NAME)
-                        .STATUS_ID ??
-                    15;
-
-                DateTime? parsedDate =
-                    DateTime.tryParse(_useDateController.text);
-                String formattedDate = parsedDate != null
-                    ? DateFormat("yyyy-MM-dd").format(parsedDate)
-                    : "-";
-                _useDateController.text = formattedDate;
-
-                printInfo(info: "อัพเดทข้อมูลสำเร็จ State Warning");
-                printInfo(info: "${statusId}");
-              } else if (state.item.MESSAGE == "อัพเดทข้อมูลสำเร็จ") {
-                _serialNumberController.text =
-                    itemCountListModel.ASSET_SERIALNO ?? "-";
-                _nameController.text = itemCountListModel.ASSETNAME ?? "-";
-                _classController.text = itemCountListModel.CLASSNAME ?? "-";
-                _remarkController.text = itemCountListModel.REMARK ?? "";
-                _assetNoController.text = itemCountListModel.ASSET_CODE ?? "";
-
-                _serialNumberController.text =
-                    itemCountListModel.ASSET_SERIALNO ?? "";
-                _useDateController.text =
-                    itemCountListModel.ASSET_DATEOFUSE ?? "-";
-                statusId = _statusAssetCountModel
-                        .firstWhere((element) =>
-                            element.STATUS_NAME ==
-                            itemCountListModel.STATUS_NAME)
-                        .STATUS_ID ??
-                    15;
-
-                DateTime? parsedDate =
-                    DateTime.tryParse(_useDateController.text);
-                String formattedDate = parsedDate != null
-                    ? DateFormat("yyyy-MM-dd").format(parsedDate)
-                    : "-";
-                _useDateController.text = formattedDate;
-
-                setState(() {});
-              }
-              _barCodeController.clear();
+              DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
+              String formattedDate = parsedDate != null
+                  ? DateFormat("yyyy-MM-dd").format(parsedDate)
+                  : "-";
+              _useDateController.text = formattedDate;
               _barcodeFocusNode.requestFocus();
-            } else if (data == null &&
+              _barCodeController.clear();
+              _remarkController.text = '-';
+              setState(() {});
+            }
+
+            if (state.item.DATA == null &&
                 state.item.MESSAGE ==
                     'สินทรัพย์นี้ได้ถูกตรวจนับแล้ว ต้องการตรวจเช็คซ้ำหรือไม่') {
               AlertWarningNew().alertShow(context,
@@ -843,10 +808,10 @@ class _ScanPageState extends State<ScanPage> {
               }, onBack: () {
                 Navigator.pop(context);
               });
-            } else if (state.item.MESSAGE ==
+            }
+            if (state.item.MESSAGE ==
                     "สินทรัพย์นี้ไม่ได้อยู่ในแผนการตรวจนับ ต้องการเพิ่มเข้าไปในแผนหรือไม่" &&
-                data == null) {
-              setState(() {});
+                state.item.DATA == null) {
               AlertWarningNew().alertShow(context,
                   type: AlertType.warning,
                   title: "Warning",
@@ -869,18 +834,15 @@ class _ScanPageState extends State<ScanPage> {
               }, onBack: () {
                 Navigator.pop(context);
               });
-            } else if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!" &&
-                data == null) {
+            }
+            if (state.item.MESSAGE == "ไม่พบข้อมูลสินทรัพย์ในระบบ!" &&
+                state.item.DATA == null) {
               AlertSnackBar.show(
                   title: 'Warning',
                   message: "${state.item.MESSAGE}",
                   type: ReturnStatus.WARNING,
                   crossPage: true);
-              _barCodeController.clear();
-              _barcodeFocusNode.requestFocus();
             }
-            // _barCodeController.clear();
-            // _barcodeFocusNode.requestFocus();
           } else if (state is CountScanAssetsListErrorState) {
             await _setvalueCountScanWhenCallApiError();
           }
@@ -1165,6 +1127,7 @@ class _ScanPageState extends State<ScanPage> {
                           onFieldSubmitted: (value) {
                             if (formKeyList[1].currentState!.validate()) {
                               if (departmentId != 0 || locationId != 0) {
+                                _remarkController.text = '-';
                                 BlocProvider.of<CountBloc>(context)
                                     .add(PostCountScanAssetListEvent([
                                   TempCountScan_OutputModel(
@@ -1174,10 +1137,8 @@ class _ScanPageState extends State<ScanPage> {
                                       LOCATION_ID: locationId,
                                       DEPARTMENT_ID: departmentId,
                                       IS_SCAN_NOW: true,
-                                      REMARK: _remarkController.text.isEmpty
-                                          ? "-"
-                                          : _remarkController.text.trim(),
-                                      STATUS_ID: statusId,
+                                      REMARK: _remarkController.text.trim(),
+                                      STATUS_ID: 15,
                                       CHECK_DATE:
                                           DateTime.now().toIso8601String())
                                 ]));
