@@ -773,6 +773,7 @@ class _ScanPageState extends State<ScanPage> {
                     itemCountListModel.ASSET_SERIALNO ?? "";
                 _useDateController.text =
                     itemCountListModel.ASSET_DATEOFUSE ?? "-";
+
                 statusId = _statusAssetCountModel
                         .firstWhere((element) =>
                             element.STATUS_NAME ==
@@ -787,9 +788,9 @@ class _ScanPageState extends State<ScanPage> {
                     : "-";
                 _useDateController.text = formattedDate;
 
-                setState(() {});
+                printInfo(info: "อัพเดทข้อมูลสำเร็จ State Warning");
+                printInfo(info: "${statusId}");
               } else if (state.item.MESSAGE == "อัพเดทข้อมูลสำเร็จ") {
-                error = state.item.MESSAGE;
                 _serialNumberController.text =
                     itemCountListModel.ASSET_SERIALNO ?? "-";
                 _nameController.text = itemCountListModel.ASSETNAME ?? "-";

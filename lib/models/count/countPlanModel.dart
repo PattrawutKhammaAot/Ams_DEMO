@@ -65,6 +65,17 @@ class CountPlanModel {
         CountPlanField.UNCHECK: UNCHECK,
       };
 
+  Map<String, dynamic> toMap() => {
+        CountPlanField.ID: ID,
+        CountPlanField.PLAN_ID: PLAN_ID,
+        CountPlanField.PLAN_CODE: PLAN_CODE,
+        CountPlanField.PLAN_DETAILS: PLAN_DETAILS,
+        CountPlanField.PLAN_CHECKUSER: PLAN_CHECKUSER,
+        CountPlanField.PLAN_CHECKDATE: PLAN_CHECKDATE,
+        CountPlanField.PLAN_STATUS: PLAN_STATUS,
+        CountPlanField.CHECK_CHECK: CHECK,
+        CountPlanField.UNCHECK: UNCHECK,
+      };
   createTable(Database db, int newVersion) async {
     await db.execute('CREATE TABLE ${CountPlanField.TABLE_NAME} ('
         '${QuickTypes.ID_PRIMARYKEY},'
@@ -84,6 +95,22 @@ class CountPlanModel {
       final db = await databaseInitialState.database;
 
       return await db.insert(CountPlanField.TABLE_NAME, data);
+    } on Exception catch (ex) {
+      print(ex);
+      rethrow;
+    }
+  }
+
+  Future<void> batchInsert(List<Map<String, dynamic>> dataList) async {
+    try {
+      final db = await databaseInitialState.database;
+      final batch = db.batch();
+
+      for (final data in dataList) {
+        batch.insert(CountPlanField.TABLE_NAME, data);
+      }
+
+      final results = await batch.commit(noResult: true);
     } on Exception catch (ex) {
       print(ex);
       rethrow;

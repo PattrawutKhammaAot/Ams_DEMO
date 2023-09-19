@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
 import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
+import 'package:ams_count/blocs/bloc/check_version_app_data_bloc.dart';
 import 'package:ams_count/blocs/report/report_bloc.dart';
 import 'package:ams_count/blocs/transfer/transfer_bloc.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
+import 'package:ams_count/widgets/alert_new.dart';
+import 'package:ams_count/widgets/label.dart';
 import 'package:bot_toast/bot_toast.dart';
 
 import 'package:flutter/material.dart';
@@ -12,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'blocs/count/count_bloc.dart';
@@ -82,6 +86,9 @@ class _AppState extends State<App> {
         BlocProvider(create: (_) => ReportBloc()..add(ReportObserve())),
         BlocProvider(create: (_) => TransferBloc()..add(TransferObserve())),
         BlocProvider(
+            create: (_) =>
+                CheckVersionAppDataBloc()..add(CheckAppVersionObserver())),
+        BlocProvider(
             create: (_) => AuthenticateBloc()..add(AuthenticateObserve())),
       ],
       child: const AppView(),
@@ -142,6 +149,7 @@ class _AppViewState extends State<AppView> {
                       duration: const Duration(seconds: 10));
                 } else if (state is NetworkSuccess) {
                   AppData.setMode("Online");
+
                   AlertSnackBar.show(
                       title: 'Connection Successful',
                       message: 'You\'re Online Now',

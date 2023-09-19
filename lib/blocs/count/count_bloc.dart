@@ -199,6 +199,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
           for (var item in post) {
             await CountPlanModel().insert(item.toJson());
           }
+          // await CountPlanModel().batchInsert(postAsMap);
         } else {
           await DbSqlite().deleteAll(tableName: CountPlanField.TABLE_NAME);
           for (var item in post) {
@@ -501,20 +502,21 @@ class CountBloc extends Bloc<CountEvent, CountState> {
             File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
           }
         }
-      } else {
-        if (itemSql.isNotEmpty) {
-          for (var item in itemSql) {
-            if (item[ListImageAssetField.URL_IMAGE] != null) {
-              await ListImageAssetModel()
-                  .deleteDataByID(item[ListImageAssetField.ID]);
-
-              File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
-              EasyLoading.showError(
-                  "รูปภาพไม่สามารถอัพโหลดได้ AssetCode = ${item[ListImageAssetField.ASSETS_CODE]}");
-            }
-          }
-        }
       }
+      // else {
+      //       if (itemSql.isNotEmpty) {
+      //         for (var item in itemSql) {
+      //           if (item[ListImageAssetField.URL_IMAGE] != null) {
+      //             await ListImageAssetModel()
+      //                 .deleteDataByID(item[ListImageAssetField.ID]);
+
+      //             File(item[ListImageAssetField.URL_IMAGE]).deleteSync();
+      //             EasyLoading.showError(
+      //                 "รูปภาพไม่สามารถอัพโหลดได้ AssetCode = ${item[ListImageAssetField.ASSETS_CODE]}");
+      //           }
+      //         }
+      //       }
+      //     }
 
       return post;
     } catch (e, s) {

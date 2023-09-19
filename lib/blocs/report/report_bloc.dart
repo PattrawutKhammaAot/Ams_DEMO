@@ -47,16 +47,11 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
 
         var querySql = await ListCountDetailReportModel().query();
         if (querySql.isEmpty) {
-          for (var item in post) {
-            await ListCountDetailReportModel().insert(item.toJson());
-          }
+          await ListCountDetailReportModel().batchInsert(post);
         } else if (querySql.isNotEmpty && param == "") {
-          printInfo(info: "GetListIsNotEmpty");
           await DbSqlite()
               .deleteAll(tableName: ListCountDetailReportField.TABLE_NAME);
-          for (var item in post) {
-            await ListCountDetailReportModel().insert(item.toJson());
-          }
+          await ListCountDetailReportModel().batchInsert(post);
         }
 
         return post;

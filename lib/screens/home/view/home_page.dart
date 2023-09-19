@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
 import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
+import 'package:ams_count/blocs/bloc/check_version_app_data_bloc.dart';
 import 'package:ams_count/models/count/countPlanModel.dart';
 import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
 import 'package:ams_count/widgets/alert.dart';
@@ -12,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:iconforest_iconic/iconic.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../blocs/count/count_bloc.dart';
 import '../../../blocs/home/bloc/home_bloc.dart';
@@ -24,6 +26,7 @@ import '../../../data/models/dashboard/DashboardCountPlan.dart';
 import '../../../models/authenticate/logoutModel.dart';
 import '../../../models/count/responeModel.dart';
 import '../../../models/master/statusAssetCountModel.dart';
+import '../../../widgets/alert_new.dart';
 import '../../../widgets/custom_card_menu.dart';
 import '../../../widgets/custom_range_pointer.dart';
 import '../../../widgets/label.dart';
@@ -79,6 +82,7 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       autoChangeImage();
     });
+
     super.initState();
   }
 
@@ -125,6 +129,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       appVersion = '$version ($buildNumber)';
     });
+    BlocProvider.of<CheckVersionAppDataBloc>(context)
+        .add(CheckAppVersionEvent(int.tryParse(buildNumber)));
   }
 
   @override
@@ -135,6 +141,20 @@ class _HomePageState extends State<HomePage> {
       },
       child: MultiBlocListener(
         listeners: [
+          BlocListener<CheckVersionAppDataBloc, CheckVersionAppDataState>(
+              listener: (context, state) async {
+            if (state is CheckVersionLoadedState) {
+              // if (state.item.REQUIRE_UPDATE == true) {
+              //   AlertWarningNew().alertShowOK(context,
+              //       type: AlertType.warning,
+              //       title:
+              //           "ํเวอร์ชั่นที่ใช้ไม่ใช่เวอร์ชั่นปัจจุบัน กรุณาดาวน์โหลดเพื่อทำการอัพเดท",
+              //       onPress: () {
+              //     Navigator.pop(context);
+              //   }, text: Label("Download"));
+              // }
+            }
+          }),
           BlocListener<AssetsBloc, AssetsState>(
               listener: (context, state) async {
             if (state is GetDashBoardAssetStatusLoadedState) {

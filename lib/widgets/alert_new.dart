@@ -5,7 +5,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AlertWarningNew {
   void alertShow(BuildContext context,
-      {AlertType? type ,
+      {AlertType? type,
       String? title,
       String? desc,
       bool isHide = true,
@@ -45,6 +45,7 @@ class AlertWarningNew {
     String? desc,
     bool isHide = true,
     Function()? onPress,
+    Label? text,
   }) {
     Alert(
       context: context,
@@ -54,10 +55,11 @@ class AlertWarningNew {
       buttons: [
         DialogButton(
           color: colorActive,
-          child: Text(
-            "OK",
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
+          child: text ??
+              Text(
+                "OK",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
           onPressed: onPress,
           width: 120,
         ),

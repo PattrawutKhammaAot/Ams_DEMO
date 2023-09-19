@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ams_count/config/api_path.dart';
+import 'package:ams_count/widgets/alert_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app.dart';
+import '../../../blocs/bloc/check_version_app_data_bloc.dart';
 import '../../../main.dart';
 //import '../../../blocs/home/home.dart';
 import '../../../config/app_constants.dart';
@@ -213,11 +215,11 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber} FIX',
+                    'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Modified On: 14 Sep 2023',
+                    'Modified On: 19 Sep 2023',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

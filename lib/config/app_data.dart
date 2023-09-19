@@ -247,6 +247,17 @@ class AppData {
     return value;
   }
 
+  static setVersionBuild(String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("build", value);
+  }
+
+  static dynamic getVersionBuild() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? value = prefs.getString("build");
+    return value;
+  }
+
   ///Dispose
   static dispose() async {
     // await storage.delete(key: "darkMode");
