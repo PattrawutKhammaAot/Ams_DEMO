@@ -203,33 +203,6 @@ class ListCountDetailReportModel {
           '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
           '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
           ')');
-      printInfo(
-          info: 'CREATE TABLE ${ListCountDetailReportField.TABLE_NAME} ('
-              '${QuickTypes.ID_PRIMARYKEY},'
-              '${ListCountDetailReportField.PLAN_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.ASSET_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.ASSET_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.BEFORE_LOCATION_ID} ${QuickTypes.INTEGER},'
-              '${ListCountDetailReportField.BEFORE_LOCATION_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.BEFORE_LOCATION_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.NEW_LOCATION_ID} ${QuickTypes.INTEGER},'
-              '${ListCountDetailReportField.NEW_LOCATION_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.NEW_LOCATION_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.BEFORE_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
-              '${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.NEW_DEPARTMENT_ID} ${QuickTypes.INTEGER},'
-              '${ListCountDetailReportField.NEW_DEPARTMENT_CODE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.NEW_DEPARTMENT_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.CHECK_DATE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.STATUS_CHECK} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.STATUS_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.REMARK} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.ASSET_SERIAL_NO} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.ASSET_DATE_OF_USE} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.CLASS_NAME} ${QuickTypes.TEXT},'
-              '${ListCountDetailReportField.QTY} ${QuickTypes.INTEGER}'
-              ')');
     } catch (e, s) {
       printInfo(info: e.toString());
       printInfo(info: s.toString());
@@ -279,10 +252,10 @@ class ListCountDetailReportModel {
               data.STATUS_CHECK,
               data.STATUS_NAME,
               data.REMARK,
-              data.QTY,
               data.ASSET_SERIAL_NO,
               data.ASSET_DATE_OF_USE,
               data.CLASS_NAME,
+              data.QTY,
             ]);
         // //count process record
         // countRecord++;
