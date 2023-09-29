@@ -42,7 +42,7 @@ class CheckVersionAppDataBloc
           useAuth: false);
 
       CheckVersionModel result = CheckVersionModel.fromJson(response['data']);
-      printInfo(info: "UpdateNow123");
+      
 
       return result;
     } catch (e, s) {

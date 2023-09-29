@@ -1,18 +1,31 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
 import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
-import 'package:ams_count/blocs/bloc/check_version_app_data_bloc.dart';
+import 'package:ams_count/blocs/version/check_version_app_data_bloc.dart';
+import 'package:ams_count/data/network/providers/api_controller.dart';
 import 'package:ams_count/models/count/countPlanModel.dart';
 import 'package:ams_count/models/dashboard/dashboardAssetStatusModel.dart';
 import 'package:ams_count/widgets/alert.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_path_provider/android_path_provider.dart';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:get/get.dart';
+
 import 'package:iconforest_iconic/iconic.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../blocs/count/count_bloc.dart';
@@ -60,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   Timer? time;
   int currentImage = 0;
   PageController _pageController = PageController();
-
+  String _buildNumber = '';
   @override
   void initState() {
     appVersion = "";
@@ -128,9 +141,51 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       appVersion = '$version ($buildNumber)';
+      _buildNumber = buildNumber;
+      BlocProvider.of<CheckVersionAppDataBloc>(context)
+          .add(CheckAppVersionEvent(int.tryParse(_buildNumber)));
     });
-    BlocProvider.of<CheckVersionAppDataBloc>(context)
-        .add(CheckAppVersionEvent(int.tryParse(buildNumber)));
+  }
+
+  Future<void> downLoadFile() async {
+    try {
+      EasyLoading.show(status: "Loading ....");
+      var apiController = APIController();
+      var response =
+          await apiController.getData('App/Download', "", useAuth: false);
+
+      var directory = await AndroidPathProvider.downloadsPath;
+
+      var selectDirectory = directory;
+      var directoryExists = await Directory(selectDirectory).exists();
+      if (!directoryExists) {
+        await Directory(selectDirectory).create(recursive: true);
+      }
+      await FlutterDownloader.enqueue(
+          url: response['data'],
+          savedDir: selectDirectory,
+          saveInPublicStorage: true);
+
+      EasyLoading.showInfo("Success~${selectDirectory} ${response['data']}");
+      EasyLoading.dismiss();
+    } catch (e, s) {
+      EasyLoading.showError("$e $s");
+      print(e);
+      print(s);
+      throw Exception();
+    }
+  }
+
+  void _installApk(String filePath) async {
+    final intent = AndroidIntent(
+      action: 'action_view',
+      package: 'com.android.packageinstaller',
+      data: filePath,
+      type: 'application/vnd.android.package-archive',
+    );
+    await intent.launch();
+
+    EasyLoading.showSuccess("DownloadSuccess");
   }
 
   @override
@@ -144,15 +199,19 @@ class _HomePageState extends State<HomePage> {
           BlocListener<CheckVersionAppDataBloc, CheckVersionAppDataState>(
               listener: (context, state) async {
             if (state is CheckVersionLoadedState) {
-              // if (state.item.REQUIRE_UPDATE == true) {
-              //   AlertWarningNew().alertShowOK(context,
-              //       type: AlertType.warning,
-              //       title:
-              //           "ํเวอร์ชั่นที่ใช้ไม่ใช่เวอร์ชั่นปัจจุบัน กรุณาดาวน์โหลดเพื่อทำการอัพเดท",
-              //       onPress: () {
-              //     Navigator.pop(context);
-              //   }, text: Label("Download"));
-              // }
+              if (state.item.REQUIRE_UPDATE == true) {
+                if (await Permission.storage.request().isGranted) {
+                  AlertWarningNew().alertShowOK(context,
+                      type: AlertType.warning,
+                      title:
+                          "ํเวอร์ชั่นที่ใช้ไม่ใช่เวอร์ชั่นปัจจุบัน กรุณาดาวน์โหลดเพื่อทำการอัพเดท Version ล่าสุด 1.0.0.${state.item.BUILD_NUMBER}",
+                      onPress: () async {
+                    Navigator.pop(context);
+
+                    await downLoadFile();
+                  }, text: Label("Download"));
+                }
+              }
             }
           }),
           BlocListener<AssetsBloc, AssetsState>(

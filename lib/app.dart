@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:ams_count/blocs/asset/assets_bloc.dart';
 import 'package:ams_count/blocs/authenticate/authenticate_bloc.dart';
-import 'package:ams_count/blocs/bloc/check_version_app_data_bloc.dart';
+import 'package:ams_count/blocs/version/check_version_app_data_bloc.dart';
 import 'package:ams_count/blocs/report/report_bloc.dart';
 import 'package:ams_count/blocs/transfer/transfer_bloc.dart';
 import 'package:ams_count/models/count/CountScan_output.dart';
