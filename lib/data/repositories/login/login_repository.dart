@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 import '../../../config/app_data.dart';
 import '../../../main.dart';
@@ -16,20 +16,19 @@ import '../../models/test_unit/test_unit_request.dart';
 import '../../network/providers/api_controller.dart';
 
 class LoginRepository {
-
-  Future<DefaultResponse> LoginUser(String userName,String passWord) async {
+  Future<DefaultResponse> LoginUser(String userName, String passWord) async {
     DefaultResponse result = DefaultResponse();
     try {
-
       var params = {
         "username": userName,
         "password": passWord,
       };
 
       var apiController = APIController();
-      var response = await apiController.postData('Authenticate/login',params, useAuth: false);
+      var response = await apiController.postData('Authenticate/login', params,
+          useAuth: false);
 
-      if (response["token"] == null){
+      if (response["token"] == null) {
         var objJsonResponse = DefaultResponse.fromJson(response);
         return objJsonResponse;
       }
@@ -43,6 +42,7 @@ class LoginRepository {
       if (TokenResult.status == "SUCCESS") {
         result = objJsonResponse;
       } else {
+        printInfo(info: "WARINING");
         result = DefaultResponse();
         throw (objJsonResponse.message ?? "");
       }
@@ -53,6 +53,5 @@ class LoginRepository {
       rethrow;
     }
     return result;
-
   }
 }

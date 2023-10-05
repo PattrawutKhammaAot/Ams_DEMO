@@ -19,7 +19,7 @@ class Device {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       // if (androidInfo.id != null)
-        deviceIdentifier = androidInfo.id;
+      deviceIdentifier = androidInfo.id;
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       if (iosInfo.identifierForVendor != null) {

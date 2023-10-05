@@ -1,22 +1,15 @@
-import 'dart:io';
-
-import 'package:ams_count/config/api_path.dart';
-import 'package:ams_count/widgets/alert_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app.dart';
 
-import '../../../main.dart';
 //import '../../../blocs/home/home.dart';
 import '../../../config/app_constants.dart';
-import '../../../config/app_data.dart';
-import '../../../data/database/dbsqlite.dart';
-import '../../../widgets/widget.dart';
+
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -103,31 +96,7 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            // FloatingActionButton.extended(
-            //   onPressed: () {
-            //     Get.toNamed('/connectionSetting');
-            //   },
-            //   backgroundColor: colorPrimaryDark,
-            //   icon: const Icon(Icons.settings),
-            //   label: const Text('Setting Web'),
-            // ),
-            // SizedBox(
-            //   height: 30,
-            //   child: Column(
-            //     children: [
-            //       Text(
-            //         'Version ${_packageInfo.version}+${_packageInfo.buildNumber}',
-            //         style: const TextStyle(fontSize: 12),
-            //       ),
-            //       const Text(
-            //         'Modified On: 9 Sep 2023 ',
-            //         style: TextStyle(fontSize: 8),
-            //       ),
-            //     ],
-            //   ),
-            // )
-          ],
+          children: <Widget>[],
         ),
       ),
     );
@@ -219,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Modified On: 19 Sep 2023',
+                    'Modified On: 10 Oct 2023',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

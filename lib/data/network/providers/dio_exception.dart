@@ -24,18 +24,19 @@ class DioExceptions implements Exception {
         message = "Send timeout in connection with API server";
         break;
       case DioErrorType.unknown:
-        if(dioError.message != null) {
+        if (dioError.message != null) {
           if (dioError.message!.contains("SocketException")) {
             message = 'No Internet';
             break;
           }
         }
-        if(dioError.error != null) {
+        if (dioError.error != null) {
           if (dioError.error!.toString().contains("SocketException")) {
             message = 'No Internet';
             break;
           }
         }
+
         message = "Unexpected error occurred";
         break;
       default:

@@ -213,9 +213,6 @@ class CountBloc extends Bloc<CountEvent, CountState> {
 
       return post;
     } catch (e, s) {
-      print(e);
-      print(s);
-      EasyLoading.showError("$e");
       throw Exception();
     }
   }

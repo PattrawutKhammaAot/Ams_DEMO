@@ -35,12 +35,17 @@ class APIController {
                 'It is not possible to connect to the server at this time. The network connection was lost.',
             textConfirm: 'OK',
             onPressed: () {});
-      } else {
+      } else if (await AppData.getToken() != '') {
         AlertSnackBar.show(
             title: "Network Exception",
             message: exception.toString(),
             type: ReturnStatus.ERROR);
         //throw (exception.toString());
+      } else {
+        // AlertSnackBar.show(
+        //     title: "Network Exception",
+        //     message: exception.toString(),
+        //     type: ReturnStatus.ERROR);
       }
     } catch (e) {
       throw (e.toString());
@@ -160,6 +165,7 @@ class APIController {
       if (kDebugMode) {
         print(exception);
       }
+
       final errorMessage = DioExceptions.fromDioError(exception).toString();
       await exceptionHandle(errorMessage);
       //Alert.show(message: errorMessage, type: ReturnStatus.ERROR);
@@ -182,32 +188,6 @@ class APIController {
       var resp = await appService.postJson(function, data, useAuth: useAuth);
 
       if (resp.statusCode == 200) {
-        // if (resp.data["status_code"] == "LOGOUT") {
-        //   Alert.show(message: 'Session timeout', type: ReturnStatus.WARNING);
-        //   navigateToLogin();
-        //   return;
-        // }
-        //
-        // if (resp.data["status_code"] == "SUCCESS") {
-        //   if (resp.data["message"] != 'Search Success' &&
-        //       resp.data["message"] != 'Get Success' &&
-        //       resp.data["message"] != '') {
-        //     Alert.show(
-        //         message: resp.data["message"],
-        //         type: statusFromString(
-        //             ReturnStatus.values, resp.data["status_code"]));
-        //   }
-        //   return resp.data;
-        // } else {
-        //   if (kDebugMode) {
-        //     print("Failed to call post");
-        //   }
-        //   Alert.show(
-        //       message: resp.data["message"],
-        //       type: statusFromString(
-        //           ReturnStatus.values, resp.data["status_code"]));
-        //   return resp.data;
-        // }
         return resp.data;
       } else if (resp.statusCode == 401) {
         navigateToLogin();

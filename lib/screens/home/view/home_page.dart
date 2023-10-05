@@ -95,8 +95,12 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       autoChangeImage();
     });
-
+    _initApi().then((value) => null);
     super.initState();
+  }
+
+  _initApi() async {
+    if (await AppData.getToken() != '') {}
   }
 
   @override
@@ -161,13 +165,25 @@ class _HomePageState extends State<HomePage> {
       if (!directoryExists) {
         await Directory(selectDirectory).create(recursive: true);
       }
+
+      // เริ่มดาวน์โหลดและรอให้เสร็จสิ้น
       await FlutterDownloader.enqueue(
-          url: response['data'],
-          savedDir: selectDirectory,
-          saveInPublicStorage: true);
+        url: response['data'],
+        savedDir: selectDirectory,
+        saveInPublicStorage: true,
+      );
+
+      // รอจนกว่าการดาวน์โหลดจะเสร็จสิ้น
+      bool isDownloading = true;
+      while (isDownloading) {
+        await Future.delayed(Duration(seconds: 1));
+        isDownloading = await checkIfDownloadsInProgress();
+      }
 
       EasyLoading.showInfo("Success~${selectDirectory} ${response['data']}");
+
       EasyLoading.dismiss();
+      exit(0);
     } catch (e, s) {
       EasyLoading.showError("$e $s");
       print(e);
@@ -176,16 +192,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _installApk(String filePath) async {
-    final intent = AndroidIntent(
-      action: 'action_view',
-      package: 'com.android.packageinstaller',
-      data: filePath,
-      type: 'application/vnd.android.package-archive',
-    );
-    await intent.launch();
+  Future<bool> checkIfDownloadsInProgress() async {
+    final tasks = await FlutterDownloader.loadTasks();
 
-    EasyLoading.showSuccess("DownloadSuccess");
+    if (tasks != null) {
+      for (final task in tasks) {
+        if (task.status == DownloadTaskStatus.running ||
+            task.status == DownloadTaskStatus.enqueued) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   @override

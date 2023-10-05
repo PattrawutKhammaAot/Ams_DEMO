@@ -128,7 +128,7 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) async {
             if (state is AuthInitial) {
               String _test = await AppData.getToken();
-              printInfo(info: "$_test");
+              EasyLoading.dismiss();
               if (_test != "") {
                 Get.toNamed('/');
 
