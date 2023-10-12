@@ -328,6 +328,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
     token = await AppData.getToken();
 
     printInfo(info: "${output[0].toJson()}");
+    print(output[0].toJson());
 
     try {
       Response responese = await dio.post(
@@ -417,6 +418,7 @@ class CountBloc extends Bloc<CountEvent, CountState> {
   Future<CountScanMain> fetchCountNewAssetNewPlan(
       TempCountScan_OutputModel output) async {
     printInfo(info: "TestSendNotPlan Bloc ${output.toJson()}");
+    print(output.toJson());
     late String token = "";
     token = await AppData.getToken();
     var configHost = await AppData.getApiUrl();

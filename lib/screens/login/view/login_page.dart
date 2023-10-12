@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    'Modified On: 10 Oct 2023',
+                    'Modified On: 12 Oct 2023',
                     style: TextStyle(fontSize: 8),
                   ),
                 ],

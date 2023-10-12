@@ -854,12 +854,38 @@ class _ScanPageState extends State<ScanPage> {
           }
 
           if (state is PostCountSaveNewAssetNewPlanLoadedState) {
-            AlertSnackBar.show(
-                title: 'Warning',
-                message: "${state.item.MESSAGE}",
-                type: ReturnStatus.WARNING,
-                crossPage: true);
-            EasyLoading.showSuccess("Success");
+            CountScanAssetsModel __itemCountListModel = CountScanAssetsModel();
+            if (state.item.DATA != null) {
+              __itemCountListModel =
+                  CountScanAssetsModel.fromJson(state.item.DATA);
+              _serialNumberController.text =
+                  __itemCountListModel.ASSET_SERIALNO ?? "-";
+              _nameController.text = __itemCountListModel.ASSETNAME ?? "-";
+              _classController.text = __itemCountListModel.CLASSNAME ?? "-";
+              _remarkController.text = __itemCountListModel.REMARK ?? "";
+              _assetNoController.text = __itemCountListModel.ASSET_CODE ?? "";
+              _serialNumberController.text =
+                  __itemCountListModel.ASSET_SERIALNO ?? "";
+              _useDateController.text =
+                  __itemCountListModel.ASSET_DATEOFUSE ?? "-";
+              statusId = 15;
+
+              DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
+              String formattedDate = parsedDate != null
+                  ? DateFormat("yyyy-MM-dd").format(parsedDate)
+                  : "-";
+              _useDateController.text = formattedDate;
+              _barcodeFocusNode.requestFocus();
+              _barCodeController.clear();
+              _remarkController.text = '-';
+              setState(() {});
+              AlertSnackBar.show(
+                  title: 'Warning',
+                  message: "${state.item.MESSAGE}",
+                  type: ReturnStatus.WARNING,
+                  crossPage: true);
+              EasyLoading.showSuccess("Success");
+            }
           }
 
           if (state is PostCountScanAlreadyCheckLoadedState) {
