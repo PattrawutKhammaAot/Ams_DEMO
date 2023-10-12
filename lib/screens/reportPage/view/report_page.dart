@@ -117,8 +117,7 @@ class _ReportPageState extends State<ReportPage> {
                 .length
                 .toString();
             setState(() {});
-            printInfo(info: "UNcheck");
-            setState(() {});
+
           }
         })
       ],
@@ -275,7 +274,7 @@ class _ReportPageState extends State<ReportPage> {
                                                   },
                                                   item: itemCountDetail[index],
                                                 )
-                                              : SizedBox.shrink();
+                                              : SizedBox.fromSize();
                                         })))
                                 : const Expanded(
                                     child: Align(
@@ -285,7 +284,9 @@ class _ReportPageState extends State<ReportPage> {
                                             CrossAxisAlignment.center,
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
-                                        children: [],
+                                        children: [
+                                          // CircularProgressIndicator()
+                                        ],
                                       ),
                                     ),
                                   )
@@ -386,7 +387,7 @@ class _ReportPageState extends State<ReportPage> {
                                         ),
                                       ],
                                     )
-                                  : CircularProgressIndicator(),
+                                  : SizedBox.fromSize(),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment: MainAxisAlignment.end,

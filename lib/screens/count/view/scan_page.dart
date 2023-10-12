@@ -105,30 +105,10 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  void _validateDropdown() {
-    if (_departmentController.text.isEmpty &&
-        _locationController.text.isEmpty) {
-      formKeyList[1].currentState!.validate();
-    } else if (_locationController.text.isEmpty &&
-            _departmentController.text.isNotEmpty ||
-        _departmentController.text.isEmpty &&
-            _locationController.text.isNotEmpty ||
-        _departmentController.text.isNotEmpty &&
-            _locationController.text.isNotEmpty) {
-      formKeyList[1].currentState!.validate();
-      isCheckdropdown = true;
-      setState(() {});
-    } else {
-      print(_departmentController.text);
-      print(_locationController.text);
-    }
-  }
-
   Future _buttonSaveFunc({String? type}) async {
     if (_departmentController.text.isNotEmpty ||
         _locationController.text.isNotEmpty) {
       if (await AppData.getMode() == "Offline") {
-        printInfo(info: "offline");
         if (typePage == "reportPage") {
           String statusName = _statusAssetCountModel
                   .firstWhere((element) => element.STATUS_ID == statusId)
@@ -378,7 +358,7 @@ class _ScanPageState extends State<ScanPage> {
                     DEPARTMENT_NAME:
                         "-")) // ใส่ค่าเริ่มต้น "-" เมื่อไม่พบข้อมูล
             .DEPARTMENT_NAME;
-        await ListCountDetailReportModel().insertNot({
+        await ListCountDetailReportModel().insertNotPlan({
           'planCode': planCode,
           'assetCode': item.ASSET_CODE,
           'assetName': item.ASSET_NAME,
@@ -397,7 +377,8 @@ class _ScanPageState extends State<ScanPage> {
         });
         setState(() {});
 
-        await _setValueTableCountScanOutputForScanBarcode(status: "notPlan");
+        await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi(
+            status: "notPlan");
         _barCodeController.clear();
         Navigator.pop(context);
       }, onBack: () {
@@ -411,7 +392,7 @@ class _ScanPageState extends State<ScanPage> {
       if (departmentId == 0 && locationId != 0) {
         if (locationId == itemId.BEFORE_LOCATION_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         } else {
           AlertSnackBar.show(
@@ -420,14 +401,14 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         }
       } // select Department Only
       else if (departmentId != 0 && locationId == 0) {
         if (departmentId == itemId.BEFORE_DEPARTMENT_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         } else {
           AlertSnackBar.show(
@@ -436,7 +417,7 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         }
       }
@@ -445,7 +426,7 @@ class _ScanPageState extends State<ScanPage> {
         if (departmentId == itemId.BEFORE_DEPARTMENT_ID &&
             locationId == itemId.BEFORE_LOCATION_ID) {
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         } else {
           AlertSnackBar.show(
@@ -454,7 +435,7 @@ class _ScanPageState extends State<ScanPage> {
               type: ReturnStatus.WARNING,
               crossPage: true);
           _checkStatus(itemId, onPress: () async {
-            await _setValueTableCountScanOutputForScanBarcode();
+            await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
           });
         }
       }
@@ -522,15 +503,14 @@ class _ScanPageState extends State<ScanPage> {
 
   _setValueUpdateTableCountScanOutputModelForButtonSaved() async {
     var item = await CountScan_OutputModel().queryAllRows();
-    bool foundMatch =
-        false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
+    bool foundMatch = false;
     var itemList = await ListCountDetailReportModel()
         .queryPlanAndAsset(plan: planCode, asset: _barCodeController.text);
     for (var items in item) {
       if (items[CountScanOutputField.ASSETS_CODE] == _barCodeController.text &&
           items[CountScanOutputField.PLAN_CODE] == planCode) {
-        foundMatch = true; // ตั้งค่าเป็น true เมื่อพบข้อมูลที่ตรงกับเงื่อนไข
-        break; // หยุดลูปเมื่อพบข้อมูลที่ตรงกับเงื่อนไข
+        foundMatch = true;
+        break;
       }
     }
     String? _statusChecked;
@@ -538,17 +518,13 @@ class _ScanPageState extends State<ScanPage> {
     for (var items in itemList) {
       if (items[ListCountDetailReportField.STATUS_CHECK] == "Checked") {
         _statusChecked = "AlreadyChecked";
-        printInfo(info: "_statusChecked");
       } else {
         _statusChecked = "Checked";
-        printInfo(info: "Checked");
       }
     }
     setState(() {});
 
-    printInfo(info: "${_statusChecked}");
     if (!foundMatch) {
-      // ถ้าไม่พบข้อมูลที่ตรงกับเงื่อนไข ให้ทำการเพิ่มข้อมูล
       await CountScan_OutputModel()
           .insert(CountScan_OutputModel(
         ASSETS_CODE: _barCodeController.text,
@@ -573,7 +549,8 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  _setValueTableCountScanOutputForScanBarcode({String? status}) async {
+  _insertOrUpdateValueTableCountScanOutputForWaitingSendApi(
+      {String? status}) async {
     var item = await CountScan_OutputModel().queryAllRows();
     bool foundMatch =
         false; // เพิ่มตัวแปรนี้เพื่อตรวจสอบว่าพบข้อมูลที่ตรงกับเงื่อนไขหรือไม่
@@ -690,7 +667,7 @@ class _ScanPageState extends State<ScanPage> {
       }
       statsCheck = "Checked";
       await _setUpdateTableListCountPlanField(itemModel);
-      await _setValueTableCountScanOutputForScanBarcode();
+      await _insertOrUpdateValueTableCountScanOutputForWaitingSendApi();
       setState(() {
         _barCodeController.clear();
       });

@@ -223,64 +223,54 @@ class ListCountDetailReportModel {
   }
 
   Future<void> batchInsert(List<ListCountDetailReportModel> dataList) async {
+    final db = await databaseInitialState.database;
+    final batch = db.batch();
     try {
-      final db = await databaseInitialState.database;
-      final batch = db.batch();
       // int totalRecord = dataList.length;
       // int countRecord = 0;
 
-      for (final data in dataList) {
-        batch.rawInsert(
-            'INSERT INTO ${ListCountDetailReportField.TABLE_NAME}(${ListCountDetailReportField.PLAN_CODE},${ListCountDetailReportField.ASSET_CODE},${ListCountDetailReportField.ASSET_NAME},${ListCountDetailReportField.BEFORE_LOCATION_ID},${ListCountDetailReportField.BEFORE_LOCATION_CODE},${ListCountDetailReportField.BEFORE_LOCATION_NAME},${ListCountDetailReportField.NEW_LOCATION_ID},${ListCountDetailReportField.NEW_LOCATION_CODE},${ListCountDetailReportField.NEW_LOCATION_NAME},${ListCountDetailReportField.BEFORE_DEPARTMENT_ID},${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE},${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME},${ListCountDetailReportField.NEW_DEPARTMENT_ID},${ListCountDetailReportField.NEW_DEPARTMENT_CODE},${ListCountDetailReportField.NEW_DEPARTMENT_NAME},${ListCountDetailReportField.CHECK_DATE},${ListCountDetailReportField.STATUS_CHECK},${ListCountDetailReportField.STATUS_NAME},${ListCountDetailReportField.REMARK},${ListCountDetailReportField.ASSET_SERIAL_NO},${ListCountDetailReportField.ASSET_DATE_OF_USE},${ListCountDetailReportField.CLASS_NAME},${ListCountDetailReportField.QTY}) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            [
-              data.PLAN_CODE,
-              data.ASSET_CODE,
-              data.ASSET_NAME,
-              data.BEFORE_LOCATION_ID,
-              data.BEFORE_LOCATION_CODE,
-              data.BEFORE_LOCATION_NAME,
-              data.NEW_LOCATION_ID,
-              data.NEW_LOCATION_CODE,
-              data.NEW_LOCATION_NAME,
-              data.BEFORE_DEPARTMENT_ID,
-              data.BEFORE_DEPARTMENT_CODE,
-              data.BEFORE_DEPARTMENT_NAME,
-              data.NEW_DEPARTMENT_ID,
-              data.NEW_DEPARTMENT_CODE,
-              data.NEW_DEPARTMENT_NAME,
-              data.CHECK_DATE,
-              data.STATUS_CHECK,
-              data.STATUS_NAME,
-              data.REMARK,
-              data.ASSET_SERIAL_NO,
-              data.ASSET_DATE_OF_USE,
-              data.CLASS_NAME,
-              data.QTY,
-            ]);
-        // //count process record
-        // countRecord++;
+      await db.transaction((txn) async {
+        final batch = txn.batch();
 
-        // //calculate percen for import
-        // double progress = (countRecord / totalRecord).clamp(0.0, 1.0);
-        // int percentage = (progress * 100).toInt();
+        for (final data in dataList) {
+          batch.rawInsert(
+              'INSERT INTO ${ListCountDetailReportField.TABLE_NAME}(${ListCountDetailReportField.PLAN_CODE},${ListCountDetailReportField.ASSET_CODE},${ListCountDetailReportField.ASSET_NAME},${ListCountDetailReportField.BEFORE_LOCATION_ID},${ListCountDetailReportField.BEFORE_LOCATION_CODE},${ListCountDetailReportField.BEFORE_LOCATION_NAME},${ListCountDetailReportField.NEW_LOCATION_ID},${ListCountDetailReportField.NEW_LOCATION_CODE},${ListCountDetailReportField.NEW_LOCATION_NAME},${ListCountDetailReportField.BEFORE_DEPARTMENT_ID},${ListCountDetailReportField.BEFORE_DEPARTMENT_CODE},${ListCountDetailReportField.BEFORE_DEPARTMENT_NAME},${ListCountDetailReportField.NEW_DEPARTMENT_ID},${ListCountDetailReportField.NEW_DEPARTMENT_CODE},${ListCountDetailReportField.NEW_DEPARTMENT_NAME},${ListCountDetailReportField.CHECK_DATE},${ListCountDetailReportField.STATUS_CHECK},${ListCountDetailReportField.STATUS_NAME},${ListCountDetailReportField.REMARK},${ListCountDetailReportField.ASSET_SERIAL_NO},${ListCountDetailReportField.ASSET_DATE_OF_USE},${ListCountDetailReportField.CLASS_NAME},${ListCountDetailReportField.QTY}) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+              [
+                data.PLAN_CODE,
+                data.ASSET_CODE,
+                data.ASSET_NAME,
+                data.BEFORE_LOCATION_ID,
+                data.BEFORE_LOCATION_CODE,
+                data.BEFORE_LOCATION_NAME,
+                data.NEW_LOCATION_ID,
+                data.NEW_LOCATION_CODE,
+                data.NEW_LOCATION_NAME,
+                data.BEFORE_DEPARTMENT_ID,
+                data.BEFORE_DEPARTMENT_CODE,
+                data.BEFORE_DEPARTMENT_NAME,
+                data.NEW_DEPARTMENT_ID,
+                data.NEW_DEPARTMENT_CODE,
+                data.NEW_DEPARTMENT_NAME,
+                data.CHECK_DATE,
+                data.STATUS_CHECK,
+                data.STATUS_NAME,
+                data.REMARK,
+                data.ASSET_SERIAL_NO,
+                data.ASSET_DATE_OF_USE,
+                data.CLASS_NAME,
+                data.QTY,
+              ]);
+        }
 
-        // //set ststus show in loading
-        // String statusText =
-        //     "Importing \n$percentage% \n$countRecord/$totalRecord";
-
-        // //show loading
-        // EasyLoading.showProgress(progress, status: statusText);
-        // EasyLoading.dismiss();
-      }
-
-      final results = await batch.commit(noResult: true);
+        await batch.commit(continueOnError: true);
+      });
     } on Exception catch (ex) {
       print(ex);
       rethrow;
     }
   }
 
-  Future<int> insertNot(Map<String, dynamic> data) async {
+  Future<int> insertNotPlan(Map<String, dynamic> data) async {
     printInfo(info: "$data");
     try {
       final db = await databaseInitialState.database;
