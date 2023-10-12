@@ -48,10 +48,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           printInfo(info: "${response.result}");
           if (response.result == "SUCCESS") {
             emit(state.copyWith(status: FetchStatus.success));
-            EasyLoading.showSuccess("Success !!!!!!!!!!!!!!");
+            EasyLoading.showSuccess("Success !");
             Get.toNamed('/');
             print("SUCCESS");
           } else if (response.result == 'WARNING') {
+            EasyLoading.showError(response.message!);
             printInfo(info: "Test");
           } else {
             emit(state.copyWith(status: FetchStatus.failed));

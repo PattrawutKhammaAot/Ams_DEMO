@@ -377,7 +377,7 @@ class _CountPageState extends State<CountPage> {
                                                                     ? colorActive
                                                                     : colorPrimary,
                                                                 borderRadius: const BorderRadius
-                                                                        .only(
+                                                                    .only(
                                                                     topLeft: Radius
                                                                         .circular(
                                                                             12),
@@ -406,7 +406,7 @@ class _CountPageState extends State<CountPage> {
                                         ),
                                       ),
                                     )
-                                  : null;
+                                  : CircularProgressIndicator();
                             },
                           ),
                         ),

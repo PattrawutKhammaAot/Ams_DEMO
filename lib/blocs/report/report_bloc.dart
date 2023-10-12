@@ -39,7 +39,6 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
 
       if (response['message'] == "SUCCESS") {
         var itemData = response['data'];
-
         List<ListCountDetailReportModel> post = itemData
             .map<ListCountDetailReportModel>(
                 (json) => ListCountDetailReportModel.fromJson(json))
