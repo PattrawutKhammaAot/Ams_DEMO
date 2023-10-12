@@ -153,16 +153,8 @@ class _ScanPageState extends State<ScanPage> {
             .then((value) {
           if (typePage != "reportPage") {
             _barcodeFocusNode.requestFocus();
-            // _assetNoController.clear();
-            // _nameController.clear();
-            // _serialNumberController.clear();
-            // _classController.clear();
-            // _useDateController.clear();
-            _barCodeController.clear();
-            // _remarkController.clear();
-            // _barcodeFocusNode.requestFocus();
 
-            // statusId = 15;
+            _barCodeController.clear();
           }
         });
 
@@ -195,16 +187,7 @@ class _ScanPageState extends State<ScanPage> {
             statusId: _statusId,
             remark: _remarkController.text,
             statusCheck: "Checked");
-        // _assetNoController.clear();
-        // _nameController.clear();
-        // _serialNumberController.clear();
-        // _classController.clear();
-        // _useDateController.clear();
-        // _barCodeController.clear();
-        // _remarkController.clear();
-        // _barcodeFocusNode.requestFocus();
 
-        // statusId = 15;
         setState(() {});
       }
     }
@@ -807,6 +790,7 @@ class _ScanPageState extends State<ScanPage> {
                         CHECK_DATE: DateTime.now().toIso8601String())));
                 _barCodeController.clear();
                 _barcodeFocusNode.requestFocus();
+
                 Navigator.pop(context);
               }, onBack: () {
                 Navigator.pop(context);
@@ -870,6 +854,11 @@ class _ScanPageState extends State<ScanPage> {
           }
 
           if (state is PostCountSaveNewAssetNewPlanLoadedState) {
+            AlertSnackBar.show(
+                title: 'Warning',
+                message: "${state.item.MESSAGE}",
+                type: ReturnStatus.WARNING,
+                crossPage: true);
             EasyLoading.showSuccess("Success");
           }
 
@@ -1105,6 +1094,7 @@ class _ScanPageState extends State<ScanPage> {
                             if (formKeyList[1].currentState!.validate()) {
                               if (departmentId != 0 || locationId != 0) {
                                 _remarkController.text = '-';
+
                                 BlocProvider.of<CountBloc>(context)
                                     .add(PostCountScanAssetListEvent([
                                   TempCountScan_OutputModel(
