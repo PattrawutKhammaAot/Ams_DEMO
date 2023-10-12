@@ -84,10 +84,10 @@ class _HomePageState extends State<HomePage> {
     BlocProvider.of<CountBloc>(context).add(const GetLocationEvent());
     BlocProvider.of<CountBloc>(context).add(const GetDepartmentEvent());
     BlocProvider.of<CountBloc>(context).add(const GetStatusAssetsCountEvent());
-    BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckAllTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckTotalEvent());
     BlocProvider.of<CountBloc>(context).add(const CheckUncheckEvent());
+    BlocProvider.of<CountBloc>(context).add(const GetListCountPlanEvent());
     BlocProvider.of<ReportBloc>(context)
         .add(GetListCountDetailForReportEvent(""));
     BlocProvider.of<AssetsBloc>(context)
@@ -95,12 +95,8 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       autoChangeImage();
     });
-    _initApi().then((value) => null);
-    super.initState();
-  }
 
-  _initApi() async {
-    if (await AppData.getToken() != '') {}
+    super.initState();
   }
 
   @override
@@ -279,7 +275,7 @@ class _HomePageState extends State<HomePage> {
             if (state is LogoutLoadedState) {
               await AppData.setToken("");
               Get.toNamed('/Login');
-            } else {
+            } else if (state is LogoutErrorState) {
               AlertSnackBar.show(
                   title: "Internet Exception",
                   message: "Please Connection For Logout");
