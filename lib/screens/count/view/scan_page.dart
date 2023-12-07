@@ -265,13 +265,17 @@ class _ScanPageState extends State<ScanPage> {
             arguments?['use.date'] ?? _useDateController.text;
       });
       if (arguments?['statusName'] != "-") {
-        statusId = _statusAssetCountModel
+        statusId = (_statusAssetCountModel
                 .firstWhere((element) =>
                     element.STATUS_NAME == arguments?['statusName'])
                 .STATUS_ID ??
-            15;
+            _statusAssetCountModel
+                .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                .STATUS_ID)!;
       } else {
-        statusId = 15;
+        _statusAssetCountModel
+            .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+            .STATUS_ID;
       }
     } else {
       scanDate.text = DateFormat("yyyy-MM-dd").format(DateTime.now());
@@ -285,7 +289,7 @@ class _ScanPageState extends State<ScanPage> {
 
   _setvalueCountScanWhenCallApiError() async {
     var itemSql = await ListCountDetailReportModel()
-        .querySelectColumn(assetCode: _barCodeController.text);
+        .querySelectColumn(assetCode: _barCodeController.text.trim());
     List<ListCountDetailReportModel> itemModel = [];
 
     if (itemSql.isNotEmpty) {
@@ -320,13 +324,17 @@ class _ScanPageState extends State<ScanPage> {
         _serialNumberController.text = item.ASSET_SERIAL_NO ?? "-";
         _useDateController.text = item.ASSET_DATE_OF_USE ?? "-";
         if (item.STATUS_NAME != null) {
-          statusId = _statusAssetCountModel
+          statusId = (_statusAssetCountModel
                   .firstWhere(
                       (element) => element.STATUS_NAME == item.STATUS_NAME)
                   .STATUS_ID ??
-              15;
+              _statusAssetCountModel
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                  .STATUS_ID)!;
         } else {
-          statusId = 15;
+          _statusAssetCountModel
+              .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+              .STATUS_ID;
           setState(() {});
         }
         String? locationName = _locationModel
@@ -606,15 +614,19 @@ class _ScanPageState extends State<ScanPage> {
         _useDateController.text = itemModel.ASSET_DATE_OF_USE ?? "-";
 
         if (itemModel.STATUS_NAME != null) {
-          statusId = _statusAssetCountModel
+          statusId = (_statusAssetCountModel
                   .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                   .STATUS_ID ??
-              15;
+              _statusAssetCountModel
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                  .STATUS_ID)!;
         } else {
-          statusId = _statusAssetCountModel
+          statusId = (_statusAssetCountModel
                   .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                   .STATUS_ID ??
-              15;
+              _statusAssetCountModel
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                  .STATUS_ID)!;
         }
         await _setUpdateTableListCountPlanField(itemModel);
         statsCheck = "AlreadyChecked";
@@ -639,12 +651,16 @@ class _ScanPageState extends State<ScanPage> {
       _useDateController.text = itemModel.ASSET_DATE_OF_USE ?? "-";
 
       if (itemModel.STATUS_NAME != null) {
-        statusId = _statusAssetCountModel
+        statusId = (_statusAssetCountModel
                 .firstWhere((element) => element.STATUS_NAME == "ปกติ")
                 .STATUS_ID ??
-            15;
+            _statusAssetCountModel
+                .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                .STATUS_ID)!;
       } else {
-        statusId = 15;
+        statusId = _statusAssetCountModel
+            .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+            .STATUS_ID!;
 
         setState(() {});
       }
@@ -732,7 +748,9 @@ class _ScanPageState extends State<ScanPage> {
                   itemCountListModel.ASSET_SERIALNO ?? "";
               _useDateController.text =
                   itemCountListModel.ASSET_DATEOFUSE ?? "-";
-              statusId = 15;
+              statusId = _statusAssetCountModel
+                  .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                  .STATUS_ID!;
 
               DateTime? parsedDate = DateTime.tryParse(_useDateController.text);
               String formattedDate = parsedDate != null
@@ -901,13 +919,17 @@ class _ScanPageState extends State<ScanPage> {
               _serialNumberController.text = state.item.ASSET_SERIALNO ?? "";
               _useDateController.text = state.item.ASSET_DATEOFUSE ?? "-";
               if (state.item.STATUS_NAME != null) {
-                statusId = _statusAssetCountModel
+                statusId = (_statusAssetCountModel
                         .firstWhere((element) =>
                             element.STATUS_NAME == state.item.STATUS_NAME)
                         .STATUS_ID ??
-                    15;
+                    _statusAssetCountModel
+                        .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                        .STATUS_ID)!;
               } else {
-                statusId = 15;
+                statusId = _statusAssetCountModel
+                    .firstWhere((element) => element.STATUS_NAME == "ปกติ")
+                    .STATUS_ID!;
               }
             }
 
